@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Encodings.Web;
 
-namespace MvcMovie.Controllers;
+namespace CocktailMaker.Controllers;
 
-public class HelloWorldController : Controller
+public class AgentController : Controller
 {
     // 
-    // GET: /HelloWorld/
+    // GET: /Agent/
     public string Index()
     {
         return "This is my default action...";
     }
     // 
-    // GET: /HelloWorld/Welcome/ 
+    // GET: /Agent/Welcome/ 
     public string Welcome()
     {
         return "This is the Welcome action method...";
