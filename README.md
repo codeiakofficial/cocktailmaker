@@ -8,7 +8,7 @@
 
 - Create `RecipeController`
     - CRUD: Recipes
-- Create `IngredientsController`
+- Create `IngredientController`
     - CRUD: Ingredients
 - Create `AgentController`
 - Create **Backup and Restore**
