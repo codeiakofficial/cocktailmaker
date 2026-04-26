@@ -17,6 +17,7 @@
 
 # Extensions
 bin
+src/data
 
 # Mono auto generated files
 mono_crash.*
