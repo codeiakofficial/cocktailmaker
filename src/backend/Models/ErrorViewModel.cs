@@ -1,4 +1,4 @@
-namespace backend.Models;
+namespace CocktailMaker.Models;
 
 public class ErrorViewModel
 {

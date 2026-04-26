@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using backend.Models;
+using CocktailMaker.Models;
 
-namespace backend.Controllers;
+namespace CocktailMaker.Controllers;
 
 public class HomeController : Controller
 {
