@@ -5,8 +5,7 @@
 ## Getting Started
 
 ``` bash
-docker build -t cocktailmaker . &&\
-docker run cocktailmaker -it --rm -p 8080:8080
+docker-compose -p cocktailmaker up
 ```
 
 ## Todos

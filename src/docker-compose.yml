@@ -1,0 +1,9 @@
+#docker-compose.yml (Base)
+version: '3.4'
+services:
+  cocktailmaker:
+    image: cocktailmaker:${TAG:-latest}
+    build:
+      context: .
+    ports:
+      - "8080:8080"
