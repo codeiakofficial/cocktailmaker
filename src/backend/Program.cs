@@ -1,5 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using CocktailMaker.Data.Contexts;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,9 @@ builder.Services.AddControllersWithViews();
 // Configure SQLite database
 builder.Services.AddDbContext<CocktailDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add support for OpenAPI
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -22,6 +27,8 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
+    app.MapScalarApiReference();
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
