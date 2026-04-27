@@ -1,8 +1,8 @@
 namespace CocktailMaker.Data.Entities;
 public class Ingredient
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public double Quantity { get; set; }
-    public string Unit => "ml";
+    public string Unit { get; set; } = "ml";
+    public List<int> UsedInRecipes { get; set; } = new();
 }
