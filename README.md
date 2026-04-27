@@ -12,7 +12,6 @@ docker-compose -p cocktailmaker up
 
 ### Backend
 
-- Create Databases and Tables
 - Create `RecipeController`
     - CRUD: Recipes
 - Create `IngredientController`
