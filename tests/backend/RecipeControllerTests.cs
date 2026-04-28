@@ -6,19 +6,24 @@ using CocktailMaker.Data.Contexts;
 namespace CocktailMaker.Tests;
 public class RecipeControllerTests
 {
-    [Fact]
-    public async Task CreateRecipe()
+    private DbContextOptions<CocktailDbContext> _options;
+
+    public RecipeControllerTests()
     {
         var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
 
-        var options = new DbContextOptionsBuilder<CocktailDbContext>().UseSqlite(connection).Options;
-        using (var context = new CocktailDbContext(options))
+        _options = new DbContextOptionsBuilder<CocktailDbContext>().UseSqlite(connection).Options;
+        using (var context = new CocktailDbContext(_options))
         {
             context.Database.EnsureCreated();
         }
+    }
 
-        using (var context = new CocktailDbContext(options))
+    [Fact]
+    public async Task CreateRecipe()
+    {
+        using (var context = new CocktailDbContext(_options))
         {
             RecipeController controller = new RecipeController(context);
             await controller.CreateRecipe(new Models.DTOs.CreateRecipeDto
@@ -28,7 +33,7 @@ public class RecipeControllerTests
             });
         }
         
-        using (var context = new CocktailDbContext(options))
+        using (var context = new CocktailDbContext(_options))
         {
             var recipe = context.Recipes.ToList().FirstOrDefault();
             Assert.Equal(1, recipe?.Id);
