@@ -12,8 +12,7 @@ docker-compose -p cocktailmaker up
 
 ### Backend
 
-- Create `RecipeController`
-    - CRUD: Recipes
+- API Tests
 - Create `IngredientController`
     - CRUD: Ingredients
 - Create `AgentController`
