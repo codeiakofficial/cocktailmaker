@@ -13,7 +13,7 @@ docker-compose -p cocktailmaker up
 
 ### Backend
 
-- API Tests
+- Execute CI Tests
 - Create `IngredientController`
     - CRUD: Ingredients
 - Create `AgentController`
