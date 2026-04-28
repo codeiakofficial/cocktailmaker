@@ -5,6 +5,7 @@
 ## Getting Started
 
 ``` bash
+docker-compose -p cocktailmaker build
 docker-compose -p cocktailmaker up
 ```
 
