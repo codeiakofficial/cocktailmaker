@@ -1,8 +1,8 @@
+using CocktailMaker.Data.Contexts;
+using CocktailMaker.Data.Entities;
+using CocktailMaker.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CocktailMaker.Data.Contexts;
-using CocktailMaker.Models.DTOs;
-using System.Text.Json;
 
 namespace CocktailMaker.Controllers;
 
@@ -21,10 +21,15 @@ public class RecipeController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RecipeDto>>> GetRecipes()
     {
-        var recipes = await _context.Recipes
-            .ToListAsync();
+        var recipes = await _context.Recipes.ToListAsync();
 
-        var recipeDtos = recipes.Select(r => new RecipeDto(r.Id, r.Name, JsonSerializer.Deserialize<List<string>>(r.Ingredients) ?? new List<string>())).ToList();
+        var recipeDtos = recipes
+            .Select(r => new RecipeDto(
+                r.Id,
+                r.Name,
+                r.RecipeIngredients ?? new List<RecipeIngredient>()
+            ))
+            .ToList();
 
         return Ok(recipeDtos);
     }
@@ -33,14 +38,17 @@ public class RecipeController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RecipeDto>> GetRecipe(int id)
     {
-        var recipe = await _context.Recipes
-            .FirstOrDefaultAsync(r => r.Id == id);
+        var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
 
         if (recipe == null)
         {
             return NotFound();
         }
-        var recipeDto = new RecipeDto(recipe.Id, recipe.Name, JsonSerializer.Deserialize<List<string>>(recipe.Ingredients) ?? new List<string>());
+        var recipeDto = new RecipeDto(
+            recipe.Id,
+            recipe.Name,
+            recipe.RecipeIngredients ?? new List<RecipeIngredient>()
+        );
         return Ok(recipeDto);
     }
 
@@ -51,13 +59,17 @@ public class RecipeController : ControllerBase
         var recipe = new Data.Entities.Recipe
         {
             Name = createDto.Name,
-            Ingredients = JsonSerializer.Serialize(createDto.Ingredients)
+            RecipeIngredients = createDto.RecipeIngredients ?? new List<RecipeIngredient>(),
         };
 
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
 
-        var recipeDto = new RecipeDto(recipe.Id, recipe.Name, JsonSerializer.Deserialize<List<string>>(recipe.Ingredients) ?? new List<string>());
+        var recipeDto = new RecipeDto(
+            recipe.Id,
+            recipe.Name,
+            recipe.RecipeIngredients ?? new List<RecipeIngredient>()
+        );
         return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
     }
 
@@ -65,8 +77,7 @@ public class RecipeController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRecipe(int id, [FromBody] UpdateRecipeDto updateDto)
     {
-        var recipe = await _context.Recipes
-            .FirstOrDefaultAsync(r => r.Id == id);
+        var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
 
         if (recipe == null)
         {
@@ -74,7 +85,7 @@ public class RecipeController : ControllerBase
         }
 
         recipe.Name = updateDto.Name;
-        recipe.Ingredients = JsonSerializer.Serialize(updateDto.Ingredients);
+        recipe.RecipeIngredients = updateDto.RecipeIngredients ?? new List<RecipeIngredient>();
 
         await _context.SaveChangesAsync();
 

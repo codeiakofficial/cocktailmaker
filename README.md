@@ -5,7 +5,7 @@
 ## Getting Started
 
 ``` bash
-docker-compose -p cocktailmaker build
+docker-compose -p cocktailmaker build &&\
 docker-compose -p cocktailmaker up
 ```
 
@@ -13,7 +13,6 @@ docker-compose -p cocktailmaker up
 
 ### Backend
 
-- Execute CI Tests
 - Create `IngredientController`
     - CRUD: Ingredients
 - Create `AgentController`

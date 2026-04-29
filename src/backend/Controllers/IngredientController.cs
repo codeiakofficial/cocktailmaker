@@ -1,20 +1,23 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Encodings.Web;
+using CocktailMaker.Data.Contexts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CocktailMaker.Controllers;
 
 public class IngredientController : Controller
 {
-    // 
-    // GET: /Ingredient/
-    public string Index()
+    private readonly CocktailDbContext _context;
+
+    public IngredientController(CocktailDbContext context)
     {
-        return "This is my default action...";
+        _context = context;
     }
-    // 
-    // GET: /Ingredient/Welcome/ 
-    public string Welcome()
-    {
-        return "This is the Welcome action method...";
-    }
+
+    // GET: api/ingredient
+    // [HttpGet]
+    // public async Task<ActionResult<IEnumerable<IngredientDto>>> GetIngredients()
+    // {
+    //     var ingredients = await _context.Ingredients.ToListAsync();
+    //     return ingredients.Select(IngredientDto.From).ToList();
+    // }
 }
