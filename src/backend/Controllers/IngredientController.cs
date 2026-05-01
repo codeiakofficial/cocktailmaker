@@ -34,7 +34,7 @@ public class IngredientController : Controller
         [FromBody] CreateIngredientDto createDto
     )
     {
-        var ingredient = new Data.Entities.Ingredient { Name = createDto.Name };
+        var ingredient = new Ingredient { Name = createDto.Name };
 
         _context.Ingredients.Add(ingredient);
         await _context.SaveChangesAsync();
@@ -42,5 +42,43 @@ public class IngredientController : Controller
         var resultDto = CreateIngredientDto.From(ingredient);
 
         return CreatedAtAction(nameof(CreateIngredient), new { name = ingredient.Name }, resultDto);
+    }
+
+    // PUT: api/ingredient/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateIngredient(
+        int id,
+        [FromBody] UpdateIngredientDto updateDto
+    )
+    {
+        var ingredient = await _context.Ingredients.FirstOrDefaultAsync(i => i.Id == id);
+
+        if (ingredient == null)
+        {
+            return NotFound();
+        }
+
+        ingredient.Name = updateDto.Name;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    // DELETE: api/ingredient/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteIngredient(int id)
+    {
+        var ingredient = await _context.Ingredients.FirstOrDefaultAsync(i => i.Id == id);
+
+        if (ingredient == null)
+        {
+            return NotFound();
+        }
+
+        _context.Ingredients.Remove(ingredient);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
