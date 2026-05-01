@@ -65,6 +65,23 @@ public class RecipeController : ControllerBase
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
 
+        // Check if the ingredients exist and create new ones if necessary
+        if (createDto.RecipeIngredients != null)
+        {
+            foreach (var recipeIngredient in createDto.RecipeIngredients)
+            {
+                var ingredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
+                    i.Name == recipeIngredient.Name
+                );
+                if (ingredient == null)
+                {
+                    ingredient = new Ingredient { Name = recipeIngredient.Name };
+                    _context.Ingredients.Add(ingredient);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
         var recipeDto = new RecipeDto(
             recipe.Id,
             recipe.Name,
