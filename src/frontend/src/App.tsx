@@ -6,7 +6,7 @@ import './App.css'
 import { Button } from './components/ui/button'
 import { ThemeProvider } from "./components/theme-provider"
 import { ModeToggle } from './components/mode-toggle'
-import { CarouselDemo } from './components/ui/recipe-carousel'
+import { RecipeCarousel } from './components/ui/recipe-carousel'
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
       </header>
       {/* Main content */}
       <main className="flex flex-col items-center justify-center p-4">
-        <CarouselDemo />
+        <RecipeCarousel />
         <h2 className="text-xl font-semibold mt-4">Welcome to Cocktailmaker!</h2>
         <p className="text-center mt-2 text-gray-600 dark:text-gray-400">
           Discover amazing cocktails and create your own!
