@@ -452,4 +452,30 @@ public class RecipeControllerTests
             Assert.Equal("Ingredient2", ingredients[1].Name);
         }
     }
+
+    [Fact]
+    public async Task UpdateRecipeNotFound()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.UpdateRecipe(
+                999,
+                new Models.DTOs.UpdateRecipeDto
+                {
+                    Name = "Nonexistent Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+            Assert.IsType<NotFoundResult>(result);
+        }
+    }
 }
