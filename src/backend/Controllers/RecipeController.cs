@@ -56,7 +56,7 @@ public class RecipeController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RecipeDto>> CreateRecipe([FromBody] CreateRecipeDto createDto)
     {
-        var recipe = new Data.Entities.Recipe
+        var recipe = new Recipe
         {
             Name = createDto.Name,
             RecipeIngredients = createDto.RecipeIngredients ?? new List<RecipeIngredient>(),

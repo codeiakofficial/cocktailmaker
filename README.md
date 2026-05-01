@@ -13,7 +13,6 @@ docker-compose -p cocktailmaker up
 
 ### Backend
 
-TODO: Fix RecipeController Return DTOs
 TODO: Link Ingredient to Recipe from RecipeController
 TODO: Create `AgentController`
 TODO: Create **Backup and Restore**
