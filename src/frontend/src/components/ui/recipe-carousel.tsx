@@ -11,21 +11,19 @@ import {
 
 export function CarouselDemo() {
   return (
-    <Carousel className="w-full max-w-[12rem] sm:max-w-xs md:max-w-sm" opts={{
+    <Carousel className="w-full" opts={{
       align: "start",
       loop: true,
       dragFree: true
     }}>
       <CarouselContent>
         {Array.from({ length: 5 }).map((_, index) => (
-          <CarouselItem key={index} className="basis-1/3">
-            <div className="p-1">
+          <CarouselItem key={index} className="basis-1/3 pl-10">
               <Card>
                 <CardContent className="flex aspect-square items-center justify-center p-6">
                   <span className="text-4xl font-semibold">{index + 1}</span>
                 </CardContent>
               </Card>
-            </div>
           </CarouselItem>
         ))}
       </CarouselContent>
