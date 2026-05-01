@@ -65,10 +65,24 @@ public class RecipeController : ControllerBase
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
 
-        // Check if the ingredients exist and create new ones if necessary
         if (createDto.RecipeIngredients != null)
         {
-            foreach (var recipeIngredient in createDto.RecipeIngredients)
+            await CreateIngredientsIfNotExist(createDto.RecipeIngredients);
+        }
+
+        var recipeDto = new RecipeDto(
+            recipe.Id,
+            recipe.Name,
+            recipe.RecipeIngredients ?? new List<RecipeIngredient>()
+        );
+        return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
+    }
+
+    private async Task CreateIngredientsIfNotExist(List<RecipeIngredient> recipeIngredients)
+    {
+        if (recipeIngredients != null)
+        {
+            foreach (var recipeIngredient in recipeIngredients)
             {
                 var ingredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
                     i.Name == recipeIngredient.Name
@@ -81,13 +95,6 @@ public class RecipeController : ControllerBase
                 }
             }
         }
-
-        var recipeDto = new RecipeDto(
-            recipe.Id,
-            recipe.Name,
-            recipe.RecipeIngredients ?? new List<RecipeIngredient>()
-        );
-        return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
     }
 
     // PUT: api/recipe/5
@@ -105,6 +112,11 @@ public class RecipeController : ControllerBase
         recipe.RecipeIngredients = updateDto.RecipeIngredients ?? new List<RecipeIngredient>();
 
         await _context.SaveChangesAsync();
+
+        if (updateDto.RecipeIngredients != null)
+        {
+            await CreateIngredientsIfNotExist(updateDto.RecipeIngredients);
+        }
 
         return NoContent();
     }

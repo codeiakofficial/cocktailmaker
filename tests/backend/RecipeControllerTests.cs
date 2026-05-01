@@ -303,4 +303,153 @@ public class RecipeControllerTests
             Assert.Null(recipe);
         }
     }
+
+    [Fact]
+    public async Task CreateIngredientsIfNotExistOnCreate()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
+                {
+                    Name = "Test Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredients = context.Ingredients.ToList();
+            Assert.Equal(2, ingredients.Count);
+            Assert.Equal("Ingredient1", ingredients[0].Name);
+            Assert.Equal("Ingredient2", ingredients[1].Name);
+        }
+    }
+
+    [Fact]
+    public async Task CreateIngredientsIfNotExistOnUpdate()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
+                {
+                    Name = "Test Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.UpdateRecipe(
+                1,
+                new Models.DTOs.UpdateRecipeDto
+                {
+                    Name = "Test Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient3Updated",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredients = context.Ingredients.ToList();
+            Assert.Equal(3, ingredients.Count);
+            Assert.Equal("Ingredient1", ingredients[0].Name);
+            Assert.Equal("Ingredient2", ingredients[1].Name);
+            Assert.Equal("Ingredient3Updated", ingredients[2].Name);
+        }
+    }
+
+    [Fact]
+    public async Task CreateIngredientsIfNotExistDoesNotCreateExistingIngredients()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Ingredients.Add(new Ingredient { Name = "Ingredient1" });
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
+                {
+                    Name = "Test Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredients = context.Ingredients.ToList();
+            Assert.Equal(2, ingredients.Count);
+            Assert.Equal("Ingredient1", ingredients[0].Name);
+            Assert.Equal("Ingredient2", ingredients[1].Name);
+        }
+    }
 }
