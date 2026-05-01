@@ -16,7 +16,6 @@ TODO: Staging environment
 
 ### Backend
 
-TODO: Link Ingredient to Recipe from RecipeController
 TODO: Create `AgentController`
 TODO: Create **Backup and Restore**
 

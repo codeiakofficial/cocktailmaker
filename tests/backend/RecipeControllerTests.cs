@@ -478,4 +478,80 @@ public class RecipeControllerTests
             Assert.IsType<NotFoundResult>(result);
         }
     }
+
+    [Fact]
+    public async Task IngredientUsedInRecipesIsUpdated()
+    {
+        // Create a recipe with an ingredient
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
+                {
+                    Name = "New Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        // Update the recipe with a new ingredient
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.UpdateRecipe(
+                1,
+                new Models.DTOs.UpdateRecipeDto
+                {
+                    Name = "Updated Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient3",
+                            Quantity = 20,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredient = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient1");
+            Assert.NotNull(ingredient);
+            Assert.Contains(1, ingredient.UsedInRecipes);
+            // Check that all ingredients are updated correctly and that the recipeId has been added and removed correctly
+            var ingredient1 = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient1");
+            Assert.NotNull(ingredient1);
+            Assert.Contains(1, ingredient1.UsedInRecipes);
+            var ingredient2 = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient2");
+            Assert.NotNull(ingredient2);
+            Assert.DoesNotContain(1, ingredient2.UsedInRecipes);
+            var ingredient3 = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient3");
+            Assert.NotNull(ingredient3);
+            Assert.Contains(1, ingredient3.UsedInRecipes);
+        }
+    }
 }

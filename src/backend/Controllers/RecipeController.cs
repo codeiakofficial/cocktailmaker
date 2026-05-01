@@ -67,7 +67,7 @@ public class RecipeController : ControllerBase
 
         if (createDto.RecipeIngredients != null)
         {
-            await CreateIngredientsIfNotExist(createDto.RecipeIngredients);
+            await UpdateIngredients(recipe.Id, createDto.RecipeIngredients);
         }
 
         var recipeDto = new RecipeDto(
@@ -75,26 +75,79 @@ public class RecipeController : ControllerBase
             recipe.Name,
             recipe.RecipeIngredients ?? new List<RecipeIngredient>()
         );
+
         return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
     }
 
-    private async Task CreateIngredientsIfNotExist(List<RecipeIngredient> recipeIngredients)
+    private async Task UpdateIngredients(
+        int recipeId,
+        List<RecipeIngredient> recipeIngredients,
+        List<RecipeIngredient> oldRecipeIngredients = null
+    )
     {
         if (recipeIngredients != null)
         {
             foreach (var recipeIngredient in recipeIngredients)
             {
-                var ingredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
-                    i.Name == recipeIngredient.Name
-                );
+                // Check if the ingredient already exists in the database
+                var ingredient = await GetIngredient(recipeIngredient);
+                // If the ingredient exists, check if UsedInRecipes contains the current recipe ID
+                if (ingredient != null)
+                {
+                    await UpdateIngredient(recipeId, ingredient);
+                }
+                // If the ingredient does not exist, create a new one and add the current recipe ID to UsedInRecipes
                 if (ingredient == null)
                 {
-                    ingredient = new Ingredient { Name = recipeIngredient.Name };
-                    _context.Ingredients.Add(ingredient);
-                    await _context.SaveChangesAsync();
+                    ingredient = await AddIngredient(recipeId, recipeIngredient);
+                }
+            }
+
+            if (oldRecipeIngredients != null)
+            {
+                foreach (var oldRecipeIngredient in oldRecipeIngredients)
+                {
+                    if (!recipeIngredients.Any(ri => ri.Name == oldRecipeIngredient.Name))
+                    {
+                        var ingredient = await GetIngredient(oldRecipeIngredient);
+                        if (ingredient != null)
+                        {
+                            ingredient.UsedInRecipes.Remove(recipeId);
+                            _context.Ingredients.Update(ingredient);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private async Task<Ingredient?> GetIngredient(RecipeIngredient recipeIngredient)
+    {
+        return await _context.Ingredients.FirstOrDefaultAsync(i => i.Name == recipeIngredient.Name);
+    }
+
+    private async Task UpdateIngredient(int recipeId, Ingredient? ingredient)
+    {
+        var existingRecipeIngredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
+            i.Id == ingredient.Id && i.UsedInRecipes.Contains(recipeId)
+        );
+        // If the recipe ID is not already in UsedInRecipes, add it
+        if (existingRecipeIngredient == null)
+        {
+            ingredient.UsedInRecipes.Add(recipeId);
+            _context.Ingredients.Update(ingredient);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private async Task<Ingredient> AddIngredient(int recipeId, RecipeIngredient recipeIngredient)
+    {
+        Ingredient ingredient = new Ingredient { Name = recipeIngredient.Name };
+        ingredient.UsedInRecipes.Add(recipeId);
+        _context.Ingredients.Add(ingredient);
+        await _context.SaveChangesAsync();
+        return ingredient;
     }
 
     // PUT: api/recipe/5
@@ -108,6 +161,7 @@ public class RecipeController : ControllerBase
             return NotFound();
         }
 
+        var oldRecipeIngredients = recipe.RecipeIngredients;
         recipe.Name = updateDto.Name;
         recipe.RecipeIngredients = updateDto.RecipeIngredients ?? new List<RecipeIngredient>();
 
@@ -115,7 +169,7 @@ public class RecipeController : ControllerBase
 
         if (updateDto.RecipeIngredients != null)
         {
-            await CreateIngredientsIfNotExist(updateDto.RecipeIngredients);
+            await UpdateIngredients(recipe.Id, updateDto.RecipeIngredients, oldRecipeIngredients);
         }
 
         return NoContent();
