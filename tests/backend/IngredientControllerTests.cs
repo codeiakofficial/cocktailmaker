@@ -65,4 +65,52 @@ public class IngredientControllerTests
             Assert.Equal("Ingredient2", ingredientDtos[1].Name);
         }
     }
+
+    [Fact]
+    public async Task UpdateIngredient()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Ingredients.Add(new Ingredient { Name = "Old Name" });
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            IngredientController controller = new IngredientController(context);
+            await controller.UpdateIngredient(
+                1,
+                new Models.DTOs.UpdateIngredientDto { Name = "New Name" }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredient = context.Ingredients.ToList().FirstOrDefault();
+            Assert.Equal(1, ingredient?.Id);
+            Assert.Equal("New Name", ingredient?.Name);
+        }
+    }
+
+    [Fact]
+    public async Task DeleteIngredient()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Ingredients.Add(new Ingredient { Name = "Delete Me" });
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            IngredientController controller = new IngredientController(context);
+            await controller.DeleteIngredient(1);
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredient = context.Ingredients.ToList().FirstOrDefault();
+            Assert.Null(ingredient);
+        }
+    }
 }

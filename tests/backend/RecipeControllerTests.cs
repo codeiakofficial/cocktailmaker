@@ -260,4 +260,47 @@ public class RecipeControllerTests
             //Assert.Equal("[\"Ingredient3\",\"Ingredient4\"]", recipe?.IngredientsJson);
         }
     }
+
+    [Fact]
+    public async Task DeleteRecipe()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Recipes.Add(
+                new Recipe
+                {
+                    Name = "Test Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient1",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.DeleteRecipe(1);
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var recipe = context.Recipes.ToList().FirstOrDefault();
+            Assert.Null(recipe);
+        }
+    }
 }
