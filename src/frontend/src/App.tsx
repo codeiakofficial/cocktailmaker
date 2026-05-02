@@ -1,14 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
-import { Button } from './components/ui/button'
 import { ThemeProvider } from "./components/theme-provider"
 import { ModeToggle } from './components/mode-toggle'
 import { RecipeCarousel } from './components/ui/recipe-carousel'
 import { Separator } from './components/ui/separator'
-import { RecipeDrawer } from './components/ui/recipe-drawer'
 
 function App() {
 
@@ -20,7 +14,6 @@ function App() {
           <h1 className="text-2xl font-bold">Cocktailmaker 🍹</h1>
         </div>
         <nav className="flex items-center gap-4">
-          <RecipeDrawer />
           <ModeToggle />
         </nav>
       </header>
