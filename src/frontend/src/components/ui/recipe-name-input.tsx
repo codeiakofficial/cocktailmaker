@@ -5,7 +5,7 @@ import {
 } from "./field"
 import { Input } from "./input"
 
-export function RecipeName() {
+export function RecipeNameInput() {
   return (
     <>
       <Field>
