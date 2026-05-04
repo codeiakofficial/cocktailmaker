@@ -25,6 +25,7 @@ export function IngredientsInput() {
                     />
                     <Button
                         variant="ghost"
+                        tabIndex={-1}
                         onClick={() => setIngredients((current) => current.filter((_, i) => i !== index))}
                     >
                         ✕
