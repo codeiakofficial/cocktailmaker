@@ -16,6 +16,9 @@ export function IngredientsInput() {
         <>
             {ingredients.map((ingredient, index) => (
                 <Field orientation="horizontal" key={index} className="gap-2">
+                    <label className="mr-2 text-sm text-muted-foreground">
+                        {index + 1}.
+                    </label>
                     <Input
                         id={`input-field-ingredients-${index}`}
                         type="text"
