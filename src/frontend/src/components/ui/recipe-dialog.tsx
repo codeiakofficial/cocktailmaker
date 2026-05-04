@@ -17,7 +17,7 @@ export function RecipeDialog() {
             <DialogTrigger asChild>
                 <Button variant="outline">New Recipe</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>New Recipe</DialogTitle>
                     <DialogDescription>
