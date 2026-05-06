@@ -2,8 +2,8 @@ import {
   Field,
   FieldDescription,
   FieldLabel,
-} from "./field"
-import { Input } from "./input"
+} from "../ui/field"
+import { Input } from "../ui/input"
 
 export function RecipeNameInput() {
   return (

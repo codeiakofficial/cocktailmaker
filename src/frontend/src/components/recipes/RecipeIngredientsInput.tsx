@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Button } from "./button"
-import { Input } from "./input"
-import { Field } from "./field";
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
+import { Field } from "../ui/field";
 
 interface IngredientsInputProps {
     name?: string;
     quantity?: number;
 }
 
-export function IngredientsInput() {
+export function RecipeIngredientsInput() {
     const [ingredients, setIngredients] = useState<IngredientsInputProps[]>([]);
     const [page, setPage] = useState<number>(0);
 

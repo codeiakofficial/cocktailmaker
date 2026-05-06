@@ -1,5 +1,5 @@
-import { Separator } from "./separator"
-import { Button } from "./button"
+import { Separator } from "../ui/separator"
+import { Button } from "../ui/button"
 import {
     Dialog,
     DialogContent,
@@ -7,9 +7,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "./dialog"
-import { IngredientsInput } from "./ingredients-input"
-import { RecipeNameInput } from "./recipe-name-input"
+} from "../ui/dialog"
+import { RecipeIngredientsInput } from "./RecipeIngredientsInput"
+import { RecipeNameInput } from "./RecipeNameInput"
 
 export function RecipeDialog() {
     return (
@@ -27,7 +27,7 @@ export function RecipeDialog() {
                 <RecipeNameInput />
                 <Separator className="my-0" />
                 <DialogTitle>Ingredients</DialogTitle>
-                <IngredientsInput />
+                <RecipeIngredientsInput />
             </DialogContent>
         </Dialog>
     )

@@ -1,9 +1,9 @@
 import './App.css'
 import { ThemeProvider } from "./components/theme-provider"
 import { ModeToggle } from './components/mode-toggle'
-import { RecipeCarousel } from './components/ui/recipe-carousel'
+import { RecipeCarousel } from './components/recipes/RecipeCarousel'
 import { Separator } from './components/ui/separator'
-import { RecipeDialog } from './components/ui/recipe-dialog'
+import { RecipeDialog } from './components/recipes/NewRecipeDialog'
 
 function App() {
 
