@@ -25,42 +25,48 @@ export function RecipeIngredientsInput() {
                     <label className="mr-2 text-sm text-muted-foreground">
                         {index + 1}.
                     </label>
-                    <Input
-                        hidden={page === 1}
-                        id={`input-field-ingredients-${index}`}
-                        type="text"
-                        value={ingredient.name}
-                        onChange={(event) => updateIngredient(index, event.target.value)}
-                        placeholder="Enter the ingredients"
-                    />
-                    <label hidden={page === 0}>
-                        {ingredient.name}
-                    </label>
-                    <Button
-                        variant="ghost"
-                        tabIndex={-1}
-                        hidden={page === 1}
-                        onClick={() => setIngredients((current) => current.filter((_, i) => i !== index))}
-                    >
-                        ✕
-                    </Button>
-                    <Input className="max-w-[10vh]" hidden={page === 0} value={ingredient.quantity} />
+                    {page === 0 ? (
+                        <Field orientation="horizontal" key={index} className="gap-2">
+                            <Input
+                                id={`input-field-ingredients-${index}`}
+                                type="text"
+                                value={ingredient.name}
+                                onChange={(event) => updateIngredient(index, event.target.value)}
+                                placeholder="Enter the ingredients"
+                            />
+                            <Button
+                                variant="ghost"
+                                tabIndex={-1}
+                                onClick={() => setIngredients((current) => current.filter((_, i) => i !== index))}
+                            >
+                                ✕
+                            </Button></Field>) : (
+                        <Field orientation="horizontal" key={index} className="gap-2">
+                            <label>
+                                {ingredient.name}
+                            </label>
+                            <Input className="max-w-[10vh]" hidden={page === 0} value={ingredient.quantity} />
+                        </Field>)}
                 </Field>
             ))}
 
             <Field orientation="horizontal" className="gap-2 w-full justify-end">
-                <Button variant="secondary" hidden={page === 1} onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0 }])}>
-                    Add
-                </Button>
-                <Button variant="secondary" hidden={page === 0} onClick={() => {setPage(0);}}>
-                    Return
-                </Button>
-                <Button disabled={ingredients.length === 0} hidden={page === 1} onClick={() => {setPage(1);}}>
-                    Next
-                </Button>
-                <Button disabled={ingredients.length === 0} hidden={page === 0} onClick={() => {setPage(1);}}>
-                    Save
-                </Button>
+                {page === 0 ? (
+                    <Field orientation="horizontal" className="gap-2 w-full justify-end">
+                        <Button variant="secondary" onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0 }])}>
+                            Add
+                        </Button><Button disabled={ingredients.length === 0} onClick={() => { setPage(1); }}>
+                            Next
+                        </Button>
+                    </Field>) : (
+                    <Field orientation="horizontal" className="gap-2 w-full justify-end">
+                        <Button variant="secondary" onClick={() => { setPage(0); }}>
+                            Return
+                        </Button>
+                        <Button disabled={ingredients.length === 0} onClick={() => { setPage(1); }}>
+                            Save
+                        </Button>
+                    </Field>)}
             </Field>
         </>
     )

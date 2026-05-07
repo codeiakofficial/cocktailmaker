@@ -1,7 +1,7 @@
 # General Instructions
 
 - Ignore all other `*.md` if not mentioned explicitly.
-- Don't create files if not asked for.
+- Don't create files or functionalities if not asked for.
 
 # Build & Run
 
