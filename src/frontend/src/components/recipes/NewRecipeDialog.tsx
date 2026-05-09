@@ -17,9 +17,19 @@ interface IngredientsInputProps {
     quantity?: number;
 }
 
+interface NewRecipeDialogProps {
+    name: string;
+    ingredients: IngredientsInputProps[];
+}
+
 export function NewRecipeDialog() {
+    const [recipeName, setRecipeName] = useState<NewRecipeDialogProps>({ name: "", ingredients: [] });
     const [ingredients, setIngredients] = useState<IngredientsInputProps[]>([]);
     const [page, setPage] = useState<number>(0);
+
+    function updateRecipeName(value: string): void {
+        setRecipeName({ ...recipeName, name: value });
+    }
 
     const updateIngredientName = (index: number, value: string) => {
         setIngredients((current) =>
@@ -33,7 +43,8 @@ export function NewRecipeDialog() {
         );
     };
 
-    const isFirstPageValid = ingredients.length === 0 || ingredients.some((ing) => !ing.name);
+    const isFirstPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => !ing.name);
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -54,6 +65,7 @@ export function NewRecipeDialog() {
                         id="input-field-name"
                         type="text"
                         placeholder="Enter the recipe name"
+                        onChange={(event) => updateRecipeName(event.target.value)}
                     />
                     <FieldDescription>
                         Choose a unique name for your recipe.
@@ -117,7 +129,7 @@ export function NewRecipeDialog() {
                             <Button variant="secondary" onClick={() => { setPage(0); }}>
                                 Return
                             </Button>
-                            <Button disabled={ingredients.length === 0 || ingredients.some((ing) => !ing.name)} onClick={() => { setPage(1); }}>
+                            <Button disabled={ingredients.length === 0 || ingredients.some((ing) => !ing.name)}>
                                 Save
                             </Button>
                         </Field>)}
