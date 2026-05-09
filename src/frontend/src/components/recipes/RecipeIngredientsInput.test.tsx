@@ -1,18 +1,25 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { describe, expect, test } from 'vitest'
 import { RecipeIngredientsInput } from './RecipeIngredientsInput'
 
-test('loads and displays greeting', async () => {
+test('add ingredient, enter name and verify it appears in the list', async () => {
+  const user = userEvent.setup()
   // ARRANGE
-  render(<RecipeIngredientsInput />)
+  await act(async () => {
+    render(<RecipeIngredientsInput />)
+  });
 
-  // // ACT
-  // await userEvent.click(screen.getByText('Load Greeting'))
-  // await screen.findByRole('heading')
+  // ACT
+  await act(async () => {
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await screen.getByPlaceholderText('Enter the ingredients')
+    const input = screen.getByPlaceholderText('Enter the ingredients')
+    // Type ingredient name
+    await user.type(input, 'Vodka')
+  })
 
-  // // ASSERT
-  // expect(screen.getByRole('heading')).toHaveTextContent('hello there')
-  // expect(screen.getByRole('button')).toBeDisabled()
+  // Verify it appears
+  expect(screen.getByDisplayValue('Vodka')).toBeInTheDocument()
 })
