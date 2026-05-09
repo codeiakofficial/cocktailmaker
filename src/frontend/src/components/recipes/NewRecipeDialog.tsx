@@ -60,7 +60,7 @@ export function NewRecipeDialog() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">New Recipe</Button>
+                <Button variant="ghost">New Recipe</Button>
             </DialogTrigger>
             <DialogContent className="max-h-[80vh] overflow-y-auto">
                 {/* Title */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type JSX } from 'react';
 import { Card, CardContent } from "../ui/card"
 import {
   Carousel,
