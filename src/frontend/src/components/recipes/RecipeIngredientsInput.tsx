@@ -27,6 +27,7 @@ export function RecipeIngredientsInput() {
                     </label>
                     {page === 0 ? (
                         <Field orientation="horizontal" key={index} className="gap-2">
+                            {/* Ingredient name */}
                             <Input
                                 id={`input-field-ingredients-${index}`}
                                 type="text"
@@ -34,6 +35,7 @@ export function RecipeIngredientsInput() {
                                 onChange={(event) => updateIngredient(index, event.target.value)}
                                 placeholder="Enter the ingredients"
                             />
+                            {/* Remove button */}
                             <Button
                                 variant="ghost"
                                 tabIndex={-1}
@@ -45,6 +47,7 @@ export function RecipeIngredientsInput() {
                             <label className="w-full">
                                 {ingredient.name}
                             </label>
+                            {/* Ingredient quantity */}
                             <Input className="max-w-[10vh]" hidden={page === 0} />
                             <label className="mr-2 text-sm text-muted-foreground">
                                 ml
@@ -55,6 +58,7 @@ export function RecipeIngredientsInput() {
             <Field orientation="horizontal" className="gap-2 w-full justify-end">
                 {page === 0 ? (
                     <Field orientation="horizontal" className="gap-2 w-full justify-end">
+                        {/* Navigation First Page */}
                         <Button variant="secondary" onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0 }])}>
                             Add
                         </Button><Button disabled={ingredients.length === 0} onClick={() => { setPage(1); }}>
@@ -62,6 +66,7 @@ export function RecipeIngredientsInput() {
                         </Button>
                     </Field>) : (
                     <Field orientation="horizontal" className="gap-2 w-full justify-end">
+                        {/* Navigation Second Page */}
                         <Button variant="secondary" onClick={() => { setPage(0); }}>
                             Return
                         </Button>
