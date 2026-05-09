@@ -14,34 +14,36 @@ function App() {
   const [page, setPage] = useState(0);
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <RecipeProvider>
-        {/* Top header bar */}
-        <header className="flex items-center justify-between p-3">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold">Cocktailmaker 🍹</h1>
-          </div>
-          <nav className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => setPage(0)}>
-              Home
-            </Button>
-            <Button variant="ghost" onClick={() => setPage(1)}>
-              Manage Ingredients
-            </Button>
-            <NewRecipeDialog />
-            <ModeToggle />
-          </nav>
-        </header>
-        <Separator className="my-0" />
-        {/* Main content */}
-        <main className={`flex flex-col items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover min-h-screen`}>
-          {page === 0 ? <RecipeCarousel /> :
-            <IngredientProvider>
-              <IngredientPage />
-            </IngredientProvider>}
-        </main>
-      </RecipeProvider>
-    </ThemeProvider>
+    <div className="h-screen w-screen overflow-hidden">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <RecipeProvider>
+          {/* Top header bar */}
+          <header className="flex items-center justify-between p-3">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold">Cocktailmaker 🍹</h1>
+            </div>
+            <nav className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => setPage(0)}>
+                Home
+              </Button>
+              <Button variant="ghost" onClick={() => setPage(1)}>
+                Manage Ingredients
+              </Button>
+              <NewRecipeDialog />
+              <ModeToggle />
+            </nav>
+          </header>
+          <Separator className="my-0" />
+          {/* Main content */}
+          <main className={`h-full flex items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full`}>
+            {page === 0 ? <RecipeCarousel /> :
+              <IngredientProvider>
+                <IngredientPage />
+              </IngredientProvider>}
+          </main>
+        </RecipeProvider>
+      </ThemeProvider>
+    </div>
   )
 }
 
