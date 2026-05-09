@@ -67,7 +67,7 @@ public class RecipeController : ControllerBase
 
         if (createDto.RecipeIngredients != null)
         {
-            await UpdateIngredients(recipe.Id, createDto.RecipeIngredients);
+            await AddOrUpdateIngredients(recipe.Id, createDto.RecipeIngredients);
         }
 
         var recipeDto = new RecipeDto(
@@ -79,43 +79,24 @@ public class RecipeController : ControllerBase
         return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
     }
 
-    private async Task UpdateIngredients(
+    private async Task RemoveRecipeIdsFromIngredients(
         int recipeId,
-        List<RecipeIngredient> recipeIngredients,
-        List<RecipeIngredient> oldRecipeIngredients = null
+        List<RecipeIngredient> newRecipeIngredients,
+        List<RecipeIngredient> oldRecipeIngredients
     )
     {
-        if (recipeIngredients != null)
+        if (oldRecipeIngredients != null)
         {
-            foreach (var recipeIngredient in recipeIngredients)
+            foreach (var oldRecipeIngredient in oldRecipeIngredients)
             {
-                // Check if the ingredient already exists in the database
-                var ingredient = await GetIngredient(recipeIngredient);
-                // If the ingredient exists, check if UsedInRecipes contains the current recipe ID
-                if (ingredient != null)
+                if (!newRecipeIngredients.Any(ri => ri.Name == oldRecipeIngredient.Name))
                 {
-                    await UpdateIngredient(recipeId, ingredient);
-                }
-                // If the ingredient does not exist, create a new one and add the current recipe ID to UsedInRecipes
-                if (ingredient == null)
-                {
-                    ingredient = await AddIngredient(recipeId, recipeIngredient);
-                }
-            }
-
-            if (oldRecipeIngredients != null)
-            {
-                foreach (var oldRecipeIngredient in oldRecipeIngredients)
-                {
-                    if (!recipeIngredients.Any(ri => ri.Name == oldRecipeIngredient.Name))
+                    var ingredient = await GetIngredient(oldRecipeIngredient);
+                    if (ingredient != null)
                     {
-                        var ingredient = await GetIngredient(oldRecipeIngredient);
-                        if (ingredient != null)
-                        {
-                            ingredient.UsedInRecipes.Remove(recipeId);
-                            _context.Ingredients.Update(ingredient);
-                            await _context.SaveChangesAsync();
-                        }
+                        ingredient.UsedInRecipes.Remove(recipeId);
+                        _context.Ingredients.Update(ingredient);
+                        await _context.SaveChangesAsync();
                     }
                 }
             }
@@ -127,7 +108,7 @@ public class RecipeController : ControllerBase
         return await _context.Ingredients.FirstOrDefaultAsync(i => i.Name == recipeIngredient.Name);
     }
 
-    private async Task UpdateIngredient(int recipeId, Ingredient? ingredient)
+    private async Task AddRecipeIdToIngredient(int recipeId, Ingredient? ingredient)
     {
         var existingRecipeIngredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
             i.Id == ingredient.Id && i.UsedInRecipes.Contains(recipeId)
@@ -141,11 +122,46 @@ public class RecipeController : ControllerBase
         }
     }
 
-    private async Task<Ingredient> AddIngredient(int recipeId, RecipeIngredient recipeIngredient)
+    private async Task<Ingredient> AddOrUpdateIngredients(
+        int recipeId,
+        List<RecipeIngredient> recipeIngredients
+    )
+    {
+        if (recipeIngredients != null)
+        {
+            foreach (var recipeIngredient in recipeIngredients)
+            {
+                var ingredient = await GetIngredient(recipeIngredient);
+                if (ingredient != null)
+                {
+                    await AddRecipeIdToIngredient(recipeId, ingredient);
+                }
+                else
+                {
+                    await CreateIngredientAndAddRecipeId(recipeId, recipeIngredient);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private async Task CreateIngredientAndAddRecipeId(
+        int recipeId,
+        RecipeIngredient recipeIngredient
+    )
+    {
+        var newIngredient = new Ingredient { Name = recipeIngredient.Name };
+        newIngredient.UsedInRecipes.Add(recipeId);
+        _context.Ingredients.Add(newIngredient);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task<Ingredient> RemoveIngredient(int recipeId, RecipeIngredient recipeIngredient)
     {
         Ingredient ingredient = new Ingredient { Name = recipeIngredient.Name };
-        ingredient.UsedInRecipes.Add(recipeId);
-        _context.Ingredients.Add(ingredient);
+        ingredient.UsedInRecipes.Remove(recipeId);
+        _context.Ingredients.Remove(ingredient);
         await _context.SaveChangesAsync();
         return ingredient;
     }
@@ -169,7 +185,12 @@ public class RecipeController : ControllerBase
 
         if (updateDto.RecipeIngredients != null)
         {
-            await UpdateIngredients(recipe.Id, updateDto.RecipeIngredients, oldRecipeIngredients);
+            await AddOrUpdateIngredients(recipe.Id, updateDto.RecipeIngredients);
+            await RemoveRecipeIdsFromIngredients(
+                recipe.Id,
+                updateDto.RecipeIngredients,
+                oldRecipeIngredients
+            );
         }
 
         return NoContent();
@@ -186,8 +207,16 @@ public class RecipeController : ControllerBase
             return NotFound();
         }
 
+        var oldRecipeIngredients = recipe.RecipeIngredients;
+
         _context.Recipes.Remove(recipe);
         await _context.SaveChangesAsync();
+
+        await RemoveRecipeIdsFromIngredients(
+            recipe.Id,
+            recipe.RecipeIngredients ?? new List<RecipeIngredient>(),
+            oldRecipeIngredients
+        );
 
         return NoContent();
     }

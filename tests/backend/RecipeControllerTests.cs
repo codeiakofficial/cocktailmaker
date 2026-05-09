@@ -266,8 +266,9 @@ public class RecipeControllerTests
     {
         using (var context = new CocktailDbContext(_options))
         {
-            context.Recipes.Add(
-                new Recipe
+            RecipeController controller = new RecipeController(context);
+            await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
                 {
                     Name = "Test Cocktail",
                     RecipeIngredients =
@@ -287,7 +288,33 @@ public class RecipeControllerTests
                     ],
                 }
             );
-            context.SaveChanges();
+            await controller.CreateRecipe(
+                new Models.DTOs.CreateRecipeDto
+                {
+                    Name = "Another Cocktail",
+                    RecipeIngredients =
+                    [
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient2",
+                            Quantity = 50,
+                            Unit = "ml",
+                        },
+                        new RecipeIngredient
+                        {
+                            Name = "Ingredient3",
+                            Quantity = 30,
+                            Unit = "ml",
+                        },
+                    ],
+                }
+            );
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var ingredients = context.Ingredients.ToList();
+            Assert.Equal(3, ingredients.Count);
         }
 
         using (var context = new CocktailDbContext(_options))
@@ -300,7 +327,17 @@ public class RecipeControllerTests
         using (var context = new CocktailDbContext(_options))
         {
             var recipe = context.Recipes.ToList().FirstOrDefault();
-            Assert.Null(recipe);
+            Assert.Equal("Another Cocktail", recipe?.Name);
+            var ingredients = context.Ingredients.ToList();
+            Assert.Equal(3, ingredients.Count);
+            Assert.Equal("Ingredient1", ingredients[0].Name);
+            Assert.Empty(ingredients[0].UsedInRecipes);
+            Assert.Equal("Ingredient2", ingredients[1].Name);
+            Assert.Single(ingredients[1].UsedInRecipes);
+            Assert.Equal(2, ingredients[1].UsedInRecipes.FirstOrDefault());
+            Assert.Equal("Ingredient3", ingredients[2].Name);
+            Assert.Single(ingredients[2].UsedInRecipes);
+            Assert.Equal(2, ingredients[2].UsedInRecipes.FirstOrDefault());
         }
     }
 
