@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from "../ui/carousel"
 import { DeleteRecipeButton } from './DeleteRecipeButton';
+import { useRecipes } from '../../contexts/RecipeContext';
 
 interface Recipe {
   id: number;
@@ -22,23 +23,12 @@ interface Recipe {
 export function RecipeCarousel() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { recipes: contextRecipes } = useRecipes()!;
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('http://localhost:8080/api/Recipe/');
-        const data = await response.json() as Recipe[];
-        setRecipes(data);
-      } catch (error) {
-        console.error('Failed to fetch recipes:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+    setRecipes(contextRecipes);
+    setIsLoading(false);
+  }, [contextRecipes]);
 
   if (isLoading) {
     return <div>Loading recipes...</div>;

@@ -12,21 +12,19 @@ import {
 import { Field, FieldDescription, FieldLabel } from "../ui/field"
 import { Input } from "../ui/input"
 import { useState } from "react"
-
-interface IngredientsInputProps {
-    name?: string;
-    quantity?: number;
-}
+import { useRecipes } from "../../contexts/RecipeContext"
+import type { IRecipe } from "../../contexts/Recipe"
 
 interface NewRecipeDialogProps {
     name: string;
-    recipeIngredients: IngredientsInputProps[];
+    recipeIngredients: IRecipe["recipeIngredients"];
 }
 
 export function NewRecipeDialog() {
     const [recipeName, setRecipeName] = useState<NewRecipeDialogProps>({ name: "", recipeIngredients: [] });
-    const [ingredients, setIngredients] = useState<IngredientsInputProps[]>([]);
+    const [ingredients, setIngredients] = useState<IRecipe["recipeIngredients"]>([]);
     const [page, setPage] = useState<number>(0);
+    const { saveRecipe } = useRecipes()!;
 
     function updateRecipeName(value: string): void {
         setRecipeName({ ...recipeName, name: value });
@@ -47,29 +45,16 @@ export function NewRecipeDialog() {
     const isFirstPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => !ing.name);
     const isSecondPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => ing.quantity === 0);
 
-    const onSave = async (recipe: NewRecipeDialogProps) => {
-        fetch('http://localhost:8080/api/Recipe', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: recipe.name, recipeIngredients: recipe.recipeIngredients.map((ing) => ({ name: ing.name, quantity: ing.quantity, unit: "ml" }))
-            })
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log('Recipe saved successfully:', data);
-                // Optionally, you can reset the form or close the dialog here
-            })
-            .catch((error) => {
-                console.error('Error saving recipe:', error);
-            });
+    const onSave = async (recipe: IRecipe) => {
+        await saveRecipe({
+            id: 0,
+            name: recipe.name,
+            recipeIngredients: recipe.recipeIngredients.map((ingredient) => ({
+                name: ingredient.name,
+                quantity: ingredient.quantity || 0,
+                unit: "ml"
+            }))
+        });
     };
 
     return (
@@ -145,7 +130,7 @@ export function NewRecipeDialog() {
                     {page === 0 ? (
                         <Field orientation="horizontal" className="gap-2 w-full justify-end">
                             {/* Navigation First Page */}
-                            <Button variant="secondary" onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0 }])}>
+                            <Button variant="secondary" onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0, unit: "" }])}>
                                 Add
                             </Button><Button disabled={isFirstPageValid} onClick={() => { setPage(1); }}>
                                 Next
@@ -160,7 +145,7 @@ export function NewRecipeDialog() {
                                 <Button
                                 disabled={isSecondPageValid}
                                 onClick={() => {
-                                    onSave({ name: recipeName.name, recipeIngredients: ingredients });
+                                    onSave({ id: 0, name: recipeName.name, recipeIngredients: ingredients });
                                 }}>
                                 Save
                             </Button>
