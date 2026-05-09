@@ -3,7 +3,7 @@ import { ThemeProvider } from "./components/theme-provider"
 import { ModeToggle } from './components/mode-toggle'
 import { RecipeCarousel } from './components/recipes/RecipeCarousel'
 import { Separator } from './components/ui/separator'
-import { RecipeDialog } from './components/recipes/NewRecipeDialog'
+import { NewRecipeDialog } from './components/recipes/NewRecipeDialog'
 
 function App() {
 
@@ -15,7 +15,7 @@ function App() {
           <h1 className="text-2xl font-bold">Cocktailmaker 🍹</h1>
         </div>
         <nav className="flex items-center gap-4">
-          <RecipeDialog />
+          <NewRecipeDialog />
           <ModeToggle />
         </nav>
       </header>
