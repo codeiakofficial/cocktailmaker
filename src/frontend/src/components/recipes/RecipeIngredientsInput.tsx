@@ -18,6 +18,12 @@ export function RecipeIngredientsInput() {
         );
     };
 
+    const updateIngredientQuantity = (index: number, value: number) => {
+        setIngredients((current) =>
+            current.map((ingredient, i) => (i === index ? { ...ingredient, quantity: value } : ingredient))
+        );
+    };
+
     return (
         <>
             {ingredients.map((ingredient, index) => (
@@ -49,7 +55,11 @@ export function RecipeIngredientsInput() {
                                 {ingredient.name}
                             </label>
                             {/* Ingredient quantity */}
-                            <Input className="max-w-[10vh]" hidden={page === 0} />
+                            <Input
+                                className="max-w-[10vh]"
+                                value={ingredient.quantity}
+                                onChange={(event) => updateIngredientQuantity(index, parseFloat(event.target.value) || 0)}
+                            />
                             <label className="mr-2 text-sm text-muted-foreground">
                                 ml
                             </label>
