@@ -44,6 +44,7 @@ export function NewRecipeDialog() {
     };
 
     const isFirstPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => !ing.name);
+    const isSecondPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => ing.quantity === 0);
 
     return (
         <Dialog>
@@ -129,7 +130,11 @@ export function NewRecipeDialog() {
                             <Button variant="secondary" onClick={() => { setPage(0); }}>
                                 Return
                             </Button>
-                            <Button disabled={ingredients.length === 0 || ingredients.some((ing) => !ing.name)}>
+                            <Button
+                                disabled={isSecondPageValid}
+                                onClick={() => {
+                                    // onSave(recipeName, ingredients);
+                                }}>
                                 Save
                             </Button>
                         </Field>)}
