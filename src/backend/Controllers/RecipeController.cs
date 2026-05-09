@@ -79,28 +79,37 @@ public class RecipeController : ControllerBase
         return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipeDto);
     }
 
-    private async Task RemoveRecipeIdsFromIngredients(
+    private async Task RemoveRecipeIdFromIngredients(
         int recipeId,
-        List<RecipeIngredient> newRecipeIngredients,
-        List<RecipeIngredient> oldRecipeIngredients
+        List<RecipeIngredient>? excludedRecipeIngredients = null
     )
     {
-        if (oldRecipeIngredients != null)
+        var ingredients = _context
+            .Ingredients.Where(i => i.UsedInRecipes.Contains(recipeId))
+            .ToList();
+
+        if (excludedRecipeIngredients != null)
         {
-            foreach (var oldRecipeIngredient in oldRecipeIngredients)
+            var filteredIngredients = ingredients.Where(i =>
+                !excludedRecipeIngredients.Any(ri => ri.Name == i.Name)
+            );
+
+            foreach (var ingredient in filteredIngredients)
             {
-                if (!newRecipeIngredients.Any(ri => ri.Name == oldRecipeIngredient.Name))
-                {
-                    var ingredient = await GetIngredient(oldRecipeIngredient);
-                    if (ingredient != null)
-                    {
-                        ingredient.UsedInRecipes.Remove(recipeId);
-                        _context.Ingredients.Update(ingredient);
-                        await _context.SaveChangesAsync();
-                    }
-                }
+                ingredient.UsedInRecipes.Remove(recipeId);
+                _context.Ingredients.Update(ingredient);
             }
         }
+        else
+        {
+            foreach (var ingredient in ingredients)
+            {
+                ingredient.UsedInRecipes.Remove(recipeId);
+                _context.Ingredients.Update(ingredient);
+            }
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     private async Task<Ingredient?> GetIngredient(RecipeIngredient recipeIngredient)
@@ -157,15 +166,6 @@ public class RecipeController : ControllerBase
         await _context.SaveChangesAsync();
     }
 
-    private async Task<Ingredient> RemoveIngredient(int recipeId, RecipeIngredient recipeIngredient)
-    {
-        Ingredient ingredient = new Ingredient { Name = recipeIngredient.Name };
-        ingredient.UsedInRecipes.Remove(recipeId);
-        _context.Ingredients.Remove(ingredient);
-        await _context.SaveChangesAsync();
-        return ingredient;
-    }
-
     // PUT: api/recipe/5
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRecipe(int id, [FromBody] UpdateRecipeDto updateDto)
@@ -177,7 +177,6 @@ public class RecipeController : ControllerBase
             return NotFound();
         }
 
-        var oldRecipeIngredients = recipe.RecipeIngredients;
         recipe.Name = updateDto.Name;
         recipe.RecipeIngredients = updateDto.RecipeIngredients ?? new List<RecipeIngredient>();
 
@@ -186,11 +185,7 @@ public class RecipeController : ControllerBase
         if (updateDto.RecipeIngredients != null)
         {
             await AddOrUpdateIngredients(recipe.Id, updateDto.RecipeIngredients);
-            await RemoveRecipeIdsFromIngredients(
-                recipe.Id,
-                updateDto.RecipeIngredients,
-                oldRecipeIngredients
-            );
+            await RemoveRecipeIdFromIngredients(recipe.Id, updateDto.RecipeIngredients);
         }
 
         return NoContent();
@@ -207,16 +202,10 @@ public class RecipeController : ControllerBase
             return NotFound();
         }
 
-        var oldRecipeIngredients = recipe.RecipeIngredients;
-
         _context.Recipes.Remove(recipe);
         await _context.SaveChangesAsync();
 
-        await RemoveRecipeIdsFromIngredients(
-            recipe.Id,
-            recipe.RecipeIngredients ?? new List<RecipeIngredient>(),
-            oldRecipeIngredients
-        );
+        await RemoveRecipeIdFromIngredients(recipe.Id);
 
         return NoContent();
     }

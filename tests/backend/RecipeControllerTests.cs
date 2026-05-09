@@ -576,9 +576,6 @@ public class RecipeControllerTests
 
         using (var context = new CocktailDbContext(_options))
         {
-            var ingredient = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient1");
-            Assert.NotNull(ingredient);
-            Assert.Contains(1, ingredient.UsedInRecipes);
             // Check that all ingredients are updated correctly and that the recipeId has been added and removed correctly
             var ingredient1 = context.Ingredients.FirstOrDefault(i => i.Name == "Ingredient1");
             Assert.NotNull(ingredient1);
