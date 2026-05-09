@@ -7,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel"
+import { DeleteRecipeButton } from './DeleteRecipeButton';
 
 interface Recipe {
   id: number;
@@ -52,7 +53,8 @@ export function RecipeCarousel() {
       <CarouselContent>
         {Array.from({ length: recipes.length }).map((_, index) => (
           <CarouselItem key={index} className="basis-1/3 pl-10">
-            <Card>
+            <Card className='relative'>
+              <DeleteRecipeButton recipeId={recipes[index].id} className="w-10 h-10 absolute top-4 right-4" />
               <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                 {/* Recipe name */ }
                 <span className="text-4xl font-semibold">{recipes[index].name}</span>
