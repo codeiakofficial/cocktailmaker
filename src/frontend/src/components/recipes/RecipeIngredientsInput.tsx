@@ -42,14 +42,16 @@ export function RecipeIngredientsInput() {
                                 ✕
                             </Button></Field>) : (
                         <Field orientation="horizontal" key={index} className="gap-2">
-                            <label>
+                            <label className="w-full">
                                 {ingredient.name}
                             </label>
-                            <Input className="max-w-[10vh]" hidden={page === 0} value={ingredient.quantity} />
+                            <Input className="max-w-[10vh]" hidden={page === 0} />
+                            <label className="mr-2 text-sm text-muted-foreground">
+                                ml
+                            </label>
                         </Field>)}
                 </Field>
             ))}
-
             <Field orientation="horizontal" className="gap-2 w-full justify-end">
                 {page === 0 ? (
                     <Field orientation="horizontal" className="gap-2 w-full justify-end">
