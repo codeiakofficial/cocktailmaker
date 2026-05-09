@@ -57,10 +57,23 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
     }
   }, [recipes]);
 
+  // Delete recipe
+  const deleteRecipe = React.useCallback(async (id: number) => {
+    try {
+      const response = await fetch(`${API_URL}/recipe/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete recipe');
+      setRecipes(recipes.filter(r => r.id !== id));
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }, [recipes]);
   const value: RecipeContextType = {
     recipes,
     saveRecipe,
     updateRecipe,
+    deleteRecipe,
   };
 
   return (
