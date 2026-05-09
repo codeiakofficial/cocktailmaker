@@ -7,6 +7,8 @@ import { NewRecipeDialog } from './components/recipes/NewRecipeDialog'
 import RecipeProvider from './contexts/RecipeContext'
 import { Button } from './components/ui/button'
 import { useState } from 'react'
+import IngredientPage from './components/ingredients/IngredientPage'
+import IngredientProvider from './contexts/IngredientContext'
 
 function App() {
   const [page, setPage] = useState(0);
@@ -33,7 +35,10 @@ function App() {
         <Separator className="my-0" />
         {/* Main content */}
         <main className={`flex flex-col items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover min-h-screen`}>
-          {page === 0 ? <RecipeCarousel /> : <div>Ingredient management coming soon...</div>}
+          {page === 0 ? <RecipeCarousel /> :
+            <IngredientProvider>
+              <IngredientPage />
+            </IngredientProvider>}
         </main>
       </RecipeProvider>
     </ThemeProvider>

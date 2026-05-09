@@ -1,4 +1,3 @@
-// context/recipeContext.tsx
 import * as React from 'react';
 import type { RecipeContextType, IRecipe } from './Recipe';
 
@@ -69,6 +68,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
       console.error(err instanceof Error ? err.message : 'Unknown error');
     }
   }, [recipes]);
+
   const value: RecipeContextType = {
     recipes,
     saveRecipe,
