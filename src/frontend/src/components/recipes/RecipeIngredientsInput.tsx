@@ -12,7 +12,7 @@ export function RecipeIngredientsInput() {
     const [ingredients, setIngredients] = useState<IngredientsInputProps[]>([]);
     const [page, setPage] = useState<number>(0);
 
-    const updateIngredient = (index: number, value: string) => {
+    const updateIngredientName = (index: number, value: string) => {
         setIngredients((current) =>
             current.map((ingredient, i) => (i === index ? { ...ingredient, name: value } : ingredient))
         );
@@ -32,7 +32,7 @@ export function RecipeIngredientsInput() {
                                 id={`input-field-ingredients-${index}`}
                                 type="text"
                                 value={ingredient.name}
-                                onChange={(event) => updateIngredient(index, event.target.value)}
+                                onChange={(event) => updateIngredientName(index, event.target.value)}
                                 placeholder="Enter the ingredients"
                             />
                             {/* Remove button */}
@@ -42,7 +42,8 @@ export function RecipeIngredientsInput() {
                                 onClick={() => setIngredients((current) => current.filter((_, i) => i !== index))}
                             >
                                 ✕
-                            </Button></Field>) : (
+                            </Button>
+                        </Field>) : (
                         <Field orientation="horizontal" key={index} className="gap-2">
                             <label className="w-full">
                                 {ingredient.name}
