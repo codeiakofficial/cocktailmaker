@@ -46,6 +46,31 @@ export function NewRecipeDialog() {
     const isFirstPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => !ing.name);
     const isSecondPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => ing.quantity === 0);
 
+    const onSave = async (recipe: NewRecipeDialogProps) => {
+        fetch('http://localhost:8080/api/Recipe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: recipe.name, ingredients: recipe.ingredients.map((ing) => ({ name: ing.name, quantity: ing.quantity, unit: "ml" }))
+            })
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log('Recipe saved successfully:', data);
+                // Optionally, you can reset the form or close the dialog here
+            })
+            .catch((error) => {
+                console.error('Error saving recipe:', error);
+            });
+    };
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -133,7 +158,7 @@ export function NewRecipeDialog() {
                             <Button
                                 disabled={isSecondPageValid}
                                 onClick={() => {
-                                    // onSave(recipeName, ingredients);
+                                    onSave({ name: recipeName.name, ingredients });
                                 }}>
                                 Save
                             </Button>
