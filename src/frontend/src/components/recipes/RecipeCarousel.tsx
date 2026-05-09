@@ -11,6 +11,11 @@ import {
 interface Recipe {
   id: number;
   name: string;
+  recipeIngredients: {
+    name: string;
+    quantity: number;
+    unit: string;
+  }[];
 }
 
 export function RecipeCarousel() {
@@ -48,8 +53,17 @@ export function RecipeCarousel() {
         {Array.from({ length: recipes.length }).map((_, index) => (
           <CarouselItem key={index} className="basis-1/3 pl-10">
             <Card>
-              <CardContent className="flex aspect-square items-center justify-center p-6">
+              <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
+                {/* Recipe name */ }
                 <span className="text-4xl font-semibold">{recipes[index].name}</span>
+                {/* Ingredients */}
+                <ul className="mt-4">
+                  {recipes[index].recipeIngredients.map((ingredient, i) => (
+                    <li key={i} className="text-sm text-gray-500">
+                      {ingredient.name}: {ingredient.quantity} {ingredient.unit}
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           </CarouselItem>

@@ -19,11 +19,11 @@ interface IngredientsInputProps {
 
 interface NewRecipeDialogProps {
     name: string;
-    ingredients: IngredientsInputProps[];
+    recipeIngredients: IngredientsInputProps[];
 }
 
 export function NewRecipeDialog() {
-    const [recipeName, setRecipeName] = useState<NewRecipeDialogProps>({ name: "", ingredients: [] });
+    const [recipeName, setRecipeName] = useState<NewRecipeDialogProps>({ name: "", recipeIngredients: [] });
     const [ingredients, setIngredients] = useState<IngredientsInputProps[]>([]);
     const [page, setPage] = useState<number>(0);
 
@@ -53,7 +53,7 @@ export function NewRecipeDialog() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                name: recipe.name, ingredients: recipe.ingredients.map((ing) => ({ name: ing.name, quantity: ing.quantity, unit: "ml" }))
+                name: recipe.name, recipeIngredients: recipe.recipeIngredients.map((ing) => ({ name: ing.name, quantity: ing.quantity, unit: "ml" }))
             })
         })
             .then((response) => {
@@ -158,7 +158,7 @@ export function NewRecipeDialog() {
                             <Button
                                 disabled={isSecondPageValid}
                                 onClick={() => {
-                                    onSave({ name: recipeName.name, ingredients });
+                                    onSave({ name: recipeName.name, recipeIngredients: ingredients });
                                 }}>
                                 Save
                             </Button>
