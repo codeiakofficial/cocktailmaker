@@ -2,6 +2,7 @@ import { Separator } from "../ui/separator"
 import { Button } from "../ui/button"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
@@ -155,13 +156,15 @@ export function NewRecipeDialog() {
                             <Button variant="secondary" onClick={() => { setPage(0); }}>
                                 Return
                             </Button>
-                            <Button
+                            <DialogClose asChild>
+                                <Button
                                 disabled={isSecondPageValid}
                                 onClick={() => {
                                     onSave({ name: recipeName.name, recipeIngredients: ingredients });
                                 }}>
                                 Save
                             </Button>
+                            </DialogClose>
                         </Field>)}
                 </Field>
             </DialogContent>
