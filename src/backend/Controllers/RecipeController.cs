@@ -88,25 +88,15 @@ public class RecipeController : ControllerBase
             .Ingredients.Where(i => i.UsedInRecipes.Contains(recipeId))
             .ToList();
 
-        if (excludedRecipeIngredients != null)
-        {
-            var filteredIngredients = ingredients.Where(i =>
-                !excludedRecipeIngredients.Any(ri => ri.Name == i.Name)
-            );
+        var filteredIngredients =
+            excludedRecipeIngredients == null
+                ? ingredients
+                : ingredients.Where(i => !excludedRecipeIngredients.Any(ri => ri.Name == i.Name));
 
-            foreach (var ingredient in filteredIngredients)
-            {
-                ingredient.UsedInRecipes.Remove(recipeId);
-                _context.Ingredients.Update(ingredient);
-            }
-        }
-        else
+        foreach (var ingredient in filteredIngredients)
         {
-            foreach (var ingredient in ingredients)
-            {
-                ingredient.UsedInRecipes.Remove(recipeId);
-                _context.Ingredients.Update(ingredient);
-            }
+            ingredient.UsedInRecipes.Remove(recipeId);
+            _context.Ingredients.Update(ingredient);
         }
 
         await _context.SaveChangesAsync();
