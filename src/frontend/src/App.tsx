@@ -5,8 +5,6 @@ import { RecipeCarousel } from './components/recipes/RecipeCarousel'
 import { Separator } from './components/ui/separator'
 import { NewRecipeDialog } from './components/recipes/NewRecipeDialog'
 
-const bgImage = "https://www.cocktail.fr/wp-content/webp-express/webp-images/uploads/2023/01/verre-cocktail.jpg.webp"
-
 function App() {
 
   return (
@@ -23,12 +21,8 @@ function App() {
       </header>
       <Separator className="my-0" />
       {/* Main content */}
-      <main className={`flex flex-col items-center justify-center pt-6 px-20 bg-[url('${bgImage}')] bg-cover min-h-screen`}>
+      <main className={`flex flex-col items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover min-h-screen`}>
         <RecipeCarousel />
-        <h2 className="text-xl font-semibold mt-4">Welcome to Cocktailmaker!</h2>
-        <p className="text-center mt-2 text-gray-600 dark:text-gray-400">
-          Discover amazing cocktails and create your own!
-        </p>
       </main>
     </ThemeProvider>
   )
