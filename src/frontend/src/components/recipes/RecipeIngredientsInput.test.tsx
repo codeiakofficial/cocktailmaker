@@ -22,4 +22,6 @@ test('add ingredient, enter name and verify it appears in the list', async () =>
 
   // Verify it appears
   expect(screen.getByDisplayValue('Vodka')).toBeInTheDocument()
+  expect(screen.getByText('1.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '✕' })).toBeInTheDocument()
 })
