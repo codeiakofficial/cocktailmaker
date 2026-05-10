@@ -35,6 +35,10 @@ export function IngredientTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const handleDelete = (id: number) => {
+    alert(`Delete ingredient with ID: ${id}`);
+  };
+
   return (
     <div className="overflow-hidden rounded-md border backdrop-blur-sm">
       <Table>
@@ -65,21 +69,21 @@ export function IngredientTable<TData, TValue>({
               >
                 {row.getVisibleCells().map(
                   (cell) => {
-                    const ingredient = row.original;
-                    return cell.column.id !== "remove"
+                    const ingredient = row.original as IIngredient;
+                    return cell.column.id === "remove" && ingredient.usedInRecipes.length === 0
                       ? (
-                        // default cell
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>)
-                      : (
                         // remove button cell
                         <TableCell key={cell.id}>
                           <Button variant="ghost"
-                            onClick={() => alert(`Delete ingredient with ID: ${ingredient.id}`)}
+                            onClick={() => handleDelete(ingredient.id)}
                           >
                             ✕
                           </Button>
+                        </TableCell>)
+                      : (
+                        // default cell
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>)
                   })}
               </TableRow>
