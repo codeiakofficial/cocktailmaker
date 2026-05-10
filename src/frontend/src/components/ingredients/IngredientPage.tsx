@@ -1,6 +1,5 @@
 import { useIngredients } from "../../contexts/IngredientContext";
-import { columns } from "./IngredientColumns"
-import { IngredientList } from "./IngredientList";
+import { IngredientList, columns } from "./IngredientList";
  
 export default function IngredientPage() {
   const { ingredients } = useIngredients();
