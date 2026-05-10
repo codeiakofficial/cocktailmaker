@@ -1,12 +1,12 @@
 import { useIngredients } from "../../contexts/IngredientContext";
-import { IngredientList, columns } from "./IngredientList";
+import { IngredientTable, columns } from "./IngredientTable";
  
 export default function IngredientPage() {
   const { ingredients } = useIngredients();
 
   return (
     <div className="container mx-auto py-10">
-      <IngredientList columns={columns} data={ingredients} />
+      <IngredientTable columns={columns} data={ingredients} />
     </div>
   )
 }
