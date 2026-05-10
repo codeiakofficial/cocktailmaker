@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "../ui/table"
 import { Button } from "../ui/button"
+import { useIngredients } from "../../contexts/IngredientContext"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -29,6 +30,7 @@ export function IngredientTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const { deleteIngredient } = useIngredients()!;
   const table = useReactTable({
     data,
     columns,
@@ -36,7 +38,9 @@ export function IngredientTable<TData, TValue>({
   })
 
   const handleDelete = (id: number) => {
-    alert(`Delete ingredient with ID: ${id}`);
+    deleteIngredient(id).catch(error => {
+      console.error('Error deleting ingredient:', error);
+    });
   };
 
   return (
