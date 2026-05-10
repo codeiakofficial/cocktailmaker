@@ -7,4 +7,5 @@ export interface IIngredient {
 }
 export type IngredientContextType = {
     ingredients: IIngredient[];
+    deleteIngredient: (id: number) => Promise<void>;
 };

@@ -63,11 +63,25 @@ export function IngredientTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map(
+                  (cell) => {
+                    const ingredient = row.original;
+                    return cell.column.id !== "remove"
+                      ? (
+                        // default cell
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>)
+                      : (
+                        // remove button cell
+                        <TableCell key={cell.id}>
+                          <Button variant="ghost"
+                            onClick={() => alert(`Delete ingredient with ID: ${ingredient.id}`)}
+                          >
+                            ✕
+                          </Button>
+                        </TableCell>)
+                  })}
               </TableRow>
             ))
           ) : (
@@ -99,15 +113,5 @@ export const columns: ColumnDef<IIngredient>[] = [
   {
     accessorKey: "remove",
     header: "Remove",
-    cell: ({ row }) => {
-      const ingredient = row.original;
-      return ingredient.usedInRecipes.length === 0 ? (
-        <Button variant="ghost"
-          onClick={() => alert(`Delete ingredient with ID: ${ingredient.id}`)}
-        >
-          ✕
-        </Button>
-      ) : null;
-    }
   }
 ]

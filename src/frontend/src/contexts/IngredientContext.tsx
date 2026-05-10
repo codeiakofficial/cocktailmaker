@@ -25,8 +25,21 @@ const IngredientProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         fetchIngredients();
     }, [fetchIngredients]);
 
+    const deleteIngredient = async (id: number) => {
+        try {
+                const response = await fetch(`${API_URL}/ingredient/${id}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) throw new Error('Failed to delete ingredient');
+                setIngredients(ingredients.filter(ingredient => ingredient.id !== id));
+            } catch (err) {
+                console.error(err instanceof Error ? err.message : 'Unknown error');
+            }
+    };
+
     const value: IngredientContextType = {
-        ingredients
+        ingredients,
+        deleteIngredient
     };
 
     return (
