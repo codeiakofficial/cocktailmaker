@@ -20,6 +20,7 @@ import {
 } from "../ui/table"
 import { Button } from "../ui/button"
 import { useIngredients } from "../../contexts/IngredientContext"
+import { useRecipes } from "../../contexts/RecipeContext"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -41,6 +42,15 @@ export function IngredientTable<TData, TValue>({
     deleteIngredient(id).catch(error => {
       console.error('Error deleting ingredient:', error);
     });
+  };
+
+  const resolveRecipeIdsToNames = (ids: string[]): string => {
+    const { recipes } = useRecipes()!;
+    const recipeIds = ids.map(id => parseInt(id, 10));
+    const recipeNames = recipes
+      .filter(recipe => recipeIds.includes(recipe.id))
+      .map(recipe => recipe.name);
+    return recipeNames.join(", ");
   };
 
   return (
@@ -74,9 +84,9 @@ export function IngredientTable<TData, TValue>({
                 {row.getVisibleCells().map(
                   (cell) => {
                     const ingredient = row.original as IIngredient;
-                    return cell.column.id === "remove" && ingredient.usedInRecipes.length === 0
-                      ? (
-                        // remove button cell
+                    // remove button cell
+                    if (cell.column.id === "remove" && ingredient.usedInRecipes.length === 0) {
+                      return (
                         <TableCell key={cell.id}>
                           <Button variant="ghost"
                             onClick={() => handleDelete(ingredient.id)}
@@ -84,12 +94,22 @@ export function IngredientTable<TData, TValue>({
                             ✕
                           </Button>
                         </TableCell>)
-                      : (
-                        // default cell
+                    }
+                    if (cell.column.id === "usedInRecipes") {
+                      return (
+                        <TableCell key={cell.id}>
+                          {resolveRecipeIdsToNames(ingredient.usedInRecipes as unknown as string[])}
+                        </TableCell>)
+                    }
+                    // default cell
+                    else {
+                      return (
                         <TableCell key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>)
-                  })}
+                    }
+                  }
+                )}
               </TableRow>
             ))
           ) : (
