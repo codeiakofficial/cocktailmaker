@@ -95,7 +95,7 @@ export function IngredientTable<TData, TValue>({
                           </Button>
                         </TableCell>)
                     }
-                    if (cell.column.id === "usedInRecipes") {
+                    else if (cell.column.id === "usedInRecipes") {
                       return (
                         <TableCell key={cell.id}>
                           {resolveRecipeIdsToNames(ingredient.usedInRecipes as unknown as string[])}
