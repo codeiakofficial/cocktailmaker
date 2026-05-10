@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table"
+import { Button } from "../ui/button"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -46,9 +47,9 @@ export function IngredientTable<TData, TValue>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 )
               })}
@@ -95,4 +96,18 @@ export const columns: ColumnDef<IIngredient>[] = [
     accessorKey: "usedInRecipes",
     header: "Used In Recipes",
   },
+  {
+    accessorKey: "remove",
+    header: "Remove",
+    cell: ({ row }) => {
+      const ingredient = row.original;
+      return ingredient.usedInRecipes.length === 0 ? (
+        <Button variant="ghost"
+          onClick={() => alert(`Delete ingredient with ID: ${ingredient.id}`)}
+        >
+          ✕
+        </Button>
+      ) : null;
+    }
+  }
 ]
