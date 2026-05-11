@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from "../ui/carousel"
 import { DeleteRecipeButton } from './DeleteRecipeButton';
+import { EditRecipeButton } from './EditRecipeButton';
 import { useRecipes } from '../../contexts/RecipeContext';
 
 interface Recipe {
@@ -44,7 +45,10 @@ export function RecipeCarousel() {
         {Array.from({ length: recipes.length }).map((_, index) => (
           <CarouselItem key={index} className="basis-1/3 pl-10">
             <Card className='relative'>
-              <DeleteRecipeButton recipeId={recipes[index].id} className="w-10 h-10 absolute top-4 right-4" />
+              <div className="absolute top-4 right-4 flex gap-2">
+                <EditRecipeButton recipe={recipes[index]} className="w-10 h-10" />
+                <DeleteRecipeButton recipeId={recipes[index].id} className="w-10 h-10" />
+              </div>
               <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
                 {/* Recipe name */ }
                 <span className="text-4xl font-semibold">{recipes[index].name}</span>

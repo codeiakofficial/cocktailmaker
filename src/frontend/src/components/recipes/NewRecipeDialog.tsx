@@ -11,64 +11,118 @@ import {
 } from "../ui/dialog"
 import { Field, FieldDescription, FieldLabel } from "../ui/field"
 import { Input } from "../ui/input"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRecipes } from "../../contexts/RecipeContext"
 import type { IRecipe } from "../../contexts/Recipe"
 
-interface NewRecipeDialogProps {
+interface RecipeDialogProps {
+    recipe?: IRecipe;
+    trigger?: React.ReactNode;
+}
+
+interface FormState {
     name: string;
     recipeIngredients: IRecipe["recipeIngredients"];
 }
 
-export function NewRecipeDialog() {
-    const [recipeName, setRecipeName] = useState<NewRecipeDialogProps>({ name: "", recipeIngredients: [] });
-    const [ingredients, setIngredients] = useState<IRecipe["recipeIngredients"]>([]);
+export function NewRecipeDialog({ recipe, trigger }: RecipeDialogProps) {
+    const [open, setOpen] = useState(false);
+    const [formData, setFormData] = useState<FormState>({ name: "", recipeIngredients: [] });
     const [page, setPage] = useState<number>(0);
-    const { saveRecipe } = useRecipes()!;
+    const { saveRecipe, updateRecipe } = useRecipes()!;
+    const isEditMode = !!recipe;
+
+    // Reset form when dialog opens/closes
+    useEffect(() => {
+        if (open) {
+            if (isEditMode && recipe) {
+                // Load recipe data for editing
+                setFormData({
+                    name: recipe.name,
+                    recipeIngredients: [...recipe.recipeIngredients]
+                });
+            } else {
+                // Reset for new recipe
+                setFormData({ name: "", recipeIngredients: [] });
+            }
+            setPage(0);
+        }
+    }, [open, recipe, isEditMode]);
 
     function updateRecipeName(value: string): void {
-        setRecipeName({ ...recipeName, name: value });
+        setFormData({ ...formData, name: value });
     }
 
     const updateIngredientName = (index: number, value: string) => {
-        setIngredients((current) =>
-            current.map((ingredient, i) => (i === index ? { ...ingredient, name: value } : ingredient))
-        );
+        setFormData((current) => ({
+            ...current,
+            recipeIngredients: current.recipeIngredients.map((ingredient, i) =>
+                i === index ? { ...ingredient, name: value } : ingredient
+            )
+        }));
     };
 
     const updateIngredientQuantity = (index: number, value: number) => {
-        setIngredients((current) =>
-            current.map((ingredient, i) => (i === index ? { ...ingredient, quantity: value } : ingredient))
-        );
+        setFormData((current) => ({
+            ...current,
+            recipeIngredients: current.recipeIngredients.map((ingredient, i) =>
+                i === index ? { ...ingredient, quantity: value } : ingredient
+            )
+        }));
     };
 
-    const isFirstPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => !ing.name);
-    const isSecondPageValid = !recipeName.name || ingredients.length === 0 || ingredients.some((ing) => ing.quantity === 0);
+    const removeIngredient = (index: number) => {
+        setFormData((current) => ({
+            ...current,
+            recipeIngredients: current.recipeIngredients.filter((_, i) => i !== index)
+        }));
+    };
 
-    const onSave = async (recipe: IRecipe) => {
-        await saveRecipe({
-            id: 0,
-            name: recipe.name,
-            recipeIngredients: recipe.recipeIngredients.map((ingredient) => ({
+    const addIngredient = () => {
+        setFormData((current) => ({
+            ...current,
+            recipeIngredients: [...current.recipeIngredients, { name: "", quantity: 0, unit: "" }]
+        }));
+    };
+
+    const isFirstPageValid = !formData.name || formData.recipeIngredients.length === 0 || formData.recipeIngredients.some((ing) => !ing.name);
+    const isSecondPageValid = !formData.name || formData.recipeIngredients.length === 0 || formData.recipeIngredients.some((ing) => ing.quantity === 0);
+
+    const onSave = async () => {
+        const recipeData = {
+            id: isEditMode ? recipe!.id : 0,
+            name: formData.name,
+            recipeIngredients: formData.recipeIngredients.map((ingredient) => ({
                 name: ingredient.name,
                 quantity: ingredient.quantity || 0,
                 unit: "ml"
             }))
-        });
+        };
+
+        if (isEditMode) {
+            await updateRecipe(recipe!.id, recipeData);
+        } else {
+            await saveRecipe(recipeData);
+        }
+
+        setOpen(false);
     };
 
+    const dialogTitle = isEditMode ? "Edit Recipe" : "New Recipe";
+    const dialogDescription = isEditMode
+        ? "Update your cocktail recipe."
+        : "Create a new cocktail recipe by filling out the form below.";
+
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost">New Recipe</Button>
+                {trigger || <Button variant="ghost">New Recipe</Button>}
             </DialogTrigger>
             <DialogContent className="max-h-[80vh] overflow-y-auto">
                 {/* Title */}
                 <DialogHeader>
-                    <DialogTitle>New Recipe</DialogTitle>
-                    <DialogDescription>
-                        Create a new cocktail recipe by filling out the form below.
-                    </DialogDescription>
+                    <DialogTitle>{dialogTitle}</DialogTitle>
+                    <DialogDescription>{dialogDescription}</DialogDescription>
                 </DialogHeader>
                 {/* Recipe Name */}
                 <Field>
@@ -77,6 +131,7 @@ export function NewRecipeDialog() {
                         id="input-field-name"
                         type="text"
                         placeholder="Enter the recipe name"
+                        value={formData.name}
                         onChange={(event) => updateRecipeName(event.target.value)}
                     />
                     <FieldDescription>
@@ -86,7 +141,7 @@ export function NewRecipeDialog() {
                 <Separator className="my-0" />
                 {/* Ingredients */}
                 <DialogTitle>Ingredients</DialogTitle>
-                {ingredients.map((ingredient, index) => (
+                {formData.recipeIngredients.map((ingredient, index) => (
                     <Field orientation="horizontal" key={index} className="gap-2">
                         <label className="mr-2 text-sm text-muted-foreground">
                             {index + 1}.
@@ -105,7 +160,7 @@ export function NewRecipeDialog() {
                                 <Button
                                     variant="ghost"
                                     tabIndex={-1}
-                                    onClick={() => setIngredients((current) => current.filter((_, i) => i !== index))}
+                                    onClick={() => removeIngredient(index)}
                                 >
                                     ✕
                                 </Button>
@@ -130,9 +185,10 @@ export function NewRecipeDialog() {
                     {page === 0 ? (
                         <Field orientation="horizontal" className="gap-2 w-full justify-end">
                             {/* Navigation First Page */}
-                            <Button variant="secondary" onClick={() => setIngredients((current) => [...current, { name: "", quantity: 0, unit: "" }])}>
+                            <Button variant="secondary" onClick={addIngredient}>
                                 Add
-                            </Button><Button disabled={isFirstPageValid} onClick={() => { setPage(1); }}>
+                            </Button>
+                            <Button disabled={isFirstPageValid} onClick={() => { setPage(1); }}>
                                 Next
                             </Button>
                         </Field>) : (
@@ -143,12 +199,11 @@ export function NewRecipeDialog() {
                             </Button>
                             <DialogClose asChild>
                                 <Button
-                                disabled={isSecondPageValid}
-                                onClick={() => {
-                                    onSave({ id: 0, name: recipeName.name, recipeIngredients: ingredients });
-                                }}>
-                                Save
-                            </Button>
+                                    disabled={isSecondPageValid}
+                                    onClick={onSave}
+                                >
+                                    {isEditMode ? "Update" : "Save"}
+                                </Button>
                             </DialogClose>
                         </Field>)}
                 </Field>
