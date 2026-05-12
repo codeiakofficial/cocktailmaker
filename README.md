@@ -22,3 +22,5 @@ TODO: Create **Backup and Restore**
 ### Frontend
 
 ### Agents
+
+![agents.drawio.svg](./resources/agents.drawio.svg)
