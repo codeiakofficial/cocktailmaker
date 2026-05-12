@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/data/cocktailmaker.db
+    volumes:
+      - ./data:/data
+    networks:
+      - cocktailmaker
+
+  mock-agent:
+    image: python:3.11-slim
+    working_dir: /agent
+    command: python mock/mock_agent.py 5001
+    volumes:
+      - ./:/agent
+    ports:
+      - "5001:5001"
+    networks:
+      - cocktailmaker
+    depends_on:
+      - backend
+
+networks:
+  cocktailmaker:
+    driver: bridge

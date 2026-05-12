@@ -1,0 +1,36 @@
+# PlatformIO
+.pio/
+.vscode/
+build/
+*.o
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IDE
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+bin/
+obj/
+*.a
+*.so
+*.so.*
+*.o
+*.o.d
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+venv/
+.env
+
+# Dependencies
+.platformio/
+.pio-clang-tidy/
