@@ -3,6 +3,8 @@ version: '3.4'
 services:
   cocktailmaker:
     image: cocktailmaker:${TAG:-latest}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     build:
       context: .
     ports:

@@ -30,11 +30,17 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Ensure database is created
+// Ensure database is created and seed development data
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<CocktailDbContext>();
     dbContext.Database.EnsureCreated();
+
+    // Seed development data only in development environment
+    if (app.Environment.IsDevelopment())
+    {
+        dbContext.SeedDeveloperData();
+    }
 }
 
 // Configure the HTTP request pipeline.

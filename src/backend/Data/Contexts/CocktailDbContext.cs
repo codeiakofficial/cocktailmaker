@@ -11,6 +11,7 @@ public class CocktailDbContext : DbContext
 
     public DbSet<Recipe> Recipes { get; set; }
     public DbSet<Ingredient> Ingredients { get; set; }
+    public DbSet<Agent> Agents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,5 +39,67 @@ public class CocktailDbContext : DbContext
             entity.Property(e => e.Name).IsRequired();
             entity.HasIndex(e => e.Name).IsUnique();
         });
+
+        modelBuilder.Entity<Agent>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired();
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+    }
+
+    public void SeedDeveloperData()
+    {
+        InitDeveloperData();
+    }
+
+    private void InitDeveloperData()
+    {
+        if (!Recipes.Any())
+        {
+            var recipe = new Recipe
+            {
+                Name = "Mojito",
+                RecipeIngredients = new List<RecipeIngredient>
+                {
+                    new() { Name = "White Rum", Quantity = 50 },
+                    new() { Name = "Lime Juice", Quantity = 25 },
+                    new() { Name = "Sugar Syrup", Quantity = 15 },
+                    new() { Name = "Mint Leaves", Quantity = 10 },
+                    new() { Name = "Soda Water", Quantity = 100 },
+                },
+            };
+            Recipes.Add(recipe);
+            SaveChanges();
+        }
+
+        if (!Ingredients.Any())
+        {
+            var recipeId = Recipes.FirstOrDefault(r => r.Name == "Mojito")?.Id;
+            var recipeIds = new List<int> { recipeId ?? 0 };
+            var ingredients = new List<Ingredient>
+            {
+                new() { Name = "White Rum", UsedInRecipes = recipeIds },
+                new() { Name = "Lime Juice", UsedInRecipes = recipeIds },
+                new() { Name = "Sugar Syrup", UsedInRecipes = recipeIds },
+                new() { Name = "Mint Leaves", UsedInRecipes = recipeIds },
+                new() { Name = "Soda Water", UsedInRecipes = recipeIds },
+                new() { Name = "Some special ingredients" },
+            };
+            Ingredients.AddRange(ingredients);
+            SaveChanges();
+        }
+
+        if (!Agents.Any())
+        {
+            var agents = new List<Agent>
+            {
+                new() { Name = "Agent Smith", Address = "123 Matrix Street" },
+                new() { Name = "Agent Johnson", Address = "456 Matrix Avenue" },
+                new() { Name = "Agent Brown", Address = "789 Matrix Boulevard" },
+            };
+            Agents.AddRange(agents);
+            SaveChanges();
+        }
     }
 }

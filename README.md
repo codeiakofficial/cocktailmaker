@@ -24,3 +24,14 @@ TODO: Create **Backup and Restore**
 ### Agents
 
 ![agents.drawio.svg](./resources/agents.drawio.svg)
+
+TODO: Add Endpoints for
+
+- GET Agents
+- POST Recipe/Start/id
+- POST Recipe/Stop/id
+
+TODO: Add AgentService for
+
+- AgentDiscovery
+- StartRecipeOnAgent
