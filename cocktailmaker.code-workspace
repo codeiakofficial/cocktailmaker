@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "agent",
+			"path": "src/agent"
+		}
+	],
+	"settings": {}
+}
