@@ -107,7 +107,7 @@ public class RecipeController : ControllerBase
         return await _context.Ingredients.FirstOrDefaultAsync(i => i.Name == recipeIngredient.Name);
     }
 
-    private async Task AddRecipeIdToIngredient(int recipeId, Ingredient? ingredient)
+    private async Task AddRecipeIdToIngredient(int recipeId, Ingredient ingredient)
     {
         var existingRecipeIngredient = await _context.Ingredients.FirstOrDefaultAsync(i =>
             i.Id == ingredient.Id && i.UsedInRecipes.Contains(recipeId)
@@ -121,28 +121,23 @@ public class RecipeController : ControllerBase
         }
     }
 
-    private async Task<Ingredient> AddOrUpdateIngredients(
+    private async Task AddOrUpdateIngredients(
         int recipeId,
         List<RecipeIngredient> recipeIngredients
     )
     {
-        if (recipeIngredients != null)
+        foreach (var recipeIngredient in recipeIngredients)
         {
-            foreach (var recipeIngredient in recipeIngredients)
+            var ingredient = await GetIngredient(recipeIngredient);
+            if (ingredient != null)
             {
-                var ingredient = await GetIngredient(recipeIngredient);
-                if (ingredient != null)
-                {
-                    await AddRecipeIdToIngredient(recipeId, ingredient);
-                }
-                else
-                {
-                    await CreateIngredientAndAddRecipeId(recipeId, recipeIngredient);
-                }
+                await AddRecipeIdToIngredient(recipeId, ingredient);
+            }
+            else
+            {
+                await CreateIngredientAndAddRecipeId(recipeId, recipeIngredient);
             }
         }
-
-        return null;
     }
 
     private async Task CreateIngredientAndAddRecipeId(

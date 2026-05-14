@@ -39,7 +39,6 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T10 | Frontend tests: dispense button disabled when no agent online; enabled and calls `dispense` when agent is online | 4 — Cleanup | Pending |
 | T11 | CI: fix dotnet version (8 → 10), confirm backend build + test job passes | 5 — Pipeline | Pending |
 | T12 | CI: add frontend job — `npm ci`, `npm run build`, `npm test` | 5 — Pipeline | Pending |
 | T13 | CI: add ESP32 job — `pio run -e esp32` (build only, no flash) and `pio test -e test` | 5 — Pipeline | Pending |
