@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent } from "../ui/card"
 import {
   Carousel,
@@ -13,31 +12,10 @@ import { useRecipes } from '../../contexts/RecipeContext';
 import { useAgents } from '../../contexts/AgentContext';
 import { Button } from '../ui/button';
 
-interface Recipe {
-  id: number;
-  name: string;
-  recipeIngredients: {
-    name: string;
-    quantity: number;
-    unit: string;
-  }[];
-}
-
 export function RecipeCarousel() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { recipes: contextRecipes } = useRecipes()!;
+  const { recipes } = useRecipes();
   const { agents, dispense } = useAgents();
   const hasOnlineAgent = agents.some(a => a.isOnline);
-
-  useEffect(() => {
-    setRecipes(contextRecipes);
-    setIsLoading(false);
-  }, [contextRecipes]);
-
-  if (isLoading) {
-    return <div>Loading recipes...</div>;
-  }
 
   return (
     <Carousel className="w-full" opts={{
@@ -46,19 +24,17 @@ export function RecipeCarousel() {
       dragFree: true
     }}>
       <CarouselContent>
-        {Array.from({ length: recipes.length }).map((_, index) => (
-          <CarouselItem key={index} className="basis-1/3 pl-10">
+        {recipes.map((recipe, index) => (
+          <CarouselItem key={recipe.id} className="basis-1/3 pl-10">
             <Card className='relative'>
               <div className="absolute top-4 right-4 flex gap-2">
                 <EditRecipeButton recipe={recipes[index]} className="w-10 h-10" />
-                <DeleteRecipeButton recipeId={recipes[index].id} className="w-10 h-10" />
+                <DeleteRecipeButton recipeId={recipe.id} className="w-10 h-10" />
               </div>
               <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
-                {/* Recipe name */ }
-                <span className="text-4xl font-semibold">{recipes[index].name}</span>
-                {/* Ingredients */}
+                <span className="text-4xl font-semibold">{recipe.name}</span>
                 <ul className="mt-4">
-                  {recipes[index].recipeIngredients.map((ingredient, i) => (
+                  {recipe.recipeIngredients.map((ingredient, i) => (
                     <li key={i} className="text-sm text-gray-500">
                       {ingredient.name}: {ingredient.quantity} {ingredient.unit}
                     </li>
@@ -67,7 +43,7 @@ export function RecipeCarousel() {
                 <Button
                   className="mt-6"
                   disabled={!hasOnlineAgent}
-                  onClick={() => dispense(recipes[index].id)}
+                  onClick={() => dispense(recipe.id)}
                   title={hasOnlineAgent ? undefined : 'No agent online'}
                 >
                   Dispense

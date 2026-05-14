@@ -1,37 +1,30 @@
-import type {
-  ColumnDef
-} from "@tanstack/react-table"
-
+import type { ColumnDef } from "@tanstack/react-table"
 import type { IIngredient } from "../../contexts/Ingredient"
-
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table"
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Button } from "../ui/button"
 import { useIngredients } from "../../contexts/IngredientContext"
 import { useRecipes } from "../../contexts/RecipeContext"
+import type { IRecipe } from "../../contexts/Recipe"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
+function resolveRecipeIdsToNames(ids: number[], recipes: IRecipe[]): string {
+  return recipes
+    .filter(recipe => ids.includes(recipe.id))
+    .map(recipe => recipe.name)
+    .join(", ");
+}
+
 export function IngredientTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const { deleteIngredient } = useIngredients()!;
+  const { deleteIngredient } = useIngredients();
+  const { recipes } = useRecipes();
   const table = useReactTable({
     data,
     columns,
@@ -44,72 +37,53 @@ export function IngredientTable<TData, TValue>({
     });
   };
 
-  const resolveRecipeIdsToNames = (ids: string[]): string => {
-    const { recipes } = useRecipes()!;
-    const recipeIds = ids.map(id => parseInt(id, 10));
-    const recipeNames = recipes
-      .filter(recipe => recipeIds.includes(recipe.id))
-      .map(recipe => recipe.name);
-    return recipeNames.join(", ");
-  };
-
   return (
     <div className="overflow-hidden rounded-md border backdrop-blur-sm">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                )
-              })}
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map(
-                  (cell) => {
-                    const ingredient = row.original as IIngredient;
-                    // remove button cell
-                    if (cell.column.id === "remove" && ingredient.usedInRecipes.length === 0) {
-                      return (
-                        <TableCell key={cell.id}>
-                          <Button variant="ghost"
-                            onClick={() => handleDelete(ingredient.id)}
-                          >
-                            ✕
-                          </Button>
-                        </TableCell>)
-                    }
-                    else if (cell.column.id === "usedInRecipes") {
-                      return (
-                        <TableCell key={cell.id}>
-                          {resolveRecipeIdsToNames(ingredient.usedInRecipes as unknown as string[])}
-                        </TableCell>)
-                    }
-                    // default cell
-                    else {
-                      return (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>)
-                    }
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => {
+                  const ingredient = row.original as IIngredient;
+
+                  if (cell.column.id === "remove" && ingredient.usedInRecipes.length === 0) {
+                    return (
+                      <TableCell key={cell.id}>
+                        <Button variant="ghost" onClick={() => handleDelete(ingredient.id)}>
+                          ✕
+                        </Button>
+                      </TableCell>
+                    )
                   }
-                )}
+
+                  if (cell.column.id === "usedInRecipes") {
+                    return (
+                      <TableCell key={cell.id}>
+                        {resolveRecipeIdsToNames(ingredient.usedInRecipes, recipes)}
+                      </TableCell>
+                    )
+                  }
+
+                  return (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (
@@ -126,20 +100,8 @@ export function IngredientTable<TData, TValue>({
 }
 
 export const columns: ColumnDef<IIngredient>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorKey: "usedInRecipes",
-    header: "Used In Recipes",
-  },
-  {
-    accessorKey: "remove",
-    header: "Remove",
-  }
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "usedInRecipes", header: "Used In Recipes" },
+  { accessorKey: "remove", header: "Remove" },
 ]

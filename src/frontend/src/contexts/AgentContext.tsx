@@ -58,11 +58,16 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const dispense = async (recipeId: number) => {
     const agent = agents.find(a => a.isOnline);
     if (!agent) return;
-    await fetch(`${API_BASE}/agents/${agent.id}/dispense`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipeId }),
-    });
+    try {
+      const response = await fetch(`${API_BASE}/agents/${agent.id}/dispense`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipeId }),
+      });
+      if (!response.ok) throw new Error(`Dispense failed: ${response.status}`);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : 'Unknown error');
+    }
   };
 
   const value: AgentContextType = { agents, dispense };
