@@ -1,28 +1,75 @@
-import { act, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi, beforeEach } from 'vitest'
 import { NewRecipeDialog } from './NewRecipeDialog'
+import { RecipeContext } from '../../contexts/RecipeContext'
+import type { RecipeContextType } from '../../contexts/Recipe'
 
-test('add ingredient, enter name and verify it appears in the list', async () => {
-  const user = userEvent.setup()
-  // ARRANGE
-  await act(async () => {
-    render(<NewRecipeDialog />)
-  });
+function renderDialog(overrides: Partial<RecipeContextType> = {}) {
+  const context: RecipeContextType = {
+    recipes: [],
+    saveRecipe: vi.fn(),
+    updateRecipe: vi.fn(),
+    deleteRecipe: vi.fn(),
+    ...overrides,
+  }
+  render(
+    <RecipeContext.Provider value={context}>
+      <NewRecipeDialog />
+    </RecipeContext.Provider>
+  )
+  return context
+}
 
-  // ACT
-  await act(async () => {
+describe('NewRecipeDialog', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+
+  test('opens dialog on trigger click', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
     await user.click(screen.getByRole('button', { name: 'New Recipe' }))
-    await user.click(screen.getByRole('button', { name: 'Add' }))
-    await screen.getByPlaceholderText('Enter the ingredients')
-    const input = screen.getByPlaceholderText('Enter the ingredients')
-    // Type ingredient name
-    await user.type(input, 'Vodka')
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  // Verify it appears
-  expect(screen.getByDisplayValue('Vodka')).toBeInTheDocument()
-  expect(screen.getByText('1.')).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '✕' })).toBeInTheDocument()
+  test('adds an ingredient and shows it in the list', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.click(screen.getByRole('button', { name: 'New Recipe' }))
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.type(screen.getByPlaceholderText('Enter the ingredients'), 'Vodka')
+
+    expect(screen.getByDisplayValue('Vodka')).toBeInTheDocument()
+    expect(screen.getByText('1.')).toBeInTheDocument()
+  })
+
+  test('removes an ingredient on ✕ click', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.click(screen.getByRole('button', { name: 'New Recipe' }))
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.type(screen.getByPlaceholderText('Enter the ingredients'), 'Gin')
+    await user.click(screen.getByRole('button', { name: '✕' }))
+
+    expect(screen.queryByDisplayValue('Gin')).not.toBeInTheDocument()
+  })
+
+  test('Next is disabled until name and at least one ingredient are filled', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.click(screen.getByRole('button', { name: 'New Recipe' }))
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.type(screen.getByPlaceholderText('Enter the ingredients'), 'Rum')
+    await user.type(screen.getByLabelText(/name/i), 'Mojito')
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
+  })
 })
