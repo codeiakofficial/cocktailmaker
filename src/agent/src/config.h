@@ -1,21 +1,13 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// WiFi Configuration
-#define WIFI_SSID "YOUR_SSID"
-#define WIFI_PASSWORD "YOUR_PASSWORD"
-
-// API Configuration
-#define API_HOST "localhost"
-#define API_PORT 8080
-#define API_BASE_URL "http://localhost:8080/api"
+#include "config_local.h"
 
 // Agent Configuration
 #define AGENT_ID 1
 #define AGENT_NAME "Drink Dispenser 1"
 
 // MQTT Configuration
-#define MQTT_BROKER_HOST API_HOST   // same host as the REST API
 #define MQTT_BROKER_PORT 1883
 #define MQTT_AGENT_ID    "dispenser-1"
 

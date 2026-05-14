@@ -37,3 +37,4 @@ venv/
 
 # CI
 test-results.xml
+config_local.h

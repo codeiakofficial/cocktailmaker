@@ -36,8 +36,11 @@ builder.Services.AddCors(options =>
     );
 });
 
-// Add support for OpenAPI
-builder.Services.AddOpenApi();
+// Add support for OpenAPI (dev only)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi();
+}
 
 var app = builder.Build();
 
@@ -55,22 +58,32 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-app.MapOpenApi();
-app.MapScalarApiReference();
-app.UseExceptionHandler("/Home/Error");
-// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-app.UseHsts();
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
-app.UseHttpsRedirection();
+app.UseExceptionHandler("/Home/Error");
+
+if (!app.Environment.IsDevelopment())
+{
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
+app.UseStaticFiles();
 app.MapStaticAssets();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

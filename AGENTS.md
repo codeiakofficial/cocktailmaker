@@ -9,6 +9,7 @@
 - If your change resolves a Known Mismatch, remove its row from the table in `docs/architecture.md`. If your change introduces a new mismatch, add a row.
 - After completing a task, update `docs/architecture.md` and `docs/requirements.md`: remove resolved pending items, update constraints, adjust diagrams if flows changed.
 - Always apply domain best practices (C#/.NET conventions, REST API design, Docker, architectural patterns, ESP32/embedded). If existing code deviates from best practice, report the mismatch to the user before proceeding — do not silently fix or silently ignore it.
+- After any backend change, `dotnet test` must pass — including `ArchitectureTests` (conventions) and `DocumentationTests` (docs/architecture.md contract). A failing architecture or documentation test means code and docs disagree — fix the code or update the docs, never delete the test.
 
 ---
 
@@ -39,17 +40,8 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T11 | CI: fix dotnet version (8 → 10), confirm backend build + test job passes | 5 — Pipeline | Pending |
-| T12 | CI: add frontend job — `npm ci`, `npm run build`, `npm test` | 5 — Pipeline | Pending |
-| T13 | CI: add ESP32 job — `pio run -e esp32` (build only, no flash) and `pio test -e test` | 5 — Pipeline | Pending |
-| T14 | Serve frontend static build (`npm run build`) from backend Docker image via `wwwroot` | 6 — Release | Pending |
-| T15 | Backend release config: disable dev seed data and Scalar UI in non-Development environments | 6 — Release | Pending |
-| T16 | Agent release config: WiFi credentials, MQTT host, and API host read from a `config_local.h` excluded from git | 6 — Release | Pending |
 | T17 | Pipeline release job: build Docker image, tag with git SHA, push to registry | 6 — Release | Pending |
 | T18 | Integration test suite covering full stack: backend health, MQTT publish → agent status flip, dispense endpoint → MQTT command published | 7 — Verification | Pending |
-
-**T11, T12, T13 can run in parallel** — independent CI jobs, no shared state.
-**T14, T15, T16 can run in parallel** — different codebases. T17 depends on all three.
 
 ---
 
