@@ -8,4 +8,5 @@ export interface IAgent {
 
 export type AgentContextType = {
   agents: IAgent[]
+  dispense: (recipeId: number) => Promise<void>
 }

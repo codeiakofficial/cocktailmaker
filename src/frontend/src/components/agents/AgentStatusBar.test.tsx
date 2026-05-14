@@ -20,8 +20,10 @@ describe('AgentStatusBar', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
+  const noopDispense = async () => {}
+
   test('renders nothing when agents list is empty', () => {
-    const { container } = renderWithAgents({ agents: [] })
+    const { container } = renderWithAgents({ agents: [], dispense: noopDispense })
     expect(container.firstChild).toBeNull()
   })
 
@@ -30,7 +32,8 @@ describe('AgentStatusBar', () => {
       agents: [
         { id: 1, name: 'Dispenser 1', agentId: 'dispenser-1', isOnline: true, lastSeen: null },
         { id: 2, name: 'Dispenser 2', agentId: 'dispenser-2', isOnline: false, lastSeen: '2026-05-14T13:00:00Z' },
-      ]
+      ],
+      dispense: noopDispense,
     })
     expect(screen.getByText('Dispenser 1')).toBeInTheDocument()
     expect(screen.getByText('Dispenser 2')).toBeInTheDocument()
@@ -40,7 +43,8 @@ describe('AgentStatusBar', () => {
     renderWithAgents({
       agents: [
         { id: 1, name: 'Dispenser 1', agentId: 'dispenser-1', isOnline: true, lastSeen: null },
-      ]
+      ],
+      dispense: noopDispense,
     })
     const dot = screen.getByLabelText('online')
     expect(dot).toHaveClass('bg-green-500')
@@ -50,7 +54,8 @@ describe('AgentStatusBar', () => {
     renderWithAgents({
       agents: [
         { id: 1, name: 'Dispenser 1', agentId: 'dispenser-1', isOnline: false, lastSeen: null },
-      ]
+      ],
+      dispense: noopDispense,
     })
     const dot = screen.getByLabelText('offline')
     expect(dot).toHaveClass('bg-red-500')

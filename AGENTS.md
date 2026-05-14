@@ -21,6 +21,7 @@ Routes tasks to the correct domain agent. Coordinates changes that span multiple
 - `src/agent/` → ESP32 Agent
 - `src/docker-compose.yml`, infrastructure → Backend Agent
 - Cross-cutting → instruct each affected agent in sequence or in parallel where independent
+- Frontend API calls belong in context files (e.g. `AgentContext`, `RecipeContext`), not in components
 
 **When planning multi-step tasks, proactively suggest relevant Claude Code capabilities:**
 - **Subagents** — spawn parallel agents when tasks are cross-codebase and independent (e.g. Backend + ESP32 sharing only an interface contract). Each subagent carries a cold-start cost — reserve for genuinely large or parallel work. Simple, single-file, or low-context tasks should be executed inline — subagents are not worth the overhead.
@@ -38,7 +39,7 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 | Phase | Tasks | Status |
 |-------|-------|--------|
 | 2 — Monitoring | T4 Backend persists IsOnline/LastSeen, T5 SSE endpoint, T6 Frontend health UI | Done |
-| 3 — Dispense | T7 Backend dispense endpoint, T8 ESP32 command handler, T9 Frontend dispense trigger | Pending |
+| 3 — Dispense | T7 Backend dispense endpoint, T8 ESP32 command handler, T9 Frontend dispense trigger | Done |
 | 4 — Cleanup | Fix failing NewRecipeDialog test, refactor frontend to single base URL constant, add frontend tests for existing flows, consistent naming pass, show connection-lost state in UI when SSE drops (backend unreachable) | Pending |
 | 5 — Pipeline | Add npm build + test step, add PlatformIO build + test step | Pending |
 | 6 — Release | Serve frontend from backend Docker image, apply release configs (backend/frontend/agent), pipeline creates and tests release build | Pending |

@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "../ui/card"
 import {
   Carousel,
@@ -10,6 +10,8 @@ import {
 import { DeleteRecipeButton } from './DeleteRecipeButton';
 import { EditRecipeButton } from './EditRecipeButton';
 import { useRecipes } from '../../contexts/RecipeContext';
+import { useAgents } from '../../contexts/AgentContext';
+import { Button } from '../ui/button';
 
 interface Recipe {
   id: number;
@@ -25,6 +27,8 @@ export function RecipeCarousel() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { recipes: contextRecipes } = useRecipes()!;
+  const { agents, dispense } = useAgents();
+  const hasOnlineAgent = agents.some(a => a.isOnline);
 
   useEffect(() => {
     setRecipes(contextRecipes);
@@ -60,6 +64,14 @@ export function RecipeCarousel() {
                     </li>
                   ))}
                 </ul>
+                <Button
+                  className="mt-6"
+                  disabled={!hasOnlineAgent}
+                  onClick={() => dispense(recipes[index].id)}
+                  title={hasOnlineAgent ? undefined : 'No agent online'}
+                >
+                  Dispense
+                </Button>
               </CardContent>
             </Card>
           </CarouselItem>

@@ -55,7 +55,17 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  const value: AgentContextType = { agents };
+  const dispense = async (recipeId: number) => {
+    const agent = agents.find(a => a.isOnline);
+    if (!agent) return;
+    await fetch(`${API_URL}/agent/${agent.id}/dispense`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipeId }),
+    });
+  };
+
+  const value: AgentContextType = { agents, dispense };
 
   return (
     <AgentContext.Provider value={value}>
