@@ -40,7 +40,6 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T17 | Pipeline release job: build Docker image, tag with git SHA, push to registry | 6 — Release | Pending |
 | T18 | Integration test suite covering full stack: backend health, MQTT publish → agent status flip, dispense endpoint → MQTT command published | 7 — Verification | Pending |
 
 ---
