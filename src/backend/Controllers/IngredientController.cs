@@ -8,7 +8,7 @@ namespace CocktailMaker.Controllers;
 
 [ApiController]
 [Route("api/ingredients")]
-public class IngredientController : Controller
+public class IngredientController : ControllerBase
 {
     private readonly CocktailDbContext _context;
 
