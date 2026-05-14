@@ -17,3 +17,8 @@ public record AgentDto(int Id, string Name, string AgentId, bool IsOnline, DateT
             LastSeen = LastSeen,
         };
 }
+
+public class DispenseRequest
+{
+    public int RecipeId { get; set; }
+}

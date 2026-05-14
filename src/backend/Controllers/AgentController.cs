@@ -13,11 +13,13 @@ public class AgentController : ControllerBase
 {
     private readonly CocktailDbContext _context;
     private readonly AgentEventBroadcaster _broadcaster;
+    private readonly MqttService _mqttService;
 
-    public AgentController(CocktailDbContext context, AgentEventBroadcaster broadcaster)
+    public AgentController(CocktailDbContext context, AgentEventBroadcaster broadcaster, MqttService mqttService)
     {
         _context = context;
         _broadcaster = broadcaster;
+        _mqttService = mqttService;
     }
 
     // GET: api/agent
@@ -26,6 +28,19 @@ public class AgentController : ControllerBase
     {
         var agents = await _context.Agents.ToListAsync();
         return Ok(agents.Select(AgentDto.From));
+    }
+
+    // POST: api/agent/{id}/dispense
+    [HttpPost("{id}/dispense")]
+    public async Task<IActionResult> Dispense(int id, [FromBody] DispenseRequest request)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null) return NotFound();
+
+        var topic = $"cocktailmaker/agents/{agent.AgentId}/command";
+        var payload = JsonSerializer.Serialize(new { recipeId = request.RecipeId });
+        await _mqttService.PublishAsync(topic, payload);
+        return Accepted();
     }
 
     // GET: /api/agents/events

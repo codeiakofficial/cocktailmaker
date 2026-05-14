@@ -104,6 +104,18 @@ public class MqttService : IHostedService, IDisposable
         await _broadcaster.BroadcastAsync(new AgentStatusEvent(agentId, isOnline, lastSeen));
     }
 
+    public async Task PublishAsync(string topic, string payload)
+    {
+        if (_client == null || !_client.IsConnected)
+            return;
+
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(payload)
+            .Build();
+        await _client.PublishAsync(message);
+    }
+
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         _cts?.Cancel();

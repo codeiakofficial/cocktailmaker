@@ -8,7 +8,7 @@
 
 PumpController pump;
 APIClient api;
-MqttClient mqtt;
+MqttClient mqtt(pump, api);
 
 void setup() {
     Serial.begin(115200);
