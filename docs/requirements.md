@@ -19,16 +19,12 @@ Derived from current implementation. Pending items are intended but not yet buil
 - The backend subscribes to agent status topics and logs received events
 - The backend stores agents by database ID, human-readable name, and AgentId
 - AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
-- The backend can push a dispense command to a specific agent _(pending)_
+- The backend pushes a dispense command to a specific agent via MQTT
 
 **Health monitoring**
 - The user can see whether each agent is connected and responsive
 - Connection loss is detected automatically without user action
 - Health state is updated in near-real-time in the UI via SSE stream
-
-## Pending
-
-- Agent subscribes to `cocktailmaker/agents/{agentId}/command` and executes dispense on message
 
 ## Constraints
 
@@ -44,3 +40,4 @@ Derived from current implementation. Pending items are intended but not yet buil
 | Pump count | 4 | `src/agent/src/pump_controller.h` |
 | MQTT Agent ID | `dispenser-1` (hardcoded) | `src/agent/src/config.h` |
 | Multi-agent | Supported by MQTT topic structure; not a current priority | — |
+| CI | GitHub Actions: backend (dotnet test), frontend (vitest), ESP32 (pio test); test reports via dorny/test-reporter | `.github/workflows/ci.yml` |

@@ -45,18 +45,18 @@ sequenceDiagram
     participant Backend
     participant SQLite
 
-    Browser->>Backend: GET /api/recipe
+    Browser->>Backend: GET /api/recipes
     Backend->>SQLite: SELECT
     SQLite-->>Backend: rows
     Backend-->>Browser: Recipe[]
 
-    Browser->>Backend: POST /api/recipe
+    Browser->>Backend: POST /api/recipes
     Backend->>SQLite: INSERT recipe (ingredients as JSON blob)
     Backend->>SQLite: UPSERT Ingredient rows + update UsedInRecipes
     Backend-->>Browser: 201 Created
 ```
 
-### Dispense command — target (not yet implemented)
+### Dispense command
 
 ```mermaid
 sequenceDiagram
@@ -65,7 +65,7 @@ sequenceDiagram
     participant Broker as Mosquitto
     participant ESP32
 
-    Browser->>Backend: POST /api/agent/{id}/dispense {recipeId}
+    Browser->>Backend: POST /api/agents/{id}/dispense {recipeId}
     Backend->>Broker: PUBLISH cocktailmaker/agents/{agentId}/command
     Broker-->>ESP32: {recipeId}
     ESP32->>Backend: GET /api/recipe/{recipeId}
@@ -73,7 +73,7 @@ sequenceDiagram
     ESP32->>ESP32: dispense pumps
 ```
 
-### Agent health monitoring — MQTT + DB + SSE done, UI pending
+### Agent health monitoring
 
 ```mermaid
 sequenceDiagram
