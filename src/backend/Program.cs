@@ -7,7 +7,10 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    );
 
 // Register AgentEventBroadcaster as singleton for SSE broadcasting
 builder.Services.AddSingleton<AgentEventBroadcaster>();
