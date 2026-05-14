@@ -73,6 +73,8 @@ jobs:
           python-version: "3.12"
       - name: Install PlatformIO
         run: pip install platformio
+      - name: Create local config
+        run: cp src/agent/src/config_local.h.example src/agent/src/config_local.h
       - name: Build firmware
         working-directory: src/agent
         run: pio run -e esp32
