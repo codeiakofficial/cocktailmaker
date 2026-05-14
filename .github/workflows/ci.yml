@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   backend:
     name: Backend — build & test
@@ -21,7 +25,14 @@ jobs:
       - name: Build
         run: dotnet build ./src/backend/ --no-restore
       - name: Test
-        run: dotnet test ./tests/backend/
+        run: dotnet test ./tests/backend/ --logger trx --results-directory test-results
+      - name: Report test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Backend Tests
+          path: test-results/*.trx
+          reporter: dotnet-trx
 
   frontend:
     name: Frontend — build & test
@@ -42,7 +53,14 @@ jobs:
         run: npm run build
       - name: Test
         working-directory: src/frontend
-        run: npm test -- --run
+        run: npm test -- --run --reporter=junit --outputFile=test-results.xml
+      - name: Report test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Frontend Tests
+          path: src/frontend/test-results.xml
+          reporter: java-junit
 
   esp32:
     name: ESP32 — build & test
@@ -60,4 +78,11 @@ jobs:
         run: pio run -e esp32
       - name: Run unit tests
         working-directory: src/agent
-        run: pio test -e test
+        run: pio test -e test --junit-output-path test-results.xml
+      - name: Report test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: ESP32 Tests
+          path: src/agent/test-results.xml
+          reporter: java-junit
