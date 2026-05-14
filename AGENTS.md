@@ -42,6 +42,25 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 
 **T7 and T8 (Phase 3) can run in parallel** — different codebases, shared interface: `cocktailmaker/agents/{agentId}/command` topic, payload `{"recipeId": N}`.
 
+Next Phases:
+- Fixing and refactoring
+    - Fix failing tests
+    - Refactor frontend to use the same base URL
+    - Add more frontend tests to verify the existing implementation
+    - Check for clean code consistent naming
+- Update UI dispenser state onChange
+- Update pipeline (separate phases)
+    - Add npm build and test
+    - Add agent build and test
+- Create release (separate phases)
+    - docker container should contain the frontend
+    - Release should use the release configuration for
+        - backend
+        - frontend
+        - agent
+    - Release should be created and tested in pipeline
+- Add a subagent which knows and verifies the complete system (backend, frontend, agent)
+
 ---
 
 # Agents
