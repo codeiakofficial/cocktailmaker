@@ -73,7 +73,7 @@ sequenceDiagram
     ESP32->>ESP32: dispense pumps
 ```
 
-### Agent health monitoring — target (not yet implemented)
+### Agent health monitoring — MQTT + DB + SSE done, UI pending
 
 ```mermaid
 sequenceDiagram
@@ -115,8 +115,8 @@ erDiagram
         int     Id          PK
         string  Name
         string  AgentId     "MQTT topic identifier — unique"
-        bool    IsOnline    "pending — set via MQTT status events"
-        datetime LastSeen   "pending"
+        bool    IsOnline    "set via MQTT status events"
+        datetime LastSeen   "set via MQTT status events"
     }
 ```
 
@@ -126,9 +126,4 @@ erDiagram
 
 ## Known Mismatches
 
-| # | Location | Expected | Actual |
-|---|----------|----------|--------|
-| 1 | `APIClient::report_status()` | Status via MQTT LWT | HTTP POST to missing endpoint |
-| 2 | `Program.cs` | OpenAPI in development | Registered only in `!IsDevelopment` |
-| 3 | `main.cpp` loop | MQTT subscription callback | `delay(10000)` only |
-| 4 | `api_client.h` | `PubSubClient` for MQTT | Raw TCP `WiFiClient` |
+None currently.

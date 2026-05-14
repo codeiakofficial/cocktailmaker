@@ -56,39 +56,7 @@ public:
         return true;
     }
     
-    // Report agent status to backend
-    bool report_status(bool is_ready, const String& message = "") {
-        if (!connect()) {
-            Serial.println("[API] Failed to connect to backend");
-            return false;
-        }
-        
-        JsonDocument payload;
-        payload["id"] = AGENT_ID;
-        payload["name"] = AGENT_NAME;
-        payload["isReady"] = is_ready;
-        payload["message"] = message;
-        
-        String json_str;
-        serializeJson(payload, json_str);
-        
-        String request = "POST /api/agent/" + String(AGENT_ID) + " HTTP/1.1\r\n";
-        request += "Host: " + String(API_HOST) + "\r\n";
-        request += "Content-Type: application/json\r\n";
-        request += "Content-Length: " + String(json_str.length()) + "\r\n";
-        request += "Connection: close\r\n\r\n";
-        request += json_str;
-        
-        client.print(request);
-        
-        // Read response
-        while (client.connected()) {
-            String line = client.readStringUntil('\n');
-        }
-        
-        client.stop();
-        return true;
-    }
 };
+// Note: report_status() removed — agent status is now published via MQTT (see mqtt_client.h)
 
 #endif // API_CLIENT_H

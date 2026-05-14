@@ -5,6 +5,7 @@ services:
     image: cocktailmaker:${TAG:-latest}
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Mqtt__Host=mosquitto
     build:
       context: .
     ports:

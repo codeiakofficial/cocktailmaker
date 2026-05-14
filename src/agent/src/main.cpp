@@ -4,9 +4,11 @@
 #include "config.h"
 #include "pump_controller.h"
 #include "api_client.h"
+#include "mqtt_client.h"
 
 PumpController pump;
 APIClient api;
+MqttClient mqtt;
 
 void setup() {
     Serial.begin(115200);
@@ -34,9 +36,9 @@ void setup() {
         Serial.println();
         Serial.println("[WiFi] Failed to connect!");
     }
-    
-    // Report status to backend
-    api.report_status(true, "Agent initialized and ready");
+
+    // Connect to MQTT broker and publish online status
+    mqtt.begin();
 }
 
 void loop() {
@@ -47,7 +49,6 @@ void loop() {
         return;
     }
     
-    // Poll backend for commands (in real implementation)
-    // For now, just keep-alive
-    delay(10000);
+    // Drive MQTT keep-alive and handle reconnects
+    mqtt.loop();
 }

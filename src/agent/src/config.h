@@ -14,6 +14,11 @@
 #define AGENT_ID 1
 #define AGENT_NAME "Drink Dispenser 1"
 
+// MQTT Configuration
+#define MQTT_BROKER_HOST API_HOST   // same host as the REST API
+#define MQTT_BROKER_PORT 1883
+#define MQTT_AGENT_ID    "dispenser-1"
+
 // Hardware Pins
 #define PUMP_1_PIN 16
 #define PUMP_2_PIN 17

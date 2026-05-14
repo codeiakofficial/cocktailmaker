@@ -15,24 +15,20 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Emergency stop halts all pumps immediately regardless of state
 
 **Agent lifecycle**
-- The agent connects to the backend network on boot and reports ready status
+- The agent connects to the broker on boot, sets a LWT, and publishes online status
+- The backend subscribes to agent status topics and logs received events
 - The backend stores agents by database ID, human-readable name, and AgentId
 - AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
-- The backend can push a dispense command to a specific agent _(pending — MQTT clients not yet implemented)_
+- The backend can push a dispense command to a specific agent _(pending)_
 
-**Health monitoring** _(pending)_
+**Health monitoring**
 - The user can see whether each agent is connected and responsive
 - Connection loss is detected automatically without user action
-- Health state is updated in near-real-time in the UI
+- Health state is updated in near-real-time in the UI via SSE stream
 
 ## Pending
 
-- Backend MQTT client: connect to broker, subscribe to `cocktailmaker/agents/+/status`
-- Agent MQTT client: connect to broker, set LWT, publish `cocktailmaker/agents/{agentId}/status`
 - Agent subscribes to `cocktailmaker/agents/{agentId}/command` and executes dispense on message
-- Backend persists agent online/offline state from MQTT status events
-- Backend SSE endpoint pushes agent status changes to the frontend
-- Frontend consumes SSE and displays live agent health
 
 ## Constraints
 
@@ -42,8 +38,8 @@ Derived from current implementation. Pending items are intended but not yet buil
 | MQTT broker | `eclipse-mosquitto:2`, port 1883, anonymous auth | `src/docker-compose.yml`, `src/mosquitto/mosquitto.conf` |
 | Frontend API base URL | `http://localhost:8080/api` (hardcoded) | `RecipeContext.tsx`, `IngredientContext.tsx` |
 | CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
-| Agent transport (current) | Plain HTTP via raw TCP | `api_client.h` |
-| Agent transport (target) | MQTT over TCP :1883 | — |
-| Pump count | 4 | `pump_controller.h` |
-| Agent ID | `1` (hardcoded) | `config.h` |
+| Agent transport (status) | MQTT via `PubSubClient` — LWT + retained publish | `src/agent/src/mqtt_client.h` |
+| Agent transport (recipe fetch) | Plain HTTP via raw TCP | `src/agent/src/api_client.h` |
+| Pump count | 4 | `src/agent/src/pump_controller.h` |
+| MQTT Agent ID | `dispenser-1` (hardcoded) | `src/agent/src/config.h` |
 | Multi-agent | Supported by MQTT topic structure; not a current priority | — |
