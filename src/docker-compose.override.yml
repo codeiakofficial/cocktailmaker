@@ -1,0 +1,7 @@
+# Development overrides — merged automatically when running plain `docker-compose up`.
+# Enables seed data, Scalar UI, and disables HSTS/HTTPS redirect.
+# Never use this file in production.
+services:
+  cocktailmaker:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development

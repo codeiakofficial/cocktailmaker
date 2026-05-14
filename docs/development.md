@@ -14,56 +14,66 @@
 
 ---
 
+## Docker Compose files
+
+```
+src/
+├── docker-compose.yml           ← production base (no ASPNETCORE_ENVIRONMENT)
+└── docker-compose.override.yml  ← dev overrides (auto-merged by default)
+```
+
+Docker Compose automatically merges `docker-compose.override.yml` when you run `docker-compose up` without arguments. Specifying the file explicitly skips it.
+
+| Command | Mode | Frontend |
+|---|---|---|
+| `docker-compose up` | Development | Run `npm run dev` separately on :5173 |
+| `docker-compose -f docker-compose.yml up` | Production | Served from :8080 via wwwroot |
+
+---
+
 ## Development workflow
 
-Two servers, independent — the Dockerfile is **not used** in development.
+Two servers, independent — the **Dockerfile is not used** in development.
 
 ```
 Browser
   │
-  ├─ localhost:5173 ──► Vite dev server (npm run dev)
+  ├─ localhost:5173 ──► Vite dev server   (npm run dev)
   │                        └─ HMR, instant reloads ✓
   │
-  └─ localhost:8080 ──► Backend (dotnet run or docker-compose)
+  └─ localhost:8080 ──► Backend + broker  (docker-compose up)
                            └─ REST API + SSE + MQTT
 ```
 
 ```bash
-# Terminal 1 — backend + broker
+# Terminal 1 — backend + broker (dev mode via override)
 cd src && docker-compose up
 
 # Terminal 2 — frontend with live reload
 cd src/frontend && npm run dev
 ```
 
-Open `http://localhost:5173` — the Vite dev server proxies API calls to `:8080` via the CORS policy. HMR works exactly as before. The Dockerfile change has no effect on this workflow.
+Open `http://localhost:5173`. The Vite dev server calls the backend on `:8080` via the CORS policy. HMR works as normal.
 
 ---
 
 ## Production workflow
 
-One Docker image, one port — the Vite dev server is **not used**.
+One Docker image, one port — the **Vite dev server is not used**.
 
 ```
 Browser
   │
   └─ :8080 ──► Backend container
-                 ├─ /api/*       → controllers
-                 ├─ /scalar/*    → (disabled)
-                 └─ /*           → wwwroot/index.html (React SPA)
+                 ├─ /api/*   → controllers
+                 └─ /*       → wwwroot/index.html  (React SPA)
 ```
-
-The image is built once: Node compiles the frontend into `dist/`, .NET publishes the backend, and `dist/` is copied into `wwwroot/`. At runtime it is a single process on a single port.
 
 ```bash
-# Build and run the production image
-cd src && docker-compose -p cocktailmaker build && docker-compose -p cocktailmaker up
+# Build and run in production mode (override file skipped)
+cd src
+docker-compose -f docker-compose.yml build
+docker-compose -f docker-compose.yml up
 ```
 
-> **Note:** `docker-compose.yml` currently sets `ASPNETCORE_ENVIRONMENT=Development`, which re-enables seed data and Scalar UI even in the Docker image. For a true production deployment, remove that variable or override it with `ASPNETCORE_ENVIRONMENT=Production`.
-
----
-
-## Summary
-
-> The Dockerfile including the frontend does **not** affect local development. You always run the Vite dev server directly for development — it gives you HMR, fast builds, and source maps. Docker is only the production packaging step.
+The image is built once: Node compiles the frontend into `dist/`, .NET publishes the backend, and `dist/` is copied into `wwwroot/`. At runtime it is a single process on a single port with no CORS, no seed data, and no Scalar UI.

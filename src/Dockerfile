@@ -1,3 +1,7 @@
+# Production image — builds the React frontend and serves it from the backend's wwwroot.
+# Not used for local development. For development, run `docker-compose up` (includes Mosquitto)
+# and `npm run dev` separately for the frontend with HMR.
+# See docs/development.md for the full dev vs prod workflow.
 # https://hub.docker.com/_/microsoft-dotnet
 
 # frontend build stage
