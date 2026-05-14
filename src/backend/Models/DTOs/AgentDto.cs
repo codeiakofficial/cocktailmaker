@@ -2,9 +2,10 @@ using CocktailMaker.Data.Entities;
 
 namespace CocktailMaker.Models.DTOs;
 
-public record AgentDto(int Id, string Name, string AgentId)
+public record AgentDto(int Id, string Name, string AgentId, bool IsOnline, DateTime? LastSeen)
 {
-    internal static AgentDto From(Agent agent) => new(agent.Id, agent.Name, agent.AgentId);
+    internal static AgentDto From(Agent agent) =>
+        new(agent.Id, agent.Name, agent.AgentId, agent.IsOnline, agent.LastSeen);
 
     internal Agent ToAgent() =>
         new()
@@ -12,5 +13,7 @@ public record AgentDto(int Id, string Name, string AgentId)
             Id = Id,
             Name = Name,
             AgentId = AgentId,
+            IsOnline = IsOnline,
+            LastSeen = LastSeen,
         };
 }
