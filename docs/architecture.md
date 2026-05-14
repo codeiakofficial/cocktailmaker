@@ -4,12 +4,12 @@
 
 ```mermaid
 C4Context
-    Person(user, "User", "Manages recipes via browser")
+    Person(user, "User", "Manages recipes and monitors agents via browser")
     System(cms, "CocktailMaker", "Recipe management and drink dispensing")
     System_Ext(hw, "ESP32 + Pumps", "Physical dispensing hardware")
 
     Rel(user, cms, "Uses", "HTTP")
-    Rel(cms, hw, "Serves data to", "HTTP (agent-initiated only)")
+    Rel(cms, hw, "Commands / status", "MQTT")
 ```
 
 ## Containers
@@ -18,26 +18,26 @@ C4Context
 C4Container
     Person(user, "User")
 
-    Container(frontend, "Frontend", "React / TypeScript", "Recipe and ingredient UI — port 5173")
-    Container(backend, "Backend", "ASP.NET Core", "REST API — port 8080")
+    Container(frontend, "Frontend", "React / TypeScript", "Recipe UI + agent health — port 5173")
+    Container(backend, "Backend", "ASP.NET Core", "REST API + MQTT client — port 8080")
+    Container(broker, "MQTT Broker", "Mosquitto", "Event bus — port 1883, runs on Pi")
     ContainerDb(db, "Database", "SQLite", "Recipes, ingredients, agents")
-    Container(agent, "ESP32 Agent", "C++ / Arduino", "Pump controller, polls backend")
+    Container(agent, "ESP32 Agent", "C++ / PubSubClient", "Pump controller")
 
     Rel(user, frontend, "Uses", "HTTP :5173")
-    Rel(frontend, backend, "CRUD", "HTTP :8080 — hardcoded URL")
+    Rel(frontend, backend, "CRUD + SSE", "HTTP :8080")
     Rel(backend, db, "Read / Write", "EF Core")
-    Rel(agent, backend, "Polls + status report", "raw TCP :8080")
-
-    UpdateRelStyle(agent, backend, $textColor="orange", $lineColor="orange")
+    Rel(backend, broker, "Publish commands / Subscribe status", "MQTT :1883")
+    Rel(agent, broker, "Subscribe commands / Publish status + LWT", "MQTT :1883")
 ```
 
-> **One-way only.** The backend has no path to reach the ESP32. All communication is agent-initiated.
+> **Network:** Pi is the WiFi access point. Frontend, backend, broker, and all agents share the same LAN. No internet dependency.
 
 ---
 
 ## Communication Flows
 
-### Recipe CRUD
+### Recipe CRUD (Frontend → Backend)
 
 ```mermaid
 sequenceDiagram
@@ -56,19 +56,43 @@ sequenceDiagram
     Backend-->>Browser: 201 Created
 ```
 
-### ESP32 Boot + Poll
+### Dispense command (Browser → Backend → Agent)
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Backend
+    participant Broker as Mosquitto
+    participant ESP32
+
+    Browser->>Backend: POST /api/agent/{id}/dispense {recipeId}
+    Backend->>Broker: PUBLISH cocktailmaker/agents/{id}/command
+    Broker-->>ESP32: {recipeId}
+    ESP32->>Backend: GET /api/recipe/{id}
+    Backend-->>ESP32: Recipe + ingredients
+    ESP32->>ESP32: dispense pumps
+```
+
+### Agent health monitoring (LWT + SSE)
 
 ```mermaid
 sequenceDiagram
     participant ESP32
+    participant Broker as Mosquitto
     participant Backend
+    participant Browser
 
-    ESP32->>Backend: POST /api/agent/{id}  ⚠ 404 — not implemented
-    Note right of Backend: report_status() called on every boot,<br/>endpoint missing, silently ignored
+    ESP32->>Broker: CONNECT with LWT = {id, status:"offline"} retained
+    ESP32->>Broker: PUBLISH status {id, status:"online"} retained
 
-    loop every 10 s
-        Note over ESP32: delay only — no command fetching yet
-    end
+    Backend->>Broker: SUBSCRIBE cocktailmaker/agents/+/status
+    Broker-->>Backend: status event
+    Backend->>Backend: UPDATE agent.isOnline in DB
+    Backend-->>Browser: SSE: agent status changed
+
+    Note over ESP32,Broker: on disconnect (graceful or drop)
+    Broker-->>Backend: LWT → status "offline"
+    Backend-->>Browser: SSE: agent offline
 ```
 
 ---
@@ -88,13 +112,15 @@ erDiagram
         json    UsedInRecipes   "JSON list of Recipe IDs (reverse index)"
     }
     Agent {
-        int     Id      PK
+        int     Id          PK
         string  Name
         string  Address
+        bool    IsOnline    "pending — set via MQTT status events"
+        datetime LastSeen   "pending"
     }
 ```
 
-`Recipe.RecipeIngredients` and `Ingredient.UsedInRecipes` are **denormalized mirrors** — no join table, no DB constraint. Application code in `RecipeController` keeps them in sync on every write.
+`Recipe.RecipeIngredients` and `Ingredient.UsedInRecipes` are **denormalized mirrors** — no join table, no DB constraint. `RecipeController` keeps them in sync on every write.
 
 ---
 
@@ -102,8 +128,8 @@ erDiagram
 
 | # | Location | Expected | Actual |
 |---|----------|----------|--------|
-| 1 | `AgentController` | Query `Agents` table | Hardcoded in-memory list; DB table exists and is seeded but never read |
-| 2 | `APIClient::report_status()` | `POST /api/agent/{id}` responds | Endpoint not implemented — 404 on every boot, return value ignored |
-| 3 | `Program.cs` | OpenAPI available in development | Registered only in `!IsDevelopment` |
-| 4 | `main.cpp` loop | Fetch and process commands | `delay(10000)` only — polling not implemented |
-| 5 | `api_client.h` | Use `HTTPClient` Arduino library | Raw TCP string construction over `WiFiClient` |
+| 1 | `AgentController` | Query `Agents` table | Hardcoded in-memory list |
+| 2 | `APIClient::report_status()` | Status via MQTT LWT | HTTP POST to missing endpoint |
+| 3 | `Program.cs` | OpenAPI in development | Registered only in `!IsDevelopment` |
+| 4 | `main.cpp` loop | MQTT subscription callback | `delay(10000)` only |
+| 5 | `api_client.h` | `PubSubClient` for MQTT | Raw TCP `WiFiClient` |

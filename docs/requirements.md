@@ -15,23 +15,33 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Emergency stop halts all pumps immediately regardless of state
 
 **Agent lifecycle**
-- The agent connects to WiFi on boot and reports ready status to the backend
-- The agent polls the backend on a fixed interval for commands
+- The agent connects to the backend network on boot and reports ready status
+- The backend can push a dispense command to a specific agent
 - The backend stores agents by ID, name, and network address
+
+**Health monitoring** _(pending)_
+- The user can see whether each agent is connected and responsive
+- Connection loss is detected automatically without user action
+- Health state is updated in near-real-time in the UI
 
 ## Pending
 
-- Backend endpoint to receive agent status reports (`POST /api/agent/{id}`)
-- Agent polling loop fetches and executes commands (currently `delay` only)
-- Backend-initiated command dispatch (currently impossible — no push path to agent)
+- MQTT broker on the Pi (Mosquitto) as event bus between backend and agents
+- Agent subscribes to `cocktailmaker/agents/{id}/command` and executes dispense on message
+- Agent publishes to `cocktailmaker/agents/{id}/status` with LWT = `offline`
+- Backend subscribes to agent status topics and persists online/offline state
+- Backend pushes agent status changes to the frontend via SSE
+- `AgentController` backed by database (currently hardcoded in-memory)
 
 ## Constraints
 
 | Constraint | Value | Location |
 |------------|-------|----------|
-| Frontend API base URL | `http://localhost:8080/api` | `RecipeContext.tsx`, `IngredientContext.tsx` |
-| CORS allowed origin | `http://localhost:5173` | `Program.cs` |
-| Agent API host | `localhost:8080` | `src/agent/src/config.h` |
-| Agent transport | Plain HTTP (no TLS) | `api_client.h` — `WiFiClient` |
+| Network topology | Pi is WiFi access point; agents and Pi are on the same LAN | Infrastructure |
+| Frontend API base URL | `http://localhost:8080/api` (hardcoded) | `RecipeContext.tsx`, `IngredientContext.tsx` |
+| CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
+| Agent transport (current) | Plain HTTP via raw TCP | `api_client.h` |
+| Agent transport (target) | MQTT over TCP :1883 | — |
 | Pump count | 4 | `pump_controller.h` |
 | Agent ID | `1` (hardcoded) | `config.h` |
+| Multi-agent | Supported by MQTT topic structure; not a current priority | — |

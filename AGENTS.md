@@ -6,7 +6,7 @@
 - After completing any change, the responsible agent must run its verification command and report the result.
 - Before implementing, read `docs/architecture.md` and `docs/requirements.md`.
 - Verify your change fits the documented communication patterns, data model, and requirements.
-- If your change touches an item in the **Known Mismatches** table, fix the mismatch rather than building on top of it. If you introduce a new mismatch, add it to the table.
+- If your change resolves a Known Mismatch, remove its row from the table in `docs/architecture.md`. If your change introduces a new mismatch, add a row.
 
 ---
 
