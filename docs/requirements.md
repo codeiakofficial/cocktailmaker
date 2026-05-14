@@ -18,7 +18,7 @@ Derived from current implementation. Pending items are intended but not yet buil
 - The agent connects to the backend network on boot and reports ready status
 - The backend stores agents by database ID, human-readable name, and AgentId
 - AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
-- The backend can push a dispense command to a specific agent _(pending — MQTT not yet implemented)_
+- The backend can push a dispense command to a specific agent _(pending — MQTT clients not yet implemented)_
 
 **Health monitoring** _(pending)_
 - The user can see whether each agent is connected and responsive
@@ -27,17 +27,19 @@ Derived from current implementation. Pending items are intended but not yet buil
 
 ## Pending
 
-- MQTT broker on the Pi (Mosquitto) as event bus between backend and agents
+- Backend MQTT client: connect to broker, subscribe to `cocktailmaker/agents/+/status`
+- Agent MQTT client: connect to broker, set LWT, publish `cocktailmaker/agents/{agentId}/status`
 - Agent subscribes to `cocktailmaker/agents/{agentId}/command` and executes dispense on message
-- Agent publishes to `cocktailmaker/agents/{agentId}/status` with LWT = `offline`
-- Backend subscribes to agent status topics and persists online/offline state
-- Backend pushes agent status changes to the frontend via SSE
+- Backend persists agent online/offline state from MQTT status events
+- Backend SSE endpoint pushes agent status changes to the frontend
+- Frontend consumes SSE and displays live agent health
 
 ## Constraints
 
 | Constraint | Value | Location |
 |------------|-------|----------|
 | Network topology | Pi is WiFi access point; agents and Pi are on the same LAN | Infrastructure |
+| MQTT broker | `eclipse-mosquitto:2`, port 1883, anonymous auth | `src/docker-compose.yml`, `src/mosquitto/mosquitto.conf` |
 | Frontend API base URL | `http://localhost:8080/api` (hardcoded) | `RecipeContext.tsx`, `IngredientContext.tsx` |
 | CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
 | Agent transport (current) | Plain HTTP via raw TCP | `api_client.h` |

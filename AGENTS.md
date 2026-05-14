@@ -11,19 +11,48 @@
 
 ---
 
-# Agents
+# Orchestrator
 
-## Orchestrator
-
-Routes tasks to the correct domain agent. Coordinates changes that span multiple agents (e.g. an API contract change requires both Backend and Frontend agents). Does not implement changes directly.
+Routes tasks to the correct domain agent. Coordinates changes that span multiple agents.
+Does not implement changes directly.
+Token efficiency: Before spawning subagents, assess complexity.
+Simple, single-file, or low-context tasks should be executed directly by the user or inline — subagents carry a cold-start cost.
+Reserve parallel subagents for tasks that are genuinely independent, cross-codebase, and too large to hold in one context window.
 
 **Decision rules**
 - `src/backend/` or `tests/backend/` → Backend Agent
 - `src/frontend/` → Frontend Agent
 - `src/agent/` → ESP32 Agent
-- Cross-cutting → instruct each affected agent in sequence
+- `src/docker-compose.yml`, infrastructure → Backend Agent
+- Cross-cutting → instruct each affected agent in sequence or in parallel where independent
+
+**When planning multi-step tasks, proactively suggest relevant Claude Code capabilities:**
+- **Subagents** — spawn parallel agents (Backend + ESP32) when tasks touch different codebases with a shared interface contract
+- **Plan mode** (`/plan`) — use before implementing complex or cross-cutting changes to align on approach first
+- **Worktrees** — isolate risky changes on a branch without affecting the working tree
 
 ---
+
+# Workflow
+
+## Phase-gated delivery
+
+Work proceeds in phases. Each phase must be fully verified before the next begins. The Orchestrator confirms phase completion with the user before instructing the next phase.
+
+## Current roadmap
+
+| Phase | Tasks | Status |
+|-------|-------|--------|
+| 1 — MQTT foundation | T1 Mosquitto ✓, T2 Backend MQTT client, T3 ESP32 MQTT client | T2 + T3 next (parallel) |
+| 2 — Monitoring | T4 DB status, T5 SSE endpoint, T6 Frontend health UI | Pending |
+| 3 — Dispense | T7 Backend dispense endpoint, T8 ESP32 command handler | Pending |
+
+**T2 and T3 (Phase 1) can run in parallel** — different codebases, shared interface: MQTT topic names and payload shape.  
+**T7 and T8 (Phase 3) can run in parallel** — same reason.
+
+---
+
+# Agents
 
 ## Backend Agent
 
