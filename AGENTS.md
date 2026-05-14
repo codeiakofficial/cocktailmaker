@@ -38,28 +38,13 @@ Work proceeds in phases. Each phase must be fully verified before the next begin
 | Phase | Tasks | Status |
 |-------|-------|--------|
 | 2 — Monitoring | T4 Backend persists IsOnline/LastSeen, T5 SSE endpoint, T6 Frontend health UI | Done |
-| 3 — Dispense | T7 Backend dispense endpoint, T8 ESP32 command handler | Pending |
+| 3 — Dispense | T7 Backend dispense endpoint, T8 ESP32 command handler, T9 Frontend dispense trigger | Pending |
+| 4 — Cleanup | Fix failing NewRecipeDialog test, refactor frontend to single base URL constant, add frontend tests for existing flows, consistent naming pass, show connection-lost state in UI when SSE drops (backend unreachable) | Pending |
+| 5 — Pipeline | Add npm build + test step, add PlatformIO build + test step | Pending |
+| 6 — Release | Serve frontend from backend Docker image, apply release configs (backend/frontend/agent), pipeline creates and tests release build | Pending |
+| 7 — System verification | Add a verification subagent that tests the complete system end-to-end (backend, frontend, agent) | Pending |
 
-**T7 and T8 (Phase 3) can run in parallel** — different codebases, shared interface: `cocktailmaker/agents/{agentId}/command` topic, payload `{"recipeId": N}`.
-
-Next Phases:
-- Fixing and refactoring
-    - Fix failing tests
-    - Refactor frontend to use the same base URL
-    - Add more frontend tests to verify the existing implementation
-    - Check for clean code consistent naming
-- Update UI dispenser state onChange
-- Update pipeline (separate phases)
-    - Add npm build and test
-    - Add agent build and test
-- Create release (separate phases)
-    - docker container should contain the frontend
-    - Release should use the release configuration for
-        - backend
-        - frontend
-        - agent
-    - Release should be created and tested in pipeline
-- Add a subagent which knows and verifies the complete system (backend, frontend, agent)
+**T7 and T8 (Phase 3) can run in parallel** — different codebases, shared interface: `cocktailmaker/agents/{agentId}/command` topic, payload `{"recipeId": N}`. T9 depends on T7.
 
 ---
 
