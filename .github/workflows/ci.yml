@@ -15,9 +15,9 @@ jobs:
     name: Backend — build & test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -27,7 +27,7 @@ jobs:
       - name: Test
         run: dotnet test ./tests/backend/ --logger trx --results-directory test-results
       - name: Report test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: Backend Tests
@@ -38,9 +38,9 @@ jobs:
     name: Frontend — build & test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -53,9 +53,9 @@ jobs:
         run: npm run build
       - name: Test
         working-directory: src/frontend
-        run: npm test -- --run --reporter=junit --outputFile=test-results.xml
+        run: npm test -- --run --reporter=default --reporter=junit --outputFile=test-results.xml
       - name: Report test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: Frontend Tests
@@ -66,9 +66,9 @@ jobs:
     name: ESP32 — build & test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install PlatformIO
@@ -80,7 +80,7 @@ jobs:
         working-directory: src/agent
         run: pio test -e test --junit-output-path test-results.xml
       - name: Report test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: ESP32 Tests
