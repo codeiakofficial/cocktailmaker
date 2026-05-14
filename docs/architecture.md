@@ -114,7 +114,7 @@ erDiagram
     Agent {
         int     Id          PK
         string  Name
-        string  Address
+        string  AgentId     "MQTT topic identifier — unique"
         bool    IsOnline    "pending — set via MQTT status events"
         datetime LastSeen   "pending"
     }
@@ -128,8 +128,7 @@ erDiagram
 
 | # | Location | Expected | Actual |
 |---|----------|----------|--------|
-| 1 | `AgentController` | Query `Agents` table | Hardcoded in-memory list |
-| 2 | `APIClient::report_status()` | Status via MQTT LWT | HTTP POST to missing endpoint |
-| 3 | `Program.cs` | OpenAPI in development | Registered only in `!IsDevelopment` |
-| 4 | `main.cpp` loop | MQTT subscription callback | `delay(10000)` only |
-| 5 | `api_client.h` | `PubSubClient` for MQTT | Raw TCP `WiFiClient` |
+| 1 | `APIClient::report_status()` | Status via MQTT LWT | HTTP POST to missing endpoint |
+| 2 | `Program.cs` | OpenAPI in development | Registered only in `!IsDevelopment` |
+| 3 | `main.cpp` loop | MQTT subscription callback | `delay(10000)` only |
+| 4 | `api_client.h` | `PubSubClient` for MQTT | Raw TCP `WiFiClient` |

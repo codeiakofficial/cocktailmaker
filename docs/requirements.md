@@ -17,7 +17,8 @@ Derived from current implementation. Pending items are intended but not yet buil
 **Agent lifecycle**
 - The agent connects to the backend network on boot and reports ready status
 - The backend can push a dispense command to a specific agent
-- The backend stores agents by ID, name, and network address
+- The backend stores agents by database ID, human-readable name, and AgentId
+- AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
 
 **Health monitoring** _(pending)_
 - The user can see whether each agent is connected and responsive

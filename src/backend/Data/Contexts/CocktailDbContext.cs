@@ -44,7 +44,8 @@ public class CocktailDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired();
-            entity.HasIndex(e => e.Name).IsUnique();
+            entity.Property(e => e.AgentId).IsRequired();
+            entity.HasIndex(e => e.AgentId).IsUnique();
         });
     }
 
@@ -94,9 +95,7 @@ public class CocktailDbContext : DbContext
         {
             var agents = new List<Agent>
             {
-                new() { Name = "Agent Smith", Address = "123 Matrix Street" },
-                new() { Name = "Agent Johnson", Address = "456 Matrix Avenue" },
-                new() { Name = "Agent Brown", Address = "789 Matrix Boulevard" },
+                new() { Name = "Dispenser 1", AgentId = "dispenser-1" },
             };
             Agents.AddRange(agents);
             SaveChanges();

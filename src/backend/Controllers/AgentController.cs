@@ -1,24 +1,26 @@
-using System.Text.Encodings.Web;
+using CocktailMaker.Data.Contexts;
 using CocktailMaker.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CocktailMaker.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AgentController : Controller
+public class AgentController : ControllerBase
 {
-    private List<AgentDto> _agents = new List<AgentDto>
+    private readonly CocktailDbContext _context;
+
+    public AgentController(CocktailDbContext context)
     {
-        new(1, "Agent Smith", "123 Matrix Street"),
-        new(2, "Agent Johnson", "456 Matrix Avenue"),
-        new(3, "Agent Brown", "789 Matrix Boulevard"),
-    };
+        _context = context;
+    }
 
     // GET: api/agent
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AgentDto>>> GetAgents()
     {
-        return Ok(_agents);
+        var agents = await _context.Agents.ToListAsync();
+        return Ok(agents.Select(AgentDto.From));
     }
 }
