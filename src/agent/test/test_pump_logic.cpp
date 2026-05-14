@@ -1,39 +1,25 @@
-#include <Arduino.h>
+#include <unity.h>
 #include "../src/pump_controller.h"
 
-// Mock the Arduino functions for testing
-int pin_states[40] = {0};  // Track pin states
+void setUp() {}
+void tearDown() {}
 
 void test_pump_dispense() {
-    // Mock setup
     PumpController pump;
-    
-    // Test single pump
-    pump.dispense(0, 100);  // Dispense from pump 0 for 100ms
-    
-    Serial.println("[TEST] Pump dispense test passed");
+    pump.dispense(0, 100);
+    TEST_ASSERT_FALSE(pump.is_pump_running(0));
 }
 
 void test_pump_emergency_stop() {
     PumpController pump;
-    
     pump.dispense(0, 1000);
     pump.emergency_stop();
-    
-    if (!pump.is_pump_running(0)) {
-        Serial.println("[TEST] Emergency stop test passed");
-    } else {
-        Serial.println("[TEST] Emergency stop test FAILED");
-    }
+    TEST_ASSERT_FALSE(pump.is_pump_running(0));
 }
 
-void setup() {
-    Serial.begin(115200);
-    
-    test_pump_dispense();
-    test_pump_emergency_stop();
-}
-
-void loop() {
-    delay(1000);
+int main() {
+    UNITY_BEGIN();
+    RUN_TEST(test_pump_dispense);
+    RUN_TEST(test_pump_emergency_stop);
+    return UNITY_END();
 }
