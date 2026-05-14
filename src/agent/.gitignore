@@ -34,3 +34,6 @@ venv/
 # Dependencies
 .platformio/
 .pio-clang-tidy/
+
+# CI
+test-results.xml
