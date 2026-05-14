@@ -1,10 +1,10 @@
 import * as React from 'react';
 import type { IAgent, AgentContextType } from './Agent';
+import { API_BASE } from '../config';
 
 export const AgentContext = React.createContext<AgentContextType | null>(null);
 
-const API_URL = 'http://localhost:8080/api';
-const SSE_URL = 'http://localhost:8080/api/agents/events';
+const SSE_URL = `${API_BASE}/agents/events`;
 
 const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [agents, setAgents] = React.useState<IAgent[]>([]);
@@ -12,7 +12,7 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   // Fetch initial agent list on mount
   const fetchAgents = React.useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/agent`);
+      const response = await fetch(`${API_BASE}/agents`);
       if (!response.ok) throw new Error('Failed to fetch agents');
       const data = await response.json();
       setAgents(data);
@@ -58,7 +58,7 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const dispense = async (recipeId: number) => {
     const agent = agents.find(a => a.isOnline);
     if (!agent) return;
-    await fetch(`${API_URL}/agent/${agent.id}/dispense`, {
+    await fetch(`${API_BASE}/agents/${agent.id}/dispense`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ recipeId }),

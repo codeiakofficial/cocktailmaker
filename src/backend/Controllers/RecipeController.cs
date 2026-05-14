@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CocktailMaker.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/recipes")]
 public class RecipeController : ControllerBase
 {
     private readonly CocktailDbContext _context;

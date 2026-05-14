@@ -1,9 +1,8 @@
 import * as React from 'react';
 import type { RecipeContextType, IRecipe } from './Recipe';
+import { API_BASE } from '../config';
 
 export const RecipeContext = React.createContext<RecipeContextType | null>(null);
-
-const API_URL = 'http://localhost:8080/api';
 
 const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [recipes, setRecipes] = React.useState<IRecipe[]>([]);
@@ -11,7 +10,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // Fetch recipes from backend
   const fetchRecipes = React.useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/recipe`);
+      const response = await fetch(`${API_BASE}/recipes`);
       if (!response.ok) throw new Error('Failed to fetch recipes');
       const data = await response.json();
       setRecipes(data);
@@ -28,7 +27,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // Save recipe to backend
   const saveRecipe = React.useCallback(async (recipe: IRecipe) => {
     try {
-      const response = await fetch(`${API_URL}/recipe`, {
+      const response = await fetch(`${API_BASE}/recipes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipe),
@@ -44,7 +43,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // Update recipe
   const updateRecipe = React.useCallback(async (id: number, recipe: IRecipe) => {
     try {
-      const response = await fetch(`${API_URL}/recipe/${id}`, {
+      const response = await fetch(`${API_BASE}/recipes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipe),
@@ -59,7 +58,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // Delete recipe
   const deleteRecipe = React.useCallback(async (id: number) => {
     try {
-      const response = await fetch(`${API_URL}/recipe/${id}`, {
+      const response = await fetch(`${API_BASE}/recipes/${id}`, {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Failed to delete recipe');

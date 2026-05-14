@@ -36,7 +36,8 @@ Derived from current implementation. Pending items are intended but not yet buil
 |------------|-------|----------|
 | Network topology | Pi is WiFi access point; agents and Pi are on the same LAN | Infrastructure |
 | MQTT broker | `eclipse-mosquitto:2`, port 1883, anonymous auth | `src/docker-compose.yml`, `src/mosquitto/mosquitto.conf` |
-| Frontend API base URL | `http://localhost:8080/api` (hardcoded) | `RecipeContext.tsx`, `IngredientContext.tsx` |
+| Frontend API base URL | `http://localhost:8080/api` | `src/frontend/src/config.ts` |
+| API route convention | Plural nouns — `api/recipes`, `api/ingredients`, `api/agents` | All controllers (explicit `[Route]` attribute) |
 | CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
 | Agent transport (status) | MQTT via `PubSubClient` — LWT + retained publish | `src/agent/src/mqtt_client.h` |
 | Agent transport (recipe fetch) | Plain HTTP via raw TCP | `src/agent/src/api_client.h` |
