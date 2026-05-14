@@ -16,9 +16,9 @@ Derived from current implementation. Pending items are intended but not yet buil
 
 **Agent lifecycle**
 - The agent connects to the backend network on boot and reports ready status
-- The backend can push a dispense command to a specific agent
 - The backend stores agents by database ID, human-readable name, and AgentId
 - AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
+- The backend can push a dispense command to a specific agent _(pending — MQTT not yet implemented)_
 
 **Health monitoring** _(pending)_
 - The user can see whether each agent is connected and responsive
@@ -28,11 +28,10 @@ Derived from current implementation. Pending items are intended but not yet buil
 ## Pending
 
 - MQTT broker on the Pi (Mosquitto) as event bus between backend and agents
-- Agent subscribes to `cocktailmaker/agents/{id}/command` and executes dispense on message
-- Agent publishes to `cocktailmaker/agents/{id}/status` with LWT = `offline`
+- Agent subscribes to `cocktailmaker/agents/{agentId}/command` and executes dispense on message
+- Agent publishes to `cocktailmaker/agents/{agentId}/status` with LWT = `offline`
 - Backend subscribes to agent status topics and persists online/offline state
 - Backend pushes agent status changes to the frontend via SSE
-- `AgentController` backed by database (currently hardcoded in-memory)
 
 ## Constraints
 

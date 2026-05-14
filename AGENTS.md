@@ -7,6 +7,7 @@
 - Before implementing, read `docs/architecture.md` and `docs/requirements.md`.
 - Verify your change fits the documented communication patterns, data model, and requirements.
 - If your change resolves a Known Mismatch, remove its row from the table in `docs/architecture.md`. If your change introduces a new mismatch, add a row.
+- After completing a task, update `docs/architecture.md` and `docs/requirements.md` to reflect any changes to data models, endpoints, flows, constraints, or pending items.
 
 ---
 

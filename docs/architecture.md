@@ -56,7 +56,7 @@ sequenceDiagram
     Backend-->>Browser: 201 Created
 ```
 
-### Dispense command (Browser → Backend → Agent)
+### Dispense command — target (not yet implemented)
 
 ```mermaid
 sequenceDiagram
@@ -66,14 +66,14 @@ sequenceDiagram
     participant ESP32
 
     Browser->>Backend: POST /api/agent/{id}/dispense {recipeId}
-    Backend->>Broker: PUBLISH cocktailmaker/agents/{id}/command
+    Backend->>Broker: PUBLISH cocktailmaker/agents/{agentId}/command
     Broker-->>ESP32: {recipeId}
-    ESP32->>Backend: GET /api/recipe/{id}
+    ESP32->>Backend: GET /api/recipe/{recipeId}
     Backend-->>ESP32: Recipe + ingredients
     ESP32->>ESP32: dispense pumps
 ```
 
-### Agent health monitoring (LWT + SSE)
+### Agent health monitoring — target (not yet implemented)
 
 ```mermaid
 sequenceDiagram
@@ -82,8 +82,8 @@ sequenceDiagram
     participant Backend
     participant Browser
 
-    ESP32->>Broker: CONNECT with LWT = {id, status:"offline"} retained
-    ESP32->>Broker: PUBLISH status {id, status:"online"} retained
+    ESP32->>Broker: CONNECT with LWT = {agentId, status:"offline"} retained
+    ESP32->>Broker: PUBLISH cocktailmaker/agents/{agentId}/status "online"
 
     Backend->>Broker: SUBSCRIBE cocktailmaker/agents/+/status
     Broker-->>Backend: status event
@@ -91,7 +91,7 @@ sequenceDiagram
     Backend-->>Browser: SSE: agent status changed
 
     Note over ESP32,Broker: on disconnect (graceful or drop)
-    Broker-->>Backend: LWT → status "offline"
+    Broker-->>Backend: LWT → "offline"
     Backend-->>Browser: SSE: agent offline
 ```
 
