@@ -56,8 +56,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
-| T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
 
 ## Last Review
 
@@ -71,9 +69,13 @@ Update this table before merging each PR. Paste the command from the PR template
 
 # Agents
 
-## Backend Agent
+## Implementation Agents
 
-**Owns:** `src/backend/`, `tests/backend/`, `src/Dockerfile`, `src/docker-compose.yml`
+Make changes. Each agent owns the files listed and verifies with the command shown.
+
+### Backend Agent
+
+**Owns:** `src/backend/`, `tests/backend/`
 
 **Run**
 ```
@@ -91,7 +93,7 @@ All tests must pass before reporting the task complete.
 
 ---
 
-## Frontend Agent
+### Frontend Agent
 
 **Owns:** `src/frontend/`
 
@@ -111,7 +113,7 @@ All tests must pass before reporting the task complete.
 
 ---
 
-## ESP32 Agent
+### ESP32 Agent
 
 **Owns:** `src/agent/`
 
@@ -128,3 +130,38 @@ pio test -e test
 ```
 
 All tests must pass before reporting the task complete. Do not flash to device unless explicitly asked.
+
+---
+
+### CI/Infrastructure Agent
+
+**Owns:** `.github/`, `src/Dockerfile`, `src/docker-compose.yml`, `src/docker-compose.override.yml`, `GitVersion.yml`, `commitlint.config.js`
+
+**Verify after changes**
+
+CI jobs are the verification — push to a feature branch and confirm all GitHub Actions jobs pass. For YAML changes, validate locally with:
+```
+docker-compose -f src/docker-compose.yml config
+```
+
+---
+
+## Review Agents
+
+Analyse only — do not make changes. Invoked by pasting the `@claude` command from the PR template.
+
+### Architect Agent
+
+Review scope: Does the change match documented patterns in `docs/architecture.md`? Are any Known Mismatches introduced or resolved?
+
+### Requirements Agent
+
+Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or new implied requirements?
+
+### Code Reviewer Agent
+
+Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns.
+
+### Infrastructure Agent
+
+Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance.

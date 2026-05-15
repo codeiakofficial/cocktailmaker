@@ -60,7 +60,13 @@ jobs:
       - name: Build
         run: dotnet build ./src/backend/ --no-restore
       - name: Test
-        run: dotnet test ./tests/backend/ --logger trx --results-directory test-results
+        run: dotnet test ./tests/backend/ --logger trx --results-directory test-results --collect:"XPlat Code Coverage"
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: test-results/**/coverage.cobertura.xml
       - name: Report test results
         uses: dorny/test-reporter@v3
         if: always()
@@ -88,7 +94,13 @@ jobs:
         run: npm run build
       - name: Test
         working-directory: src/frontend
-        run: npm test -- --run --reporter=default --reporter=junit --outputFile=test-results.xml
+        run: npm test -- --run --coverage --reporter=default --reporter=junit --outputFile=test-results.xml
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: src/frontend/coverage/
       - name: Report test results
         uses: dorny/test-reporter@v3
         if: always()
