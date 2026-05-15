@@ -96,4 +96,36 @@ public class DocumentationTests
         Assert.Contains("IsOnline", props);
         Assert.Contains("LastSeen", props);
     }
+
+    [Fact]
+    public void AgentsMd_LastReviewSection_HasAtLeastOneEntry()
+    {
+        var root = FindRepoRoot();
+        var agentsMd = File.ReadAllText(Path.Combine(root, "AGENTS.md"));
+
+        Assert.Contains("## Last Review", agentsMd);
+
+        var inSection = false;
+        var headerSeen = false;
+        var separatorSeen = false;
+        foreach (var line in agentsMd.Split('\n'))
+        {
+            if (line.TrimStart('#').Trim() == "Last Review") { inSection = true; continue; }
+            if (inSection && line.StartsWith("##")) break;
+            if (!inSection || !line.StartsWith("|")) continue;
+            if (!headerSeen) { headerSeen = true; continue; }
+            if (!separatorSeen) { separatorSeen = true; continue; }
+            return; // past header + separator — this is a data row
+        }
+
+        Assert.Fail("AGENTS.md '## Last Review' section must contain at least one entry. Update it before merging.");
+    }
+
+    private static string FindRepoRoot()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "AGENTS.md")))
+            dir = dir.Parent;
+        return dir?.FullName ?? throw new DirectoryNotFoundException("Could not locate repo root from test binary path.");
+    }
 }
