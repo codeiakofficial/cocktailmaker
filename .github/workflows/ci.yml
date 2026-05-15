@@ -32,6 +32,12 @@ jobs:
             --package=@commitlint/cli \
             --package=@commitlint/config-conventional \
             commitlint --from=${{ github.event.pull_request.base.sha }} --to=HEAD
+      - name: Check roadmap cleanup
+        run: |
+          if grep -qF '| In Progress |' AGENTS.md; then
+            echo "::error::Remove all 'In Progress' rows from the AGENTS.md roadmap before merging."
+            exit 1
+          fi
       - name: Check review checklist
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
