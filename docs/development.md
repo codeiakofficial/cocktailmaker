@@ -77,3 +77,18 @@ docker-compose -f docker-compose.yml up
 ```
 
 The image is built once: Node compiles the frontend into `dist/`, .NET publishes the backend, and `dist/` is copied into `wwwroot/`. At runtime it is a single process on a single port with no CORS, no seed data, and no Scalar UI.
+
+---
+
+## Contributing workflow
+
+1. `git checkout -b feature/<description>` (or `hotfix/`)
+2. Commit using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:`, `ci:` …)
+3. Open a PR — fill in Task and Changes from the template
+4. Run the review in Claude Code before merging:
+   ```
+   Review this PR using the Review Agents in AGENTS.md. Read git diff main...HEAD and evaluate each scope in order.
+   ```
+5. Add a row to the Last Review table in `AGENTS.md` and tick the PR checkboxes
+
+Full policy and roadmap: [AGENTS.md](../AGENTS.md)

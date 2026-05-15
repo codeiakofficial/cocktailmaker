@@ -151,7 +151,13 @@ docker-compose -f src/docker-compose.yml config
 
 ## Review Agents
 
-Analyse only — do not make changes. Run in Claude Code before merging: ask Claude to read `git diff main...HEAD` and evaluate against each scope below.
+Analyse only — do not make changes. Run in Claude Code before merging:
+
+```
+Review this PR using the Review Agents in AGENTS.md. Read git diff main...HEAD and evaluate each scope in order.
+```
+
+Summarise findings in one line and add a row to the Last Review table above.
 
 ### Architect Agent
 

@@ -29,9 +29,4 @@ Open `http://localhost:5173`. See [docs/development.md](docs/development.md) for
 
 ## Contributing
 
-All changes go through a PR — see [AGENTS.md](AGENTS.md) for workflow and roadmap.
-
-| Rule | Value |
-|------|-------|
-| Branch | `feature/<description>` or `hotfix/<description>` |
-| Commits | [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:` …) |
+See [docs/development.md](docs/development.md) for the contributing workflow and [AGENTS.md](AGENTS.md) for the full PR policy and roadmap.
