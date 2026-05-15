@@ -67,12 +67,17 @@ jobs:
         run: dotnet build ./src/backend/ --no-restore
       - name: Test
         run: dotnet test ./tests/backend/ --logger trx --results-directory test-results --collect:"XPlat Code Coverage"
+      - name: Generate HTML coverage report
+        if: always()
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"test-results/**/coverage.cobertura.xml" -targetdir:"coverage-html" -reporttypes:Html
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: backend-coverage
-          path: test-results/**/coverage.cobertura.xml
+          path: coverage-html/
       - name: Report test results
         uses: dorny/test-reporter@v3
         if: always()
@@ -189,3 +194,53 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  coverage:
+    name: Coverage — publish to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: pages/backend
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: pages/frontend
+      - name: Create index page
+        run: |
+          cat > pages/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>cocktailmaker — Coverage</title>
+            <style>
+              body { font-family: sans-serif; max-width: 480px; margin: 3rem auto; }
+              a { display: block; margin: .75rem 0; font-size: 1.1rem; }
+            </style>
+          </head>
+          <body>
+            <h1>Coverage Reports</h1>
+            <a href="backend/">Backend (.NET)</a>
+            <a href="frontend/">Frontend (React)</a>
+          </body>
+          </html>
+          EOF
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -15,6 +15,8 @@ flowchart LR
 
 Full documentation: [docs/architecture.md](docs/architecture.md) · [docs/requirements.md](docs/requirements.md)
 
+Coverage reports: [codeiakofficial.github.io/cocktailmaker](https://codeiakofficial.github.io/cocktailmaker/) *(published on every merge to main)*
+
 ## Quick Start
 
 ```bash
