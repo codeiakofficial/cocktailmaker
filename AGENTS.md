@@ -64,6 +64,7 @@ Update this table before merging each PR. Paste the command from the PR template
 | PR | Date | Summary |
 |----|------|---------|
 | #1 | 2026-05-15 | Initial: PR policy, GitVersion, conventional commits, review tracking, roadmap T22/T24/T25, T20 lint job |
+| #2 | 2026-05-15 | Rename CodeQL workflow; clean up merged tasks from roadmap |
 
 ---
 
