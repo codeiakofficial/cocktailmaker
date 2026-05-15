@@ -37,11 +37,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           body=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
-          if ! echo "$body" | grep -qF '- [x] Review completed'; then
+          if [[ "$body" != *'- [x] Review completed'* ]]; then
             echo "::error::PR body must contain a ticked '- [x] Review completed' checkbox. Add it from the PR template and tick it after running the @claude review."
             exit 1
           fi
-          if ! echo "$body" | grep -qF '- [x] \`AGENTS.md\` Last Review table updated'; then
+          if [[ "$body" != *'- [x] `AGENTS.md` Last Review table updated'* ]]; then
             echo "::error::PR body must contain a ticked '- [x] \`AGENTS.md\` Last Review table updated' checkbox."
             exit 1
           fi
