@@ -10,6 +10,8 @@
 - After completing a task, update `docs/architecture.md` and `docs/requirements.md`: remove resolved pending items, update constraints, adjust diagrams if flows changed.
 - Always apply domain best practices (C#/.NET conventions, REST API design, Docker, architectural patterns, ESP32/embedded). If existing code deviates from best practice, report the mismatch to the user before proceeding — do not silently fix or silently ignore it.
 - After any backend change, `dotnet test` must pass — including `ArchitectureTests` (conventions) and `DocumentationTests` (docs/architecture.md contract). A failing architecture or documentation test means code and docs disagree — fix the code or update the docs, never delete the test.
+- PR descriptions must be short and precise: three sections only — Task (IDs + names), Changes (one bullet per change), Review (template block + checkboxes). No prose, no explanations. Update title and description immediately when scope changes — never leave them out of sync with the actual content.
+- The roadmap row for a task must be removed in the final commit of its PR — not deferred. A row with status "In Progress" must not remain once the task is complete; CI blocks merge if any such row is present.
 
 ---
 
@@ -21,7 +23,7 @@ Routes tasks to the correct domain agent. Coordinates changes that span multiple
 - `src/backend/` or `tests/backend/` → Backend Agent
 - `src/frontend/` → Frontend Agent
 - `src/agent/` → ESP32 Agent
-- `src/docker-compose.yml`, infrastructure → Backend Agent
+- `src/docker-compose.yml`, `.github/`, infrastructure → CI/Infrastructure Agent
 - Cross-cutting → instruct each affected agent in sequence or in parallel where independent
 - Frontend API calls belong in context files (e.g. `AgentContext`, `RecipeContext`), not in components
 
@@ -46,8 +48,9 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 3. Open the PR — title should match the task description
 
 **Closing a PR:**
-1. Remove the task row from the roadmap table as part of the PR
+1. Remove the task row from the roadmap table in the **final commit of the PR** — not as a follow-up
 2. The roadmap table should be empty (or contain only other open PRs' tasks) when merging
+3. Merge is blocked by CI if any roadmap row with status "In Progress" remains
 
 **CI requirement:** Backend, Frontend, and ESP32 jobs must all pass before merge.
 
@@ -55,26 +58,28 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
-| T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
-| T25 | README rewrite — remove stale TODOs, replace drawio.svg with Mermaid diagrams | 9 — Docs | Pending |
 
 ## Last Review
 
-Update this table before merging each PR. Paste the command from the PR template as a comment on the PR to trigger the review.
+Before merging, run a review in Claude Code: ask Claude to read `git diff main...HEAD` and evaluate against each scope defined in the Review Agents section. Summarise findings in one line and add a row here.
 
 | PR | Date | Summary |
 |----|------|---------|
 | #1 | 2026-05-15 | Initial: PR policy, GitVersion, conventional commits, review tracking, roadmap T22/T24/T25, T20 lint job |
 | #2 | 2026-05-15 | Rename CodeQL workflow; clean up merged tasks from roadmap |
+| #3 | 2026-05-15 | T22–T25: coverage artifacts, agent restructure, README rewrite, review process, squash merge documented |
 
 ---
 
 # Agents
 
-## Backend Agent
+## Implementation Agents
 
-**Owns:** `src/backend/`, `tests/backend/`, `src/Dockerfile`, `src/docker-compose.yml`
+Make changes. Each agent owns the files listed and verifies with the command shown.
+
+### Backend Agent
+
+**Owns:** `src/backend/`, `tests/backend/`
 
 **Run**
 ```
@@ -92,7 +97,7 @@ All tests must pass before reporting the task complete.
 
 ---
 
-## Frontend Agent
+### Frontend Agent
 
 **Owns:** `src/frontend/`
 
@@ -112,7 +117,7 @@ All tests must pass before reporting the task complete.
 
 ---
 
-## ESP32 Agent
+### ESP32 Agent
 
 **Owns:** `src/agent/`
 
@@ -129,3 +134,44 @@ pio test -e test
 ```
 
 All tests must pass before reporting the task complete. Do not flash to device unless explicitly asked.
+
+---
+
+### CI/Infrastructure Agent
+
+**Owns:** `.github/`, `src/Dockerfile`, `src/docker-compose.yml`, `src/docker-compose.override.yml`, `GitVersion.yml`, `commitlint.config.js`
+
+**Verify after changes**
+
+CI jobs are the verification — push to a feature branch and confirm all GitHub Actions jobs pass. For YAML changes, validate locally with:
+```
+docker-compose -f src/docker-compose.yml config
+```
+
+---
+
+## Review Agents
+
+Analyse only — do not make changes. Run in Claude Code before merging:
+
+```
+Review this PR using the Review Agents in AGENTS.md. Read git diff main...HEAD and evaluate each scope in order.
+```
+
+Summarise findings in one line and add a row to the Last Review table above.
+
+### Architect Agent
+
+Review scope: Does the change match documented patterns in `docs/architecture.md`? Are any Known Mismatches introduced or resolved?
+
+### Requirements Agent
+
+Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or new implied requirements?
+
+### Code Reviewer Agent
+
+Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns.
+
+### Infrastructure Agent
+
+Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance. PRs are squash-merged — the PR title becomes the single commit on `main` and is the only message GitVersion reads for version bumping; individual branch commit types are irrelevant. Verify the PR title type is correct (`feat:` → minor, `fix:` → patch, anything else → patch) and accurately reflects the full scope. Verify the PR description covers all changed tasks and contains no outdated or missing information.

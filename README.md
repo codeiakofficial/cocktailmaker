@@ -1,37 +1,34 @@
 # cocktailmaker
 
-![overview.drawio.svg](./resources/overview.drawio.svg)
+Recipe management and drink dispensing. Runs on a Raspberry Pi — manages cocktail recipes and controls ESP32-based pump dispensers over MQTT.
 
-## Getting Started
+## Architecture
 
-``` bash
-docker-compose -p cocktailmaker build &&\
-docker-compose -p cocktailmaker up
+```mermaid
+flowchart LR
+    Browser --> Frontend["Frontend\nReact · :5173 dev / :8080 prod"]
+    Frontend -->|"HTTP :8080"| Backend["Backend\nASP.NET Core"]
+    Backend --> DB[(SQLite)]
+    Backend -->|"MQTT :1883"| Broker[Mosquitto]
+    Broker <-->|"MQTT :1883"| ESP32["ESP32 Agent\n4-pump controller"]
 ```
 
-## Todos
+Full documentation: [docs/architecture.md](docs/architecture.md) · [docs/requirements.md](docs/requirements.md)
 
-TODO: Add conventional commits and changelog
-TODO: Staging environment
+Coverage reports: [codeiakofficial.github.io/cocktailmaker](https://codeiakofficial.github.io/cocktailmaker/) *(published on every merge to main)*
 
-### Backend
+## Quick Start
 
-TODO: Create `AgentController`
-TODO: Create **Backup and Restore**
+```bash
+# Backend + broker (dev mode)
+cd src && docker-compose up
 
-### Frontend
+# Frontend with live reload (separate terminal)
+cd src/frontend && npm run dev
+```
 
-### Agents
+Open `http://localhost:5173`. See [docs/development.md](docs/development.md) for dev vs production details.
 
-![agents.drawio.svg](./resources/agents.drawio.svg)
+## Contributing
 
-TODO: Add Endpoints for
-
-- GET Agents
-- POST Recipe/Start/id
-- POST Recipe/Stop/id
-
-TODO: Add AgentService for
-
-- AgentDiscovery
-- StartRecipeOnAgent
+See [docs/development.md](docs/development.md) for the contributing workflow and [AGENTS.md](AGENTS.md) for the full PR policy and roadmap.
