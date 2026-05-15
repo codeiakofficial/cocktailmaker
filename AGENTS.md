@@ -61,7 +61,7 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 ## Last Review
 
-Update this table before merging each PR. Paste the command from the PR template as a comment on the PR to trigger the review.
+Before merging, run a review in Claude Code: ask Claude to read `git diff main...HEAD` and evaluate against each scope defined in the Review Agents section. Summarise findings in one line and add a row here.
 
 | PR | Date | Summary |
 |----|------|---------|
@@ -151,7 +151,7 @@ docker-compose -f src/docker-compose.yml config
 
 ## Review Agents
 
-Analyse only — do not make changes. Invoked by pasting the `@claude` command from the PR template.
+Analyse only — do not make changes. Run in Claude Code before merging: ask Claude to read `git diff main...HEAD` and evaluate against each scope below.
 
 ### Architect Agent
 
