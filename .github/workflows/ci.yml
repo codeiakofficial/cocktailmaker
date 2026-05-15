@@ -11,6 +11,41 @@ permissions:
   checks: write
 
 jobs:
+  lint:
+    name: Lint — branch, commits & review checklist
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Check branch name
+        run: |
+          branch="${GITHUB_HEAD_REF}"
+          if [[ ! "$branch" =~ ^(feature|hotfix)/.+ ]]; then
+            echo "::error::Branch '$branch' must match feature/* or hotfix/*"
+            exit 1
+          fi
+      - name: Check commit messages
+        run: |
+          npx --yes \
+            --package=@commitlint/cli \
+            --package=@commitlint/config-conventional \
+            commitlint --from=${{ github.event.pull_request.base.sha }} --to=HEAD
+      - name: Check review checklist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          body=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+          if echo "$body" | grep -qF '- [ ] Review completed'; then
+            echo "::error::Tick 'Review completed' before merging — paste the @claude command from the PR template."
+            exit 1
+          fi
+          if echo "$body" | grep -qF '- [ ] \`AGENTS.md\` Last Review table updated'; then
+            echo "::error::Tick 'AGENTS.md Last Review table updated' before merging."
+            exit 1
+          fi
+
   backend:
     name: Backend — build & test
     runs-on: ubuntu-latest
