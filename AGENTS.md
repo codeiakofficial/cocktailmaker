@@ -173,4 +173,4 @@ Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code
 
 ### Infrastructure Agent
 
-Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance.
+Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance. Verify the PR title uses the correct conventional commit type and accurately reflects the full scope of changes. Verify the PR description covers all changed tasks and contains no outdated or missing information.
