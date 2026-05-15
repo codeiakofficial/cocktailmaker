@@ -55,7 +55,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T26 | Rename CodeQL workflow to "CodeQL — Advanced Setup"; clean up merged T19/T20 from roadmap | 9 — Docs | In Progress |
 | T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
 | T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
 | T25 | README rewrite — remove stale TODOs, replace drawio.svg with Mermaid diagrams | 9 — Docs | Pending |
