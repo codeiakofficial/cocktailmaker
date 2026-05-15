@@ -41,3 +41,7 @@ Derived from current implementation. Pending items are intended but not yet buil
 | MQTT Agent ID | `dispenser-1` (hardcoded) | `src/agent/src/config.h` |
 | Multi-agent | Supported by MQTT topic structure; not a current priority | — |
 | CI | GitHub Actions: backend (dotnet test), frontend (vitest), ESP32 (pio test); test reports via dorny/test-reporter | `.github/workflows/ci.yml` |
+| Versioning | GitVersion `GitHubFlow/v1`; conventional commits drive bump; every merge to `main` publishes an image and creates a GitHub release | `GitVersion.yml`, `.github/workflows/ci.yml` |
+| Branch naming | All PR branches must use `feature/<description>` (new work) or `hotfix/<description>` (urgent fixes) | Convention — enforced by policy |
+| Commit messages | Conventional commits required: `feat:` minor bump, `fix:` patch bump, `BREAKING CHANGE` major bump; other types (`chore:`, `docs:`, `ci:`, etc.) default to patch | `GitVersion.yml` |
+| PR policy | Every change to `main` goes through a PR; roadmap row added at PR open, removed at merge; all CI jobs must pass | `AGENTS.md`, branch protection |

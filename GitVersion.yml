@@ -1,0 +1,6 @@
+workflow: GitHubFlow/v1
+next-version: 0.1.0
+commit-message-incrementing: Enabled
+major-version-bump-message: 'BREAKING CHANGE'
+minor-version-bump-message: '^feat(\(.+\))?:'
+patch-version-bump-message: '^fix(\(.+\))?:'
