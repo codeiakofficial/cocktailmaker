@@ -50,7 +50,7 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 **Closing a PR:**
 1. Remove the task row from the roadmap table in the **final commit of the PR** — not as a follow-up
 2. The roadmap table should be empty (or contain only other open PRs' tasks) when merging
-3. Merge is blocked by CI if any `| In Progress |` row remains
+3. Merge is blocked by CI if any roadmap row with status "In Progress" remains
 
 **CI requirement:** Backend, Frontend, and ESP32 jobs must all pass before merge.
 
