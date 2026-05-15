@@ -36,11 +36,38 @@ Routes tasks to the correct domain agent. Coordinates changes that span multiple
 
 Work proceeds in phases. Each phase must be fully verified before the next begins. Completed phases are removed from the roadmap — history is in git.
 
+## PR Policy
+
+All changes to `main` go through a pull request. Direct pushes are blocked by branch protection.
+
+**Opening a PR:**
+1. Create a branch from `main`
+2. Add a task row to the roadmap table below (task ID, description, phase, status: In Progress)
+3. Open the PR — title should match the task description
+
+**Closing a PR:**
+1. Remove the task row from the roadmap table as part of the PR
+2. The roadmap table should be empty (or contain only other open PRs' tasks) when merging
+
+**CI requirement:** Backend, Frontend, and ESP32 jobs must all pass before merge.
+
 ## Roadmap
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T18 | Integration test suite covering full stack: backend health, MQTT publish → agent status flip, dispense endpoint → MQTT command published | 7 — Verification | Pending |
+| T19 | PR workflow policy, conventional commits, GitVersion — automated semver releases on every merge to main | 8 — Workflow | In Progress |
+| T20 | CI enforcement of branch naming, commitlint, and PR review checklist gates | 9 — Convention Enforcement | In Progress |
+| T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
+| T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
+| T25 | README rewrite — remove stale TODOs, replace drawio.svg with Mermaid diagrams | 9 — Docs | Pending |
+
+## Last Review
+
+Update this table before merging each PR. Paste the command from the PR template as a comment on the PR to trigger the review.
+
+| PR | Date | Summary |
+|----|------|---------|
+| #1 | 2026-05-15 | Initial: PR policy, GitVersion, conventional commits, review tracking, roadmap T22/T24/T25, T20 lint job |
 
 ---
 
