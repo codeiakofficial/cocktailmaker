@@ -23,7 +23,7 @@ Routes tasks to the correct domain agent. Coordinates changes that span multiple
 - `src/backend/` or `tests/backend/` → Backend Agent
 - `src/frontend/` → Frontend Agent
 - `src/agent/` → ESP32 Agent
-- `src/docker-compose.yml`, infrastructure → Backend Agent
+- `src/docker-compose.yml`, `.github/`, infrastructure → CI/Infrastructure Agent
 - Cross-cutting → instruct each affected agent in sequence or in parallel where independent
 - Frontend API calls belong in context files (e.g. `AgentContext`, `RecipeContext`), not in components
 
