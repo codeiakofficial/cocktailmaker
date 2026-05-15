@@ -46,8 +46,9 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 3. Open the PR — title should match the task description
 
 **Closing a PR:**
-1. Remove the task row from the roadmap table as part of the PR
+1. Remove the task row from the roadmap table in the **final commit of the PR** — not as a follow-up
 2. The roadmap table should be empty (or contain only other open PRs' tasks) when merging
+3. Merge is blocked by CI if any `| In Progress |` row remains
 
 **CI requirement:** Backend, Frontend, and ESP32 jobs must all pass before merge.
 
@@ -57,7 +58,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 |------|-------------|-------|--------|
 | T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
 | T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
-| T25 | README rewrite — remove stale TODOs, replace drawio.svg with Mermaid diagrams | 9 — Docs | In Progress |
 
 ## Last Review
 
