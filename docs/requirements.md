@@ -44,4 +44,5 @@ Derived from current implementation. Pending items are intended but not yet buil
 | Versioning | GitVersion `GitHubFlow/v1`; conventional commits drive bump; every merge to `main` publishes an image and creates a GitHub release | `GitVersion.yml`, `.github/workflows/ci.yml` |
 | Branch naming | All PR branches must use `feature/<description>` (new work) or `hotfix/<description>` (urgent fixes) | Convention — enforced by policy |
 | Commit messages | Conventional commits required: `feat:` minor bump, `fix:` patch bump, `BREAKING CHANGE` major bump; other types (`chore:`, `docs:`, `ci:`, etc.) default to patch | `GitVersion.yml` |
+| Merge strategy | All PRs are squash-merged; the PR title becomes the single commit on `main` and is the only message GitVersion reads for version bumping — individual branch commits are irrelevant | GitHub repo setting |
 | PR policy | Every change to `main` goes through a PR; roadmap row added at PR open, removed at merge; all CI jobs must pass | `AGENTS.md`, branch protection |
