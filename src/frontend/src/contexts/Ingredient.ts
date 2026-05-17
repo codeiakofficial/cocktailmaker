@@ -5,5 +5,6 @@ export interface IIngredient {
 }
 export type IngredientContextType = {
     ingredients: IIngredient[];
+    fetchIngredients: () => Promise<void>;
     deleteIngredient: (id: number) => Promise<void>;
 };

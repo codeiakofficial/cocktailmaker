@@ -58,7 +58,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T27 | Fix page navigation not re-fetching data without a browser refresh | 10 — Bug Fix | In Progress |
 
 ## Last Review
 
