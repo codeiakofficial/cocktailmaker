@@ -17,6 +17,7 @@ const recipe: IRecipe = {
 function renderCarousel(agents: AgentContextType['agents'], dispense = vi.fn()) {
   const recipeCtx: RecipeContextType = {
     recipes: [recipe],
+    fetchRecipes: vi.fn(),
     saveRecipe: vi.fn(),
     updateRecipe: vi.fn(),
     deleteRecipe: vi.fn(),

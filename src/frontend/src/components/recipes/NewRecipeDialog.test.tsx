@@ -9,6 +9,7 @@ import type { RecipeContextType } from '../../contexts/Recipe'
 function renderDialog(overrides: Partial<RecipeContextType> = {}) {
   const context: RecipeContextType = {
     recipes: [],
+    fetchRecipes: vi.fn(),
     saveRecipe: vi.fn(),
     updateRecipe: vi.fn(),
     deleteRecipe: vi.fn(),
