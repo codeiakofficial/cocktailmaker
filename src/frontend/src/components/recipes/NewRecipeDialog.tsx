@@ -29,7 +29,7 @@ export function NewRecipeDialog({ recipe, trigger }: RecipeDialogProps) {
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<FormState>({ name: "", recipeIngredients: [] });
     const [page, setPage] = useState<number>(0);
-    const { saveRecipe, updateRecipe } = useRecipes()!;
+    const { saveRecipe, updateRecipe } = useRecipes();
     const isEditMode = !!recipe;
 
     // Reset form when dialog opens/closes
