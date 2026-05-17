@@ -10,6 +10,7 @@
 - After completing a task, update `docs/architecture.md` and `docs/requirements.md`: remove resolved pending items, update constraints, adjust diagrams if flows changed.
 - Always apply domain best practices (C#/.NET conventions, REST API design, Docker, architectural patterns, ESP32/embedded). If existing code deviates from best practice, report the mismatch to the user before proceeding — do not silently fix or silently ignore it.
 - After any backend change, `dotnet test` must pass — including `ArchitectureTests` (conventions) and `DocumentationTests` (docs/architecture.md contract). A failing architecture or documentation test means code and docs disagree — fix the code or update the docs, never delete the test.
+- All new functionality must be test-driven: write a failing test first, verify the failure is for the right reason, then implement. Never commit an implementation without a prior failing test commit.
 - PR descriptions must be short and precise: three sections only — Task (IDs + names), Changes (one bullet per change), Review (template block + checkboxes). No prose, no explanations. Update title and description immediately when scope changes — never leave them out of sync with the actual content.
 - The roadmap row for a task must be removed in the final commit of its PR — not deferred. A row with status "In Progress" must not remain once the task is complete; CI blocks merge if any such row is present.
 
@@ -58,6 +59,7 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
+| T28 | Manage Agents page — rename, pump-ingredient mapping, persist config on agent | 10 — Features | In Progress |
 
 ## Last Review
 
