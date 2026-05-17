@@ -55,11 +55,7 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T19 | PR workflow policy, conventional commits, GitVersion — automated semver releases on every merge to main | 8 — Workflow | In Progress |
-| T20 | CI enforcement of branch naming, commitlint, and PR review checklist gates | 9 — Convention Enforcement | In Progress |
-| T22 | Coverage reports — backend (coverlet) and frontend (v8) uploaded as CI artifacts | 9 — Quality | Pending |
-| T24 | Agent responsibility restructure — split CI/Infrastructure agent from Backend Agent; define Review Agents | 9 — Convention Enforcement | Pending |
-| T25 | README rewrite — remove stale TODOs, replace drawio.svg with Mermaid diagrams | 9 — Docs | Pending |
+| T27 | Fix page navigation not re-fetching data without a browser refresh | 10 — Bug Fix | In Progress |
 
 ## Last Review
 
