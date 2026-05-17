@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+echo "==> Frontend: build + test"
+cd src/frontend
+npm run build
+npm test -- --run
+cd ../..
+
+echo "==> Backend: test"
+cd tests/backend
+dotnet test
+cd ../..
+
+echo "==> ESP32: test"
+cd src/agent
+pio test -e test
+cd ../..

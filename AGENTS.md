@@ -69,6 +69,7 @@ Before merging, run a review in Claude Code: ask Claude to read `git diff main..
 | #2 | 2026-05-15 | Rename CodeQL workflow; clean up merged tasks from roadmap |
 | #3 | 2026-05-15 | T22–T25: coverage artifacts, agent restructure, README rewrite, review process, squash merge documented |
 | #4 | 2026-05-17 | T27: fix page navigation re-fetch; clean, minimal; pre-existing quantity input type issue noted (out of scope) |
+| #5 | 2026-05-17 | T21: commit-msg + pre-push hooks, fixed Frontend verify command; pre-push requires pio locally (acceptable) |
 
 ---
 
@@ -111,7 +112,7 @@ npm run dev
 **Verify after changes**
 ```
 cd src/frontend
-npm test
+npm run build && npm test -- --run
 ```
 
 All tests must pass before reporting the task complete.
