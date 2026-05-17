@@ -110,7 +110,7 @@ npm run dev
 **Verify after changes**
 ```
 cd src/frontend
-npm test
+npm run build && npm test -- --run
 ```
 
 All tests must pass before reporting the task complete.

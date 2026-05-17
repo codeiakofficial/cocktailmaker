@@ -82,6 +82,13 @@ The image is built once: Node compiles the frontend into `dist/`, .NET publishes
 
 ## Contributing workflow
 
+After cloning, activate local git hooks (one-time):
+```bash
+git config core.hooksPath .githooks
+```
+
+The hooks enforce conventional commit messages (`commit-msg`) and run all test suites before push (`pre-push`).
+
 1. `git checkout -b feature/<description>` (or `hotfix/`)
 2. Commit using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:`, `ci:` …)
 3. Open a PR — fill in Task and Changes from the template
