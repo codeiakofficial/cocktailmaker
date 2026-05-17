@@ -70,6 +70,7 @@ const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   const value: RecipeContextType = {
     recipes,
+    fetchRecipes,
     saveRecipe,
     updateRecipe,
     deleteRecipe,

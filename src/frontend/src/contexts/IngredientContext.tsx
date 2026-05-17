@@ -38,6 +38,7 @@ const IngredientProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const value: IngredientContextType = {
         ingredients,
+        fetchIngredients,
         deleteIngredient
     };
 
