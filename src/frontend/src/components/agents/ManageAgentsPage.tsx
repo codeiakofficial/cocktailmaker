@@ -99,7 +99,7 @@ export default function ManageAgentsPage() {
             className="max-w-xs"
           />
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col gap-2">
             {Array.from({ length: PUMP_COUNT }, (_, i) => (
               <div key={i} data-testid={`pump-slot-${i}`} className="flex items-center gap-2">
                 <span className="w-16 text-sm text-muted-foreground">Pump {i}</span>
