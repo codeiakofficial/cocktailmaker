@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act, waitFor } from '@testing-library/react'
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import AgentProvider, { useAgents } from './AgentContext'
 
@@ -103,5 +103,89 @@ describe('AgentContext — real-time SSE updates', () => {
     await screen.findByText('online')
     unmount()
     expect(eventSourceInstance.close).toHaveBeenCalled()
+  })
+})
+
+// Consumer that calls fetchAgentPumps and shows the result
+function PumpDisplay({ agentId }: { agentId: number }) {
+  const { agentPumps, fetchAgentPumps } = useAgents()
+  const pumps = agentPumps[agentId] ?? []
+  return (
+    <>
+      <button onClick={() => fetchAgentPumps(agentId)}>load pumps</button>
+      {pumps.map(p => (
+        <span key={p.pumpIndex} data-testid={`pump-${p.pumpIndex}`}>
+          {p.ingredientName ?? 'empty'}
+        </span>
+      ))}
+    </>
+  )
+}
+
+describe('AgentContext — pump operations', () => {
+  const pumps = [
+    { pumpIndex: 0, ingredientId: 1, ingredientName: 'Rum' },
+    { pumpIndex: 1, ingredientId: null, ingredientName: null },
+  ]
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('/pumps')) return Promise.resolve({ ok: true, json: () => Promise.resolve(pumps) })
+      if (url.includes('/agents')) return Promise.resolve({ ok: true, json: () => Promise.resolve([onlineAgent]) })
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+    }))
+  })
+
+  test('fetchAgentPumps stores pump list keyed by agent id', async () => {
+    const user = (await import('@testing-library/user-event')).default.setup()
+    render(<AgentProvider><PumpDisplay agentId={1} /></AgentProvider>)
+
+    await user.click(await screen.findByRole('button', { name: 'load pumps' }))
+
+    await waitFor(() => expect(screen.getByTestId('pump-0')).toHaveTextContent('Rum'))
+    expect(screen.getByTestId('pump-1')).toHaveTextContent('empty')
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('/agents/1/pumps'))
+  })
+
+  test('updateAgentName PATCHes the correct endpoint', async () => {
+    function RenameButton() {
+      const { updateAgentName } = useAgents()
+      return <button onClick={() => updateAgentName(1, 'New Name')}>rename</button>
+    }
+    const user = (await import('@testing-library/user-event')).default.setup()
+    render(<AgentProvider><RenameButton /></AgentProvider>)
+
+    await user.click(await screen.findByRole('button', { name: 'rename' }))
+
+    await waitFor(() => {
+      const calls = vi.mocked(fetch).mock.calls
+      const patchCall = calls.find(([url, opts]) =>
+        String(url).includes('/agents/1') && (opts as RequestInit)?.method === 'PATCH'
+      )
+      expect(patchCall).toBeDefined()
+    })
+  })
+
+  test('updateAgentPumps PUTs to the correct endpoint', async () => {
+    function SaveButton() {
+      const { updateAgentPumps } = useAgents()
+      return (
+        <button onClick={() => updateAgentPumps(1, [{ pumpIndex: 0, ingredientId: 2 }])}>
+          save
+        </button>
+      )
+    }
+    const user = (await import('@testing-library/user-event')).default.setup()
+    render(<AgentProvider><SaveButton /></AgentProvider>)
+
+    await user.click(await screen.findByRole('button', { name: 'save' }))
+
+    await waitFor(() => {
+      const calls = vi.mocked(fetch).mock.calls
+      const putCall = calls.find(([url, opts]) =>
+        String(url).includes('/agents/1/pumps') && (opts as RequestInit)?.method === 'PUT'
+      )
+      expect(putCall).toBeDefined()
+    })
   })
 })
