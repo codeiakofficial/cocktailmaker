@@ -31,16 +31,19 @@ const recipeCalls = () =>
 const ingredientCalls = () =>
   vi.mocked(fetch).mock.calls.filter(([url]) => String(url).includes('/ingredients')).length
 
+// jsdom renders both desktop nav and mobile BottomNav — use [0] to target the desktop nav buttons
+const navButton = (name: string) => screen.getAllByRole('button', { name }).at(0)!
+
 describe('App — page navigation re-fetches data', () => {
   test('re-fetches recipes when navigating back to Home', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await screen.findByRole('button', { name: 'Home' })
+    await screen.findAllByRole('button', { name: 'Home' })
 
     const countAfterMount = recipeCalls()
 
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
-    await user.click(screen.getByRole('button', { name: 'Home' }))
+    await user.click(navButton('Manage Ingredients'))
+    await user.click(navButton('Home'))
 
     expect(recipeCalls()).toBeGreaterThan(countAfterMount)
   })
@@ -48,13 +51,13 @@ describe('App — page navigation re-fetches data', () => {
   test('re-fetches ingredients when navigating to Manage Ingredients a second time', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await screen.findByRole('button', { name: 'Home' })
+    await screen.findAllByRole('button', { name: 'Home' })
 
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
+    await user.click(navButton('Manage Ingredients'))
     const countAfterFirstVisit = ingredientCalls()
 
-    await user.click(screen.getByRole('button', { name: 'Home' }))
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
+    await user.click(navButton('Home'))
+    await user.click(navButton('Manage Ingredients'))
 
     expect(ingredientCalls()).toBeGreaterThan(countAfterFirstVisit)
   })
