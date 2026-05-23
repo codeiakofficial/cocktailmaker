@@ -18,7 +18,7 @@ C4Context
 C4Container
     Person(user, "User")
 
-    Container(frontend, "Frontend", "React / TypeScript", "Recipe UI + agent health — port 5173")
+    Container(frontend, "Frontend", "React / TypeScript", "Recipe UI, agent management, appearance settings — port 5173")
     Container(backend, "Backend", "ASP.NET Core", "REST API + MQTT client — port 8080")
     Container(broker, "MQTT Broker", "Mosquitto", "Event bus — port 1883, runs on Pi")
     ContainerDb(db, "Database", "SQLite", "Recipes, ingredients, agents")

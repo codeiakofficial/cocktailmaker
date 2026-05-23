@@ -36,6 +36,16 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Connection loss is detected automatically without user action
 - Health state is updated in near-real-time in the UI via SSE stream
 
+**Navigation & Settings**
+- On mobile, a fixed bottom tab bar provides access to Home, Ingredients, Agents, and Settings
+- On desktop, the same pages are reachable from the top navigation bar
+- The user can switch between Dark, Light, and Custom appearance modes
+- Dark mode applies the default dark palette; Light mode applies a fixed tropical warm palette
+- Custom mode enables per-variable colour pickers: button colour, button hover, background, font colour, muted text, title colour, border
+- Changing any colour picker automatically activates Custom mode
+- The user can select a typeface from 9 options; font selection is independent of the appearance mode
+- Colour pickers are disabled unless Custom mode is active
+
 ## Constraints
 
 | Constraint | Value | Location |
