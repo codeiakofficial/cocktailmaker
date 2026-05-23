@@ -7,12 +7,14 @@ import { Input } from '../ui/input'
 
 const PUMP_COUNT = 8
 
+type PumpMap = Record<number, number | null>
+
 export default function ManageAgentsPage() {
   const { agents, agentPumps, fetchAgentPumps, updateAgentName, updateAgentPumps } = useAgents()
   const { ingredients } = useIngredients()
   const [renameInputs, setRenameInputs] = React.useState<Record<number, string>>({})
   // pumpSelections[agentId][pumpIndex] = ingredientId | null
-  const [pumpSelections, setPumpSelections] = React.useState<Record<number, Record<number, number | null>>>({})
+  const [pumpSelections, setPumpSelections] = React.useState<Record<number, PumpMap>>({})
 
   React.useEffect(() => {
     agents.forEach(a => fetchAgentPumps(a.id))
@@ -25,10 +27,10 @@ export default function ManageAgentsPage() {
   }, [agents])
 
   React.useEffect(() => {
-    const next: Record<number, Record<number, number | null>> = {}
+    const next: Record<number, PumpMap> = {}
     agents.forEach(agent => {
       const pumps = agentPumps[agent.id] ?? []
-      const slots: Record<number, number | null> = {}
+      const slots: PumpMap = {}
       for (let i = 0; i < PUMP_COUNT; i++) {
         slots[i] = pumps.find(p => p.pumpIndex === i)?.ingredientId ?? null
       }
@@ -37,18 +39,44 @@ export default function ManageAgentsPage() {
     setPumpSelections(next)
   }, [agents, agentPumps])
 
-  const handleRename = async (agentId: number) => {
-    const name = renameInputs[agentId] ?? ''
-    if (name.trim()) await updateAgentName(agentId, name.trim())
+  const isDirty = (agentId: number): boolean => {
+    const agent = agents.find(a => a.id === agentId)
+    if (!agent) return false
+
+    if ((renameInputs[agentId] ?? agent.name) !== agent.name) return true
+
+    const saved = agentPumps[agentId] ?? []
+    const current = pumpSelections[agentId] ?? {}
+    for (let i = 0; i < PUMP_COUNT; i++) {
+      const savedId = saved.find(p => p.pumpIndex === i)?.ingredientId ?? null
+      if ((current[i] ?? null) !== savedId) return true
+    }
+    return false
   }
 
-  const handleSavePumps = async (agentId: number) => {
-    const slots = pumpSelections[agentId] ?? {}
-    const pumps: IUpdatePumpSlot[] = Array.from({ length: PUMP_COUNT }, (_, i) => ({
-      pumpIndex: i,
-      ingredientId: slots[i] ?? null,
-    }))
-    await updateAgentPumps(agentId, pumps)
+  const handleSave = async (agentId: number) => {
+    const agent = agents.find(a => a.id === agentId)
+    if (!agent) return
+
+    const newName = renameInputs[agentId] ?? agent.name
+    if (newName !== agent.name) {
+      await updateAgentName(agentId, newName)
+    }
+
+    const saved = agentPumps[agentId] ?? []
+    const current = pumpSelections[agentId] ?? {}
+    const pumpsChanged = Array.from({ length: PUMP_COUNT }, (_, i) => {
+      const savedId = saved.find(p => p.pumpIndex === i)?.ingredientId ?? null
+      return (current[i] ?? null) !== savedId
+    }).some(Boolean)
+
+    if (pumpsChanged) {
+      const pumps: IUpdatePumpSlot[] = Array.from({ length: PUMP_COUNT }, (_, i) => ({
+        pumpIndex: i,
+        ingredientId: current[i] ?? null,
+      }))
+      await updateAgentPumps(agentId, pumps)
+    }
   }
 
   const setPumpSlot = (agentId: number, pumpIndex: number, ingredientId: number | null) => {
@@ -65,14 +93,11 @@ export default function ManageAgentsPage() {
         <div key={agent.id} className="space-y-4">
           <p className="text-sm font-medium">{agent.name}</p>
 
-          <div className="flex items-center gap-3">
-            <Input
-              value={renameInputs[agent.id] ?? agent.name}
-              onChange={e => setRenameInputs(prev => ({ ...prev, [agent.id]: e.target.value }))}
-              className="max-w-xs"
-            />
-            <Button onClick={() => handleRename(agent.id)}>Rename</Button>
-          </div>
+          <Input
+            value={renameInputs[agent.id] ?? agent.name}
+            onChange={e => setRenameInputs(prev => ({ ...prev, [agent.id]: e.target.value }))}
+            className="max-w-xs"
+          />
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: PUMP_COUNT }, (_, i) => (
@@ -92,7 +117,9 @@ export default function ManageAgentsPage() {
             ))}
           </div>
 
-          <Button onClick={() => handleSavePumps(agent.id)}>Save Pumps</Button>
+          <Button disabled={!isDirty(agent.id)} onClick={() => handleSave(agent.id)}>
+            Save Changes
+          </Button>
         </div>
       ))}
     </div>
