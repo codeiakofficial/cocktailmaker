@@ -67,13 +67,44 @@ public class AgentController : ControllerBase
 
     // GET: api/agents/{id}/pumps
     [HttpGet("{id}/pumps")]
-    public Task<ActionResult<IEnumerable<AgentPumpDto>>> GetAgentPumps(int id)
-        => throw new NotImplementedException();
+    public async Task<ActionResult<IEnumerable<AgentPumpDto>>> GetAgentPumps(int id)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        var pumps = agent.PumpsJson?.Select(p => new AgentPumpDto(p.PumpIndex, p.IngredientId, p.IngredientName))
+            ?? Enumerable.Empty<AgentPumpDto>();
+        return Ok(pumps);
+    }
 
     // PUT: api/agents/{id}/pumps
     [HttpPut("{id}/pumps")]
-    public Task<IActionResult> UpdateAgentPumps(int id, [FromBody] List<UpdatePumpSlotRequest> request)
-        => throw new NotImplementedException();
+    public async Task<IActionResult> UpdateAgentPumps(int id, [FromBody] List<UpdatePumpSlotRequest> request)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        var ingredientIds = request.Select(r => r.IngredientId).Where(i => i.HasValue).Select(i => i!.Value).ToList();
+        var ingredients = await _context.Ingredients
+            .Where(i => ingredientIds.Contains(i.Id))
+            .ToDictionaryAsync(i => i.Id, i => i.Name);
+
+        agent.PumpsJson = request.Select(r => new Data.Entities.PumpSlot
+        {
+            PumpIndex = r.PumpIndex,
+            IngredientId = r.IngredientId,
+            IngredientName = r.IngredientId.HasValue && ingredients.TryGetValue(r.IngredientId.Value, out var name) ? name : null,
+        }).ToList();
+
+        await _context.SaveChangesAsync();
+
+        var payload = JsonSerializer.Serialize(agent.PumpsJson, _jsonOptions);
+        await _mqttService.PublishAsync($"cocktailmaker/agents/{agent.AgentId}/config", payload, retain: true);
+
+        return NoContent();
+    }
 
     // GET: api/agents/events
     [HttpGet("/api/agents/events")]
