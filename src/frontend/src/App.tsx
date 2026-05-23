@@ -34,7 +34,7 @@ function AppContent() {
     <div className="h-screen w-screen overflow-hidden">
       <header className="flex items-center justify-between p-3">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Cocktailmaker 🍹</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>
           <AgentStatusBar />
         </div>
         <nav className="hidden md:flex items-center gap-4">
@@ -53,7 +53,7 @@ function AppContent() {
         </div>
       </header>
       <Separator className="my-0" />
-      <main className={`h-full flex items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full`}>
+      <main className={`h-full flex bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full ${page === 3 ? 'items-start justify-center overflow-y-auto py-6 px-4' : 'items-center justify-center pt-6 px-20'}`}>
         {page === 0 ? <RecipeCarousel /> :
          page === 1 ? <IngredientPage /> :
          page === 2 ? <ManageAgentsPage /> :
