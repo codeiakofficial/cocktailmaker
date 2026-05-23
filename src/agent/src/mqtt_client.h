@@ -30,7 +30,7 @@ private:
 
     void handleMessage(char* topic, byte* payload, unsigned int length) {
         if (strcmp(topic, MQTT_CONFIG_TOPIC) == 0) {
-            char buf[512];
+            char buf[1024];
             unsigned int len = length < sizeof(buf) - 1 ? length : sizeof(buf) - 1;
             memcpy(buf, payload, len);
             buf[len] = '\0';

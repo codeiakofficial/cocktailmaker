@@ -28,7 +28,7 @@ Derived from current implementation. Pending items are intended but not yet buil
 - The user can assign an ingredient to each pump slot (pump index 0–7)
 - Pump-to-ingredient mappings are persisted in the backend DB as a JSON blob on the Agent entity
 - When mappings are saved, the backend publishes the config as a retained MQTT message to `cocktailmaker/agents/{agentId}/config`
-- The ESP32 subscribes to its config topic on boot and writes each slot to NVS (`Preferences`, namespace `"pump"`, key `"pump_N"`)
+- The ESP32 subscribes to its config topic on boot and writes each slot to NVS (`Preferences`, namespace `"pump"`, key `"pump_N"`); NVS persists ingredient IDs only — ingredient names are restored when the broker delivers the retained config message on reconnect
 - Config changes are reflected on the agent without reboot (config topic subscription is always active)
 
 **Health monitoring**
