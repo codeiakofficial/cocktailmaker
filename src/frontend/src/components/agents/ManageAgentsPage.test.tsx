@@ -36,12 +36,13 @@ function renderPage(agentCtx: Partial<AgentContextType> = {}) {
 }
 
 const agent1 = { id: 1, name: 'Dispenser 1', agentId: 'dispenser-1', isOnline: true, lastSeen: null }
+const emptyPumps = { 1: Array.from({ length: 8 }, (_, i) => ({ pumpIndex: i, ingredientId: null, ingredientName: null })) }
 
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe('ManageAgentsPage', () => {
+describe('ManageAgentsPage — rendering', () => {
   test('renders each agent name', () => {
     renderPage({ agents: [agent1] })
     expect(screen.getByText('Dispenser 1')).toBeInTheDocument()
@@ -49,54 +50,94 @@ describe('ManageAgentsPage', () => {
 
   test('shows a rename input prefilled with current name', () => {
     renderPage({ agents: [agent1] })
-    const input = screen.getByDisplayValue('Dispenser 1')
-    expect(input).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Dispenser 1')).toBeInTheDocument()
   })
 
-  test('calls updateAgentName with new name when rename is submitted', async () => {
-    const updateAgentName = vi.fn()
-    renderPage({ agents: [agent1], updateAgentName })
+  test('shows 8 pump slots per agent', () => {
+    renderPage({ agents: [agent1], agentPumps: emptyPumps })
+    expect(screen.getAllByTestId(/^pump-slot-/)).toHaveLength(8)
+  })
+})
+
+describe('ManageAgentsPage — Save Changes button', () => {
+  test('is disabled when nothing has changed', () => {
+    renderPage({ agents: [agent1], agentPumps: emptyPumps })
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeDisabled()
+  })
+
+  test('is enabled when the name input is edited', async () => {
     const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps })
+
+    await user.clear(screen.getByDisplayValue('Dispenser 1'))
+    await user.type(screen.getByRole('textbox'), 'Bar Bot')
+
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeEnabled()
+  })
+
+  test('is enabled when a pump selection changes', async () => {
+    const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps })
+
+    await user.selectOptions(screen.getAllByRole('combobox')[0], '1')
+
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeEnabled()
+  })
+
+  test('is disabled again after name is restored to original', async () => {
+    const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps })
 
     const input = screen.getByDisplayValue('Dispenser 1')
     await user.clear(input)
     await user.type(input, 'Bar Bot')
-    await user.click(screen.getByRole('button', { name: /rename/i }))
+    await user.clear(input)
+    await user.type(input, 'Dispenser 1')
+
+    expect(screen.getByRole('button', { name: /save changes/i })).toBeDisabled()
+  })
+})
+
+describe('ManageAgentsPage — saving', () => {
+  test('calls updateAgentName when only name changed', async () => {
+    const updateAgentName = vi.fn()
+    const updateAgentPumps = vi.fn()
+    const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps, updateAgentName, updateAgentPumps })
+
+    await user.clear(screen.getByDisplayValue('Dispenser 1'))
+    await user.type(screen.getByRole('textbox'), 'Bar Bot')
+    await user.click(screen.getByRole('button', { name: /save changes/i }))
 
     expect(updateAgentName).toHaveBeenCalledWith(1, 'Bar Bot')
+    expect(updateAgentPumps).not.toHaveBeenCalled()
   })
 
-  test('shows 8 pump slots for the selected agent', async () => {
-    const fetchAgentPumps = vi.fn()
-    renderPage({
-      agents: [agent1],
-      fetchAgentPumps,
-      agentPumps: {
-        1: Array.from({ length: 8 }, (_, i) => ({
-          pumpIndex: i,
-          ingredientId: null,
-          ingredientName: null,
-        })),
-      },
-    })
-
-    const slots = screen.getAllByTestId(/^pump-slot-/)
-    expect(slots).toHaveLength(8)
-  })
-
-  test('calls updateAgentPumps when save pumps is clicked', async () => {
+  test('calls updateAgentPumps when only a pump changed', async () => {
+    const updateAgentName = vi.fn()
     const updateAgentPumps = vi.fn()
-    renderPage({
-      agents: [agent1],
-      updateAgentPumps,
-      agentPumps: {
-        1: [{ pumpIndex: 0, ingredientId: 1, ingredientName: 'Rum' }],
-      },
-    })
     const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps, updateAgentName, updateAgentPumps })
 
-    await user.click(screen.getByRole('button', { name: /save pumps/i }))
+    await user.selectOptions(screen.getAllByRole('combobox')[0], '1')
+    await user.click(screen.getByRole('button', { name: /save changes/i }))
 
+    expect(updateAgentPumps).toHaveBeenCalledWith(1, expect.any(Array))
+    expect(updateAgentName).not.toHaveBeenCalled()
+  })
+
+  test('calls both when name and pump both changed', async () => {
+    const updateAgentName = vi.fn()
+    const updateAgentPumps = vi.fn()
+    const user = userEvent.setup()
+    renderPage({ agents: [agent1], agentPumps: emptyPumps, updateAgentName, updateAgentPumps })
+
+    await user.clear(screen.getByDisplayValue('Dispenser 1'))
+    await user.type(screen.getByRole('textbox'), 'Bar Bot')
+    await user.selectOptions(screen.getAllByRole('combobox')[0], '2')
+    await user.click(screen.getByRole('button', { name: /save changes/i }))
+
+    expect(updateAgentName).toHaveBeenCalledWith(1, 'Bar Bot')
     expect(updateAgentPumps).toHaveBeenCalledWith(1, expect.any(Array))
   })
 })
