@@ -2,6 +2,7 @@ import * as React from 'react'
 import { COLOR_THEMES, applyColorTheme, saveColorTheme, loadColorTheme } from '../../contexts/ColorTheme'
 import type { ColorTheme } from '../../contexts/ColorTheme'
 import { useTheme } from '../theme-provider'
+import { Button } from '../ui/button'
 
 type Mode = 'light' | 'dark' | 'system'
 const MODES: { label: string; value: Mode }[] = [
@@ -26,22 +27,19 @@ export default function SettingsPage() {
         <p className="text-sm font-medium">Color theme</p>
         <div className="flex flex-wrap gap-2">
           {COLOR_THEMES.map(t => (
-            <button
+            <Button
               key={t.id}
               aria-label={t.name}
               data-active={activeTheme.id === t.id ? 'true' : 'false'}
+              variant={activeTheme.id === t.id ? 'default' : 'outline'}
               onClick={() => selectColorTheme(t)}
-              className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors
-                ${activeTheme.id === t.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/50'}`}
             >
               <span
                 className="h-3 w-3 rounded-full"
                 style={{ background: t.light.primary }}
               />
               {t.name}
-            </button>
+            </Button>
           ))}
         </div>
       </section>
@@ -50,18 +48,16 @@ export default function SettingsPage() {
         <p className="text-sm font-medium">Appearance</p>
         <div className="flex gap-2">
           {MODES.map(({ label, value }) => (
-            <button
+            <Button
               key={value}
               aria-label={label}
               data-active={theme === value ? 'true' : 'false'}
+              variant={theme === value ? 'default' : 'outline'}
+              className="flex-1"
               onClick={() => setTheme(value)}
-              className={`flex-1 rounded-md border px-3 py-1.5 text-sm transition-colors
-                ${theme === value
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/50'}`}
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
       </section>
