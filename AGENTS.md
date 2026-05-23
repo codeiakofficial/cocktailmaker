@@ -59,7 +59,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T28 | Manage Agents page — rename, pump-ingredient mapping, persist config on agent | 10 — Features | In Progress |
 
 ## Last Review
 

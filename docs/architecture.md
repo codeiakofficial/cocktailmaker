@@ -194,4 +194,3 @@ erDiagram
 
 | # | Description | Location | Planned fix |
 |---|-------------|----------|-------------|
-| 1 | ESP32 `api_client.h` requests `GET /api/recipe/{id}` (singular) but the backend route is `GET /api/recipes/{id}` (plural). Dispense silently fails on every recipe fetch. | `src/agent/src/api_client.h` | T28 |
