@@ -1,31 +1,33 @@
-import * as React from 'react'
-import { Home, FlaskConical, Bot } from 'lucide-react'
+import { Home, FlaskConical, Bot, Settings } from 'lucide-react'
 
 interface BottomNavProps {
   page: number
   onHome: () => void
   onIngredients: () => void
   onAgents: () => void
-  newRecipeTrigger: React.ReactNode
+  onSettings: () => void
 }
 
 const tabs = [
-  { label: 'Home', icon: Home, page: 0 },
-  { label: 'Ingredients', icon: FlaskConical, page: 1 },
-  { label: 'Agents', icon: Bot, page: 2 },
-]
+  { label: 'Home',        icon: Home,         page: 0, handler: 'onHome'        },
+  { label: 'Ingredients', icon: FlaskConical,  page: 1, handler: 'onIngredients' },
+  { label: 'Agents',      icon: Bot,           page: 2, handler: 'onAgents'      },
+  { label: 'Settings',    icon: Settings,      page: 3, handler: 'onSettings'    },
+] as const
 
-export default function BottomNav({ page, onHome, onIngredients, onAgents, newRecipeTrigger }: BottomNavProps) {
-  const handlers = [onHome, onIngredients, onAgents]
+type Handler = typeof tabs[number]['handler']
+
+export default function BottomNav(props: BottomNavProps & { page: number }) {
+  const { page } = props
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 flex items-stretch border-t bg-background md:hidden">
-      {tabs.map(({ label, icon: Icon, page: tabPage }) => (
+      {tabs.map(({ label, icon: Icon, page: tabPage, handler }) => (
         <button
           key={label}
           aria-label={label}
           data-active={page === tabPage ? 'true' : 'false'}
-          onClick={handlers[tabPage]}
+          onClick={props[handler as Handler]}
           className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors
             ${page === tabPage ? 'text-foreground' : 'text-muted-foreground'}`}
         >
@@ -33,9 +35,6 @@ export default function BottomNav({ page, onHome, onIngredients, onAgents, newRe
           {label}
         </button>
       ))}
-      <div className="flex flex-1 flex-col items-center justify-center">
-        {newRecipeTrigger}
-      </div>
     </nav>
   )
 }

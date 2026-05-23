@@ -1,28 +1,34 @@
 import './App.css'
 import { ThemeProvider } from "./components/theme-provider"
-import { ModeToggle } from './components/mode-toggle'
 import { RecipeCarousel } from './components/recipes/RecipeCarousel'
 import { Separator } from './components/ui/separator'
 import { NewRecipeDialog } from './components/recipes/NewRecipeDialog'
 import RecipeProvider, { useRecipes } from './contexts/RecipeContext'
 import { Button } from './components/ui/button'
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import IngredientPage from './components/ingredients/IngredientPage'
 import IngredientProvider, { useIngredients } from './contexts/IngredientContext'
 import AgentProvider from './contexts/AgentContext'
 import { AgentStatusBar } from './components/agents/AgentStatusBar'
 import ManageAgentsPage from './components/agents/ManageAgentsPage'
+import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
+import { loadColorTheme, applyColorTheme } from './contexts/ColorTheme'
 
 function AppContent() {
   const [page, setPage] = useState(0);
   const { fetchRecipes } = useRecipes();
   const { fetchIngredients } = useIngredients();
 
+  useEffect(() => {
+    applyColorTheme(loadColorTheme())
+  }, [])
+
   const goHome = () => { setPage(0); fetchRecipes(); }
   const goIngredients = () => { setPage(1); fetchIngredients(); }
   const goAgents = () => setPage(2)
+  const goSettings = () => setPage(3)
 
   return (
     <div className="h-screen w-screen overflow-hidden">
@@ -35,30 +41,30 @@ function AppContent() {
           <Button variant="ghost" onClick={goHome}>Home</Button>
           <Button variant="ghost" onClick={goIngredients}>Manage Ingredients</Button>
           <Button variant="ghost" onClick={goAgents}>Manage Agents</Button>
+          <Button variant="ghost" onClick={goSettings}>Settings</Button>
           <NewRecipeDialog />
-          <ModeToggle />
         </nav>
         <div className="flex md:hidden items-center gap-2">
-          <ModeToggle />
+          <NewRecipeDialog trigger={
+            <button aria-label="New recipe" className="rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors">
+              <Plus size={20} />
+            </button>
+          } />
         </div>
       </header>
       <Separator className="my-0" />
       <main className={`h-full flex items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full`}>
-        {page === 0 ? <RecipeCarousel /> : page === 1 ? <IngredientPage /> : <ManageAgentsPage />}
+        {page === 0 ? <RecipeCarousel /> :
+         page === 1 ? <IngredientPage /> :
+         page === 2 ? <ManageAgentsPage /> :
+         <SettingsPage />}
       </main>
       <BottomNav
         page={page}
         onHome={goHome}
         onIngredients={goIngredients}
         onAgents={goAgents}
-        newRecipeTrigger={
-          <NewRecipeDialog trigger={
-            <button aria-label="New recipe" className="flex flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground">
-              <Plus size={20} />
-              New
-            </button>
-          } />
-        }
+        onSettings={goSettings}
       />
     </div>
   );
