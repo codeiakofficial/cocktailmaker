@@ -27,8 +27,8 @@ C4Container
     Rel(user, frontend, "Uses", "HTTP :5173")
     Rel(frontend, backend, "CRUD + SSE", "HTTP :8080")
     Rel(backend, db, "Read / Write", "EF Core")
-    Rel(backend, broker, "Publish commands / Subscribe status", "MQTT :1883")
-    Rel(agent, broker, "Subscribe commands / Publish status + LWT", "MQTT :1883")
+    Rel(backend, broker, "Publish commands / Subscribe status + config", "MQTT :1883")
+    Rel(agent, broker, "Subscribe commands + config / Publish status + LWT", "MQTT :1883")
 ```
 
 > **Network:** Pi is the WiFi access point. Frontend, backend, broker, and all agents share the same LAN. No internet dependency.
@@ -54,6 +54,40 @@ sequenceDiagram
     Backend->>SQLite: INSERT recipe (ingredients as JSON blob)
     Backend->>SQLite: UPSERT Ingredient rows + update UsedInRecipes
     Backend-->>Browser: 201 Created
+
+    Browser->>Backend: PUT /api/recipes/{id}
+    Backend->>SQLite: UPDATE recipe + re-sync Ingredient.UsedInRecipes
+    Backend-->>Browser: 204
+
+    Browser->>Backend: DELETE /api/recipes/{id}
+    Backend->>SQLite: DELETE recipe + remove recipeId from UsedInRecipes
+    Backend-->>Browser: 204
+```
+
+### Ingredient CRUD (Frontend → Backend)
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Backend
+    participant SQLite
+
+    Browser->>Backend: GET /api/ingredients
+    Backend->>SQLite: SELECT
+    SQLite-->>Backend: rows
+    Backend-->>Browser: Ingredient[]
+
+    Browser->>Backend: POST /api/ingredients
+    Backend->>SQLite: INSERT ingredient
+    Backend-->>Browser: 201 Created
+
+    Browser->>Backend: PUT /api/ingredients/{id}
+    Backend->>SQLite: UPDATE ingredient.Name
+    Backend-->>Browser: 204
+
+    Browser->>Backend: DELETE /api/ingredients/{id}
+    Backend->>SQLite: DELETE ingredient
+    Backend-->>Browser: 204
 ```
 
 ### Dispense command
@@ -65,13 +99,42 @@ sequenceDiagram
     participant Broker as Mosquitto
     participant ESP32
 
-    Browser->>Backend: POST /api/agents/{id}/dispense {recipeId}
-    Backend->>Broker: PUBLISH cocktailmaker/agents/{agentId}/command
-    Broker-->>ESP32: {recipeId}
-    ESP32->>Backend: GET /api/recipe/{recipeId}
-    Backend-->>ESP32: Recipe + ingredients
+    Browser->>Backend: POST /api/agents/{id}/dispense {"recipeId": id}
+    Backend->>Broker: PUBLISH cocktailmaker/agents/{agentId}/command {"recipeId": id}
+    Broker-->>ESP32: {"recipeId": id}
+    ESP32->>Backend: GET /api/recipes/{recipeId}
+    Backend-->>ESP32: Recipe + ingredients [{name, quantity, unit}]
+    ESP32->>ESP32: look up pump index per ingredient name (NVS pump map)
     ESP32->>ESP32: dispense pumps
 ```
+
+### Agent pump configuration
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Backend
+    participant SQLite
+    participant Broker as Mosquitto
+    participant ESP32
+
+    Browser->>Backend: PATCH /api/agents/{id} {"name": "New Name"}
+    Backend->>SQLite: UPDATE Agent.Name
+    Backend-->>Browser: 204
+
+    Browser->>Backend: GET /api/agents/{id}/pumps
+    Backend->>SQLite: SELECT Agent.PumpsJson
+    SQLite-->>Backend: pump slots
+    Backend-->>Browser: [{pumpIndex, ingredientId, ingredientName}]
+
+    Browser->>Backend: PUT /api/agents/{id}/pumps [{pumpIndex, ingredientId}]
+    Backend->>SQLite: UPDATE Agent.PumpsJson
+    Backend->>Broker: PUBLISH cocktailmaker/agents/{agentId}/config (retained) [{pumpIndex, ingredientName}]
+    Broker-->>ESP32: [{pumpIndex, ingredientName}]
+    ESP32->>ESP32: persist pump map to NVS Preferences
+```
+
+> **First-boot fallback:** if an ESP32 has no NVS pump map (fresh flash, broker unreachable), dispense falls back to positional assignment (ingredient index 0 → pump 0).
 
 ### Agent health monitoring
 
@@ -83,7 +146,7 @@ sequenceDiagram
     participant Browser
 
     ESP32->>Broker: CONNECT with LWT = {agentId, status:"offline"} retained
-    ESP32->>Broker: PUBLISH cocktailmaker/agents/{agentId}/status "online"
+    ESP32->>Broker: PUBLISH cocktailmaker/agents/{agentId}/status "online" (retained)
 
     Backend->>Broker: SUBSCRIBE cocktailmaker/agents/+/status
     Broker-->>Backend: status event
@@ -112,18 +175,23 @@ erDiagram
         json    UsedInRecipes   "JSON list of Recipe IDs (reverse index)"
     }
     Agent {
-        int     Id          PK
-        string  Name
-        string  AgentId     "MQTT topic identifier — unique"
-        bool    IsOnline    "set via MQTT status events"
-        datetime LastSeen   "set via MQTT status events"
+        int      Id          PK
+        string   Name        "human-readable display name"
+        string   AgentId     "MQTT topic identifier — unique, immutable"
+        bool     IsOnline    "set via MQTT status events"
+        datetime LastSeen    "set via MQTT status events"
+        json     PumpsJson   "nullable — [{pumpIndex, ingredientId, ingredientName}]"
     }
 ```
 
 `Recipe.RecipeIngredients` and `Ingredient.UsedInRecipes` are **denormalized mirrors** — no join table, no DB constraint. `RecipeController` keeps them in sync on every write.
 
+`Agent.PumpsJson` follows the same denormalized pattern — pump-ingredient mapping stored as a JSON blob, synced to the ESP32 via retained MQTT on every write.
+
 ---
 
 ## Known Mismatches
 
-None currently.
+| # | Description | Location | Planned fix |
+|---|-------------|----------|-------------|
+| 1 | ESP32 `api_client.h` requests `GET /api/recipe/{id}` (singular) but the backend route is `GET /api/recipes/{id}` (plural). Dispense silently fails on every recipe fetch. | `src/agent/src/api_client.h` | T28 |
