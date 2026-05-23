@@ -2,12 +2,6 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import SettingsPage from './SettingsPage'
-import { COLOR_THEMES } from '../../contexts/ColorTheme'
-
-vi.mock('../../contexts/ColorTheme', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../contexts/ColorTheme')>()
-  return { ...actual, applyColorTheme: vi.fn(), saveColorTheme: vi.fn() }
-})
 
 const mockSetTheme = vi.fn()
 vi.mock('../theme-provider', () => ({
@@ -20,56 +14,87 @@ beforeEach(() => {
     getItem: vi.fn().mockReturnValue(null),
     setItem: vi.fn(),
   })
+  document.documentElement.style.cssText = ''
+  const el = document.getElementById('color-theme-override')
+  if (el) el.textContent = ''
 })
 
-describe('SettingsPage — appearance', () => {
-  test('renders a button for each color theme', () => {
-    render(<SettingsPage />)
-    COLOR_THEMES.forEach(t => {
-      expect(screen.getByRole('button', { name: t.name })).toBeInTheDocument()
-    })
-  })
-
-  test('renders light, dark and system mode options', () => {
+describe('SettingsPage — appearance modes', () => {
+  test('renders Light, Dark and Custom buttons', () => {
     render(<SettingsPage />)
     expect(screen.getByRole('button', { name: /light/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /dark/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /system/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /custom/i })).toBeInTheDocument()
   })
-})
 
-describe('SettingsPage — color theme selection', () => {
-  test('clicking a theme applies and saves it', async () => {
-    const { applyColorTheme, saveColorTheme } = await import('../../contexts/ColorTheme')
-    const user = userEvent.setup()
-    render(<SettingsPage />)
-
-    await user.click(screen.getByRole('button', { name: COLOR_THEMES[1].name }))
-
-    expect(applyColorTheme).toHaveBeenCalledWith(COLOR_THEMES[1])
-    expect(saveColorTheme).toHaveBeenCalledWith(COLOR_THEMES[1])
-  })
-})
-
-describe('SettingsPage — mode selection', () => {
   test('clicking Dark calls setTheme with "dark"', async () => {
     const user = userEvent.setup()
     render(<SettingsPage />)
-    await user.click(screen.getByRole('button', { name: /dark/i }))
+    await user.click(screen.getByRole('button', { name: /^dark$/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 
   test('clicking Light calls setTheme with "light"', async () => {
     const user = userEvent.setup()
     render(<SettingsPage />)
-    await user.click(screen.getByRole('button', { name: /light/i }))
+    await user.click(screen.getByRole('button', { name: /^light$/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('light')
   })
 
-  test('clicking System calls setTheme with "system"', async () => {
+  test('clicking Custom calls setTheme with "light" (light as base)', async () => {
     const user = userEvent.setup()
     render(<SettingsPage />)
-    await user.click(screen.getByRole('button', { name: /system/i }))
-    expect(mockSetTheme).toHaveBeenCalledWith('system')
+    await user.click(screen.getByRole('button', { name: /^custom$/i }))
+    expect(mockSetTheme).toHaveBeenCalledWith('light')
+  })
+})
+
+describe('SettingsPage — color pickers', () => {
+  test('renders all color picker rows', () => {
+    render(<SettingsPage />)
+    expect(screen.getByText('Button color')).toBeInTheDocument()
+    expect(screen.getByText('Button hover')).toBeInTheDocument()
+    expect(screen.getByText('Background')).toBeInTheDocument()
+    expect(screen.getByText('Font color')).toBeInTheDocument()
+    expect(screen.getByText('Muted text')).toBeInTheDocument()
+    expect(screen.getByText('Title color')).toBeInTheDocument()
+    expect(screen.getByText('Border color')).toBeInTheDocument()
+  })
+
+  test('color inputs are disabled when not in custom mode', () => {
+    render(<SettingsPage />)
+    const inputs = screen.getAllByDisplayValue(/^#/)
+    inputs.forEach(input => expect(input).toBeDisabled())
+  })
+
+  test('color inputs are enabled after switching to Custom', async () => {
+    const user = userEvent.setup()
+    render(<SettingsPage />)
+    await user.click(screen.getByRole('button', { name: /^custom$/i }))
+    const inputs = screen.getAllByDisplayValue(/^#/)
+    inputs.forEach(input => expect(input).toBeEnabled())
+  })
+})
+
+describe('SettingsPage — font selection', () => {
+  test('renders all font buttons', () => {
+    render(<SettingsPage />)
+    expect(screen.getByRole('button', { name: 'Oxanium' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pacifico' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lobster' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Dancing' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Righteous' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Abril' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Satisfy' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Playfair' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Mono' })).toBeInTheDocument()
+  })
+
+  test('selecting a font does not switch to Custom mode', async () => {
+    const user = userEvent.setup()
+    render(<SettingsPage />)
+    await user.click(screen.getByRole('button', { name: 'Pacifico' }))
+    // mode button for Dark should still be active (border-primary class)
+    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
   })
 })
