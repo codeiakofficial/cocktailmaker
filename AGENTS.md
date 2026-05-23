@@ -59,6 +59,7 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
+| T29 | Mobile bottom tab bar for page navigation | Frontend | In Progress |
 
 ## Last Review
 
