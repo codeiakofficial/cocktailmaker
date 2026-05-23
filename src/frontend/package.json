@@ -12,6 +12,13 @@
   },
   "dependencies": {
     "@fontsource-variable/oxanium": "^5.2.8",
+    "@fontsource-variable/playfair-display": "^5.2.8",
+    "@fontsource/abril-fatface": "^5.2.7",
+    "@fontsource/dancing-script": "^5.2.8",
+    "@fontsource/lobster": "^5.2.8",
+    "@fontsource/pacifico": "^5.2.7",
+    "@fontsource/righteous": "^5.2.7",
+    "@fontsource/satisfy": "^5.2.7",
     "@tailwindcss/vite": "^4.2.4",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
