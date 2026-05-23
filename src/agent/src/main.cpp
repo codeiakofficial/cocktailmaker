@@ -4,11 +4,13 @@
 #include "config.h"
 #include "pump_controller.h"
 #include "api_client.h"
+#include "config_manager.h"
 #include "mqtt_client.h"
 
 PumpController pump;
-APIClient api;
-MqttClient mqtt(pump, api);
+APIClient      api;
+ConfigManager  config;
+MqttClient     mqtt(pump, api, config);
 
 void setup() {
     Serial.begin(115200);
