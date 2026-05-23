@@ -24,3 +24,7 @@ public class DispenseRequest
 }
 
 public record RenameAgentRequest(string Name);
+
+public record AgentPumpDto(int PumpIndex, int? IngredientId, string? IngredientName);
+
+public record UpdatePumpSlotRequest(int PumpIndex, int? IngredientId);

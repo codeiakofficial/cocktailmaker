@@ -57,6 +57,8 @@ public class DocumentationTests
     [InlineData("DELETE", "api/ingredients/{id}")]
     [InlineData("GET",    "api/agents")]
     [InlineData("PATCH",  "api/agents/{id}")]
+    [InlineData("GET",    "api/agents/{id}/pumps")]
+    [InlineData("PUT",    "api/agents/{id}/pumps")]
     [InlineData("POST",   "api/agents/{id}/dispense")]
     [InlineData("GET",    "api/agents/events")]
     public void DocumentedEndpoint_ExistsInControllers(string method, string template)
@@ -96,6 +98,7 @@ public class DocumentationTests
         Assert.Contains("AgentId", props);
         Assert.Contains("IsOnline", props);
         Assert.Contains("LastSeen", props);
+        Assert.Contains("PumpsJson", props);
     }
 
     [Fact]

@@ -14,13 +14,13 @@ public class AgentController : ControllerBase
 {
     private readonly CocktailDbContext _context;
     private readonly AgentEventBroadcaster _broadcaster;
-    private readonly MqttService _mqttService;
+    private readonly IMqttService _mqttService;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public AgentController(
         CocktailDbContext context,
         AgentEventBroadcaster broadcaster,
-        MqttService mqttService,
+        IMqttService mqttService,
         IOptions<JsonOptions> jsonOptions
     )
     {
@@ -64,6 +64,16 @@ public class AgentController : ControllerBase
         await _mqttService.PublishAsync(topic, payload);
         return Accepted();
     }
+
+    // GET: api/agents/{id}/pumps
+    [HttpGet("{id}/pumps")]
+    public Task<ActionResult<IEnumerable<AgentPumpDto>>> GetAgentPumps(int id)
+        => throw new NotImplementedException();
+
+    // PUT: api/agents/{id}/pumps
+    [HttpPut("{id}/pumps")]
+    public Task<IActionResult> UpdateAgentPumps(int id, [FromBody] List<UpdatePumpSlotRequest> request)
+        => throw new NotImplementedException();
 
     // GET: api/agents/events
     [HttpGet("/api/agents/events")]

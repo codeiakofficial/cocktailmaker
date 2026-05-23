@@ -5,7 +5,7 @@ using MQTTnet.Client;
 
 namespace CocktailMaker.Services;
 
-public class MqttService : IHostedService, IDisposable
+public class MqttService : IHostedService, IDisposable, IMqttService
 {
     private readonly ILogger<MqttService> _logger;
     private readonly IConfiguration _configuration;
@@ -104,7 +104,7 @@ public class MqttService : IHostedService, IDisposable
         await _broadcaster.BroadcastAsync(new AgentStatusEvent(agentId, isOnline, lastSeen));
     }
 
-    public async Task PublishAsync(string topic, string payload)
+    public async Task PublishAsync(string topic, string payload, bool retain = false)
     {
         if (_client == null || !_client.IsConnected)
             return;
@@ -112,6 +112,7 @@ public class MqttService : IHostedService, IDisposable
         var message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(payload)
+            .WithRetainFlag(retain)
             .Build();
         await _client.PublishAsync(message);
     }

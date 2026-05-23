@@ -7,4 +7,5 @@ public class Agent
     public string AgentId { get; set; } = string.Empty;
     public bool IsOnline { get; set; }
     public DateTime? LastSeen { get; set; }
+    public List<PumpSlot>? PumpsJson { get; set; }
 }
