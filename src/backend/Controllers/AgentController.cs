@@ -40,8 +40,16 @@ public class AgentController : ControllerBase
 
     // PATCH: api/agents/{id}
     [HttpPatch("{id}")]
-    public Task<IActionResult> RenameAgent(int id, [FromBody] RenameAgentRequest request)
-        => throw new NotImplementedException();
+    public async Task<IActionResult> RenameAgent(int id, [FromBody] RenameAgentRequest request)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        agent.Name = request.Name;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
 
     // POST: api/agents/{id}/dispense
     [HttpPost("{id}/dispense")]
