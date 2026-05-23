@@ -29,7 +29,7 @@ public:
             return false;
         }
         
-        String request = "GET /api/recipe/" + String(recipe_id) + " HTTP/1.1\r\n";
+        String request = "GET /api/recipes/" + String(recipe_id) + " HTTP/1.1\r\n";
         request += "Host: " + String(API_HOST) + "\r\n";
         request += "Connection: close\r\n\r\n";
         

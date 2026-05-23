@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { IAgent, AgentContextType } from './Agent';
+import type { IAgent, IAgentPump, IUpdatePumpSlot, AgentContextType } from './Agent';
 import { API_BASE } from '../config';
 
 export const AgentContext = React.createContext<AgentContextType | null>(null);
@@ -8,6 +8,7 @@ const SSE_URL = `${API_BASE}/agents/events`;
 
 const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [agents, setAgents] = React.useState<IAgent[]>([]);
+  const [agentPumps, setAgentPumps] = React.useState<Record<number, IAgentPump[]>>({});
 
   // Fetch initial agent list on mount
   const fetchAgents = React.useCallback(async () => {
@@ -70,7 +71,53 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   };
 
-  const value: AgentContextType = { agents, dispense };
+  const fetchAgentPumps = React.useCallback(async (agentId: number) => {
+    try {
+      const response = await fetch(`${API_BASE}/agents/${agentId}/pumps`);
+      if (!response.ok) throw new Error('Failed to fetch pumps');
+      const data: IAgentPump[] = await response.json();
+      setAgentPumps(prev => ({ ...prev, [agentId]: data }));
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }, []);
+
+  const updateAgentName = async (id: number, name: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/agents/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) throw new Error('Failed to rename agent');
+      setAgents(prev => prev.map(a => a.id === id ? { ...a, name } : a));
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : 'Unknown error');
+    }
+  };
+
+  const updateAgentPumps = async (id: number, pumps: IUpdatePumpSlot[]) => {
+    try {
+      const response = await fetch(`${API_BASE}/agents/${id}/pumps`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pumps),
+      });
+      if (!response.ok) throw new Error('Failed to update pumps');
+      await fetchAgentPumps(id);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : 'Unknown error');
+    }
+  };
+
+  const value: AgentContextType = {
+    agents,
+    agentPumps,
+    dispense,
+    fetchAgentPumps,
+    updateAgentName,
+    updateAgentPumps,
+  };
 
   return (
     <AgentContext.Provider value={value}>

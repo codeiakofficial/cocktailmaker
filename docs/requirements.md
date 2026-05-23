@@ -10,9 +10,11 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Ingredients are tracked globally and reference the recipes they appear in
 
 **Dispensing**
-- The ESP32 agent controls 4 pumps (GPIO 16–19, indices 0–3)
+- The ESP32 agent controls up to 8 pumps (GPIO 16–19, 21–25, indices 0–7)
 - A pump runs for a given duration in milliseconds, then stops
 - Emergency stop halts all pumps immediately regardless of state
+- Dispense uses the pump-ingredient mapping stored in NVS to route each recipe ingredient to the correct pump
+- If no NVS config exists (first boot), dispense falls back to positional assignment (ingredient 0 → pump 0, etc.)
 
 **Agent lifecycle**
 - The agent connects to the broker on boot, sets a LWT, and publishes online status
@@ -20,6 +22,14 @@ Derived from current implementation. Pending items are intended but not yet buil
 - The backend stores agents by database ID, human-readable name, and AgentId
 - AgentId is the MQTT topic identifier (e.g. `dispenser-1`), persisted in the DB so the backend knows which topics to subscribe to at startup
 - The backend pushes a dispense command to a specific agent via MQTT
+
+**Agent management**
+- The user can rename an agent's display name
+- The user can assign an ingredient to each pump slot (pump index 0–7)
+- Pump-to-ingredient mappings are persisted in the backend DB as a JSON blob on the Agent entity
+- When mappings are saved, the backend publishes the config as a retained MQTT message to `cocktailmaker/agents/{agentId}/config`
+- The ESP32 subscribes to its config topic on boot and writes each slot to NVS (`Preferences`, namespace `"pump"`, key `"pump_N"`); NVS persists ingredient IDs only — ingredient names are restored when the broker delivers the retained config message on reconnect
+- Config changes are reflected on the agent without reboot (config topic subscription is always active)
 
 **Health monitoring**
 - The user can see whether each agent is connected and responsive
@@ -37,7 +47,7 @@ Derived from current implementation. Pending items are intended but not yet buil
 | CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
 | Agent transport (status) | MQTT via `PubSubClient` — LWT + retained publish | `src/agent/src/mqtt_client.h` |
 | Agent transport (recipe fetch) | Plain HTTP via raw TCP | `src/agent/src/api_client.h` |
-| Pump count | 4 | `src/agent/src/pump_controller.h` |
+| Pump count | 8 (GPIO 16–19, 21–25) | `src/agent/src/pump_controller.h` |
 | MQTT Agent ID | `dispenser-1` (hardcoded) | `src/agent/src/config.h` |
 | Multi-agent | Supported by MQTT topic structure; not a current priority | — |
 | CI | GitHub Actions: backend (dotnet test), frontend (vitest), ESP32 (pio test); test reports via dorny/test-reporter | `.github/workflows/ci.yml` |

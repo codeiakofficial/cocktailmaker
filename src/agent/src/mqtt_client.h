@@ -8,9 +8,11 @@
 #include "config.h"
 #include "pump_controller.h"
 #include "api_client.h"
+#include "config_manager.h"
 
 #define MQTT_STATUS_TOPIC  "cocktailmaker/agents/" MQTT_AGENT_ID "/status"
 #define MQTT_COMMAND_TOPIC "cocktailmaker/agents/" MQTT_AGENT_ID "/command"
+#define MQTT_CONFIG_TOPIC  "cocktailmaker/agents/" MQTT_AGENT_ID "/config"
 
 class MqttClient {
 private:
@@ -18,24 +20,33 @@ private:
     PubSubClient    _client;
     PumpController& _pump;
     APIClient&      _api;
+    ConfigManager&  _config;
 
     static MqttClient* _instance;
 
     static void onMessage(char* topic, byte* payload, unsigned int length) {
-        if (_instance) {
-            _instance->handleCommand(topic, payload, length);
-        }
+        if (_instance) _instance->handleMessage(topic, payload, length);
     }
 
-    void handleCommand(char* topic, byte* payload, unsigned int length) {
-        Serial.print("[MQTT] Message on topic: ");
+    void handleMessage(char* topic, byte* payload, unsigned int length) {
+        if (strcmp(topic, MQTT_CONFIG_TOPIC) == 0) {
+            char buf[1024];
+            unsigned int len = length < sizeof(buf) - 1 ? length : sizeof(buf) - 1;
+            memcpy(buf, payload, len);
+            buf[len] = '\0';
+            Serial.println("[MQTT] Received config");
+            _config.apply_config(buf);
+            return;
+        }
+
+        if (strcmp(topic, MQTT_COMMAND_TOPIC) != 0) return;
+
+        Serial.print("[MQTT] Command on topic: ");
         Serial.println(topic);
 
         JsonDocument doc;
-        DeserializationError err = deserializeJson(doc, payload, length);
-        if (err) {
-            Serial.print("[MQTT] JSON parse error: ");
-            Serial.println(err.c_str());
+        if (deserializeJson(doc, payload, length)) {
+            Serial.println("[MQTT] JSON parse error");
             return;
         }
 
@@ -50,28 +61,35 @@ private:
         }
 
         JsonArray ingredients = recipeDoc["recipeIngredients"].as<JsonArray>();
-        int idx = 0;
+        int positional_idx = 0;
         for (JsonObject ingredient : ingredients) {
-            if (idx > 3) break;
-
             const char* name     = ingredient["name"];
-            double      quantity = ingredient["quantity"];  // ml
-            const char* unit     = ingredient["unit"];
+            double      quantity = ingredient["quantity"];
+            int         duration_ms = (int)(quantity * 1000);
 
-            int duration_ms = (int)(quantity * 1000);
+            int pump_idx;
+            if (_config.has_config()) {
+                pump_idx = _config.pump_for_ingredient_name(name);
+                if (pump_idx == -1) {
+                    Serial.print("[PUMP] No pump mapped for: ");
+                    Serial.println(name);
+                    positional_idx++;
+                    continue;
+                }
+            } else {
+                pump_idx = _config.pump_for_ingredient_positional(positional_idx);
+            }
 
             Serial.print("[PUMP] Dispensing ");
             Serial.print(name);
             Serial.print(" via pump ");
-            Serial.print(idx);
+            Serial.print(pump_idx);
             Serial.print(": ");
             Serial.print(quantity);
-            Serial.print(" ml (");
-            Serial.print(duration_ms);
-            Serial.println(" ms)");
+            Serial.println(" ml");
 
-            _pump.dispense(idx, duration_ms);
-            idx++;
+            _pump.dispense(pump_idx, duration_ms);
+            positional_idx++;
         }
 
         Serial.println("[MQTT] Dispense sequence complete");
@@ -84,7 +102,8 @@ private:
                 Serial.println("[MQTT] Connected");
                 _client.publish(MQTT_STATUS_TOPIC, "online", /*retain=*/true);
                 _client.subscribe(MQTT_COMMAND_TOPIC);
-                Serial.println("[MQTT] Subscribed to command topic");
+                _client.subscribe(MQTT_CONFIG_TOPIC);
+                Serial.println("[MQTT] Subscribed to command and config topics");
             } else {
                 Serial.print("[MQTT] Connection failed, rc=");
                 Serial.println(_client.state());
@@ -94,11 +113,13 @@ private:
     }
 
 public:
-    MqttClient(PumpController& pump, APIClient& api)
-        : _client(_wifi), _pump(pump), _api(api) {}
+    MqttClient(PumpController& pump, APIClient& api, ConfigManager& config)
+        : _client(_wifi), _pump(pump), _api(api), _config(config) {}
 
     void begin() {
         _instance = this;
+        _config.load_from_nvs();
+
         _client.setServer(MQTT_BROKER_HOST, MQTT_BROKER_PORT);
         _client.setKeepAlive(60);
         _client.setCallback(onMessage);
@@ -114,9 +135,9 @@ public:
                             willTopic, willQos, willRetain, willPayload)) {
             Serial.println("[MQTT] Connected");
             _client.publish(MQTT_STATUS_TOPIC, "online", /*retain=*/true);
-            Serial.println("[MQTT] Published: online");
             _client.subscribe(MQTT_COMMAND_TOPIC);
-            Serial.println("[MQTT] Subscribed to command topic");
+            _client.subscribe(MQTT_CONFIG_TOPIC);
+            Serial.println("[MQTT] Subscribed to command and config topics");
         } else {
             Serial.print("[MQTT] Initial connection failed, rc=");
             Serial.println(_client.state());
@@ -124,9 +145,7 @@ public:
     }
 
     void loop() {
-        if (!_client.connected()) {
-            reconnect();
-        }
+        if (!_client.connected()) reconnect();
         _client.loop();
     }
 };

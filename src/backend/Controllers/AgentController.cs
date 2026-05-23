@@ -14,13 +14,13 @@ public class AgentController : ControllerBase
 {
     private readonly CocktailDbContext _context;
     private readonly AgentEventBroadcaster _broadcaster;
-    private readonly MqttService _mqttService;
+    private readonly IMqttService _mqttService;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public AgentController(
         CocktailDbContext context,
         AgentEventBroadcaster broadcaster,
-        MqttService mqttService,
+        IMqttService mqttService,
         IOptions<JsonOptions> jsonOptions
     )
     {
@@ -38,6 +38,19 @@ public class AgentController : ControllerBase
         return Ok(agents.Select(AgentDto.From));
     }
 
+    // PATCH: api/agents/{id}
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> RenameAgent(int id, [FromBody] RenameAgentRequest request)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        agent.Name = request.Name;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
     // POST: api/agents/{id}/dispense
     [HttpPost("{id}/dispense")]
     public async Task<IActionResult> Dispense(int id, [FromBody] DispenseRequest request)
@@ -50,6 +63,47 @@ public class AgentController : ControllerBase
         var payload = JsonSerializer.Serialize(new { recipeId = request.RecipeId }, _jsonOptions);
         await _mqttService.PublishAsync(topic, payload);
         return Accepted();
+    }
+
+    // GET: api/agents/{id}/pumps
+    [HttpGet("{id}/pumps")]
+    public async Task<ActionResult<IEnumerable<AgentPumpDto>>> GetAgentPumps(int id)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        var pumps = agent.PumpsJson?.Select(p => new AgentPumpDto(p.PumpIndex, p.IngredientId, p.IngredientName))
+            ?? Enumerable.Empty<AgentPumpDto>();
+        return Ok(pumps);
+    }
+
+    // PUT: api/agents/{id}/pumps
+    [HttpPut("{id}/pumps")]
+    public async Task<IActionResult> UpdateAgentPumps(int id, [FromBody] List<UpdatePumpSlotRequest> request)
+    {
+        var agent = await _context.Agents.FindAsync(id);
+        if (agent == null)
+            return NotFound();
+
+        var ingredientIds = request.Select(r => r.IngredientId).Where(i => i.HasValue).Select(i => i!.Value).ToList();
+        var ingredients = await _context.Ingredients
+            .Where(i => ingredientIds.Contains(i.Id))
+            .ToDictionaryAsync(i => i.Id, i => i.Name);
+
+        agent.PumpsJson = request.Select(r => new Data.Entities.PumpSlot
+        {
+            PumpIndex = r.PumpIndex,
+            IngredientId = r.IngredientId,
+            IngredientName = r.IngredientId.HasValue && ingredients.TryGetValue(r.IngredientId.Value, out var name) ? name : null,
+        }).ToList();
+
+        await _context.SaveChangesAsync();
+
+        var payload = JsonSerializer.Serialize(agent.PumpsJson, _jsonOptions);
+        await _mqttService.PublishAsync($"cocktailmaker/agents/{agent.AgentId}/config", payload, retain: true);
+
+        return NoContent();
     }
 
     // GET: api/agents/events

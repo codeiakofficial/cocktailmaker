@@ -19,8 +19,9 @@ builder
 // Register AgentEventBroadcaster as singleton for SSE broadcasting
 builder.Services.AddSingleton<AgentEventBroadcaster>();
 
-// Register MQTT background service (singleton so it can be injected by concrete type)
+// Register MQTT background service; expose via IMqttService for testable injection
 builder.Services.AddSingleton<MqttService>();
+builder.Services.AddSingleton<IMqttService>(sp => sp.GetRequiredService<MqttService>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttService>());
 
 // Configure SQLite database

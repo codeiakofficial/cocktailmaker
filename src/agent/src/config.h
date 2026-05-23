@@ -16,6 +16,10 @@
 #define PUMP_2_PIN 17
 #define PUMP_3_PIN 18
 #define PUMP_4_PIN 19
+#define PUMP_5_PIN 21
+#define PUMP_6_PIN 22
+#define PUMP_7_PIN 23
+#define PUMP_8_PIN 25
 #define SENSOR_PIN 35
 
 // Timing

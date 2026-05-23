@@ -46,6 +46,12 @@ public class CocktailDbContext : DbContext
             entity.Property(e => e.Name).IsRequired();
             entity.Property(e => e.AgentId).IsRequired();
             entity.HasIndex(e => e.AgentId).IsUnique();
+            entity
+                .Property(e => e.PumpsJson)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<PumpSlot>>(v, (JsonSerializerOptions?)null)
+                );
         });
     }
 
