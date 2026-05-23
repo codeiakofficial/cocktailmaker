@@ -56,6 +56,7 @@ public class DocumentationTests
     [InlineData("PUT",    "api/ingredients/{id}")]
     [InlineData("DELETE", "api/ingredients/{id}")]
     [InlineData("GET",    "api/agents")]
+    [InlineData("PATCH",  "api/agents/{id}")]
     [InlineData("POST",   "api/agents/{id}/dispense")]
     [InlineData("GET",    "api/agents/events")]
     public void DocumentedEndpoint_ExistsInControllers(string method, string template)

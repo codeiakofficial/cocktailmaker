@@ -38,6 +38,11 @@ public class AgentController : ControllerBase
         return Ok(agents.Select(AgentDto.From));
     }
 
+    // PATCH: api/agents/{id}
+    [HttpPatch("{id}")]
+    public Task<IActionResult> RenameAgent(int id, [FromBody] RenameAgentRequest request)
+        => throw new NotImplementedException();
+
     // POST: api/agents/{id}/dispense
     [HttpPost("{id}/dispense")]
     public async Task<IActionResult> Dispense(int id, [FromBody] DispenseRequest request)

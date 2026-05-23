@@ -22,3 +22,5 @@ public class DispenseRequest
 {
     public int RecipeId { get; set; }
 }
+
+public record RenameAgentRequest(string Name);
