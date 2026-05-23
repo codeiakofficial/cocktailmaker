@@ -22,7 +22,14 @@ function renderCarousel(agents: AgentContextType['agents'], dispense = vi.fn()) 
     updateRecipe: vi.fn(),
     deleteRecipe: vi.fn(),
   }
-  const agentCtx: AgentContextType = { agents, dispense }
+  const agentCtx: AgentContextType = {
+    agents,
+    agentPumps: {},
+    dispense,
+    fetchAgentPumps: vi.fn(),
+    updateAgentName: vi.fn(),
+    updateAgentPumps: vi.fn(),
+  }
 
   render(
     <RecipeContext.Provider value={recipeCtx}>

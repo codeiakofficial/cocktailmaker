@@ -11,6 +11,7 @@ import IngredientPage from './components/ingredients/IngredientPage'
 import IngredientProvider, { useIngredients } from './contexts/IngredientContext'
 import AgentProvider from './contexts/AgentContext'
 import { AgentStatusBar } from './components/agents/AgentStatusBar'
+import ManageAgentsPage from './components/agents/ManageAgentsPage'
 
 function AppContent() {
   const [page, setPage] = useState(0);
@@ -31,13 +32,16 @@ function AppContent() {
           <Button variant="ghost" onClick={() => { setPage(1); fetchIngredients(); }}>
             Manage Ingredients
           </Button>
+          <Button variant="ghost" onClick={() => setPage(2)}>
+            Manage Agents
+          </Button>
           <NewRecipeDialog />
           <ModeToggle />
         </nav>
       </header>
       <Separator className="my-0" />
       <main className={`h-full flex items-center justify-center pt-6 px-20 bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full`}>
-        {page === 0 ? <RecipeCarousel /> : <IngredientPage />}
+        {page === 0 ? <RecipeCarousel /> : page === 1 ? <IngredientPage /> : <ManageAgentsPage />}
       </main>
     </div>
   );
