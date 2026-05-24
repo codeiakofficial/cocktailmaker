@@ -38,7 +38,7 @@ export function IngredientTable<TData, TValue>({
   };
 
   return (
-    <div className="overflow-hidden rounded-md border backdrop-blur-sm">
+    <div className="overflow-hidden rounded-md">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
