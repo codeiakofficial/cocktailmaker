@@ -7,11 +7,11 @@ import RecipeProvider, { useRecipes } from './contexts/RecipeContext'
 import { Button } from './components/ui/button'
 import { Plus } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import IngredientPage from './components/ingredients/IngredientPage'
 import IngredientProvider, { useIngredients } from './contexts/IngredientContext'
 import AgentProvider from './contexts/AgentContext'
 import { AgentStatusBar } from './components/agents/AgentStatusBar'
-import ManageAgentsPage from './components/agents/ManageAgentsPage'
+import IngredientsSettings from './components/settings/IngredientsSettings'
+import AgentsSettings from './components/settings/AgentsSettings'
 import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
 import { loadColorTheme, applyColorTheme } from './contexts/ColorTheme'
@@ -55,8 +55,8 @@ function AppContent() {
       <Separator className="my-0" />
       <main className={`h-full flex bg-[url('../../../resources/bg.jpg')] bg-cover max-h-full ${page === 3 ? 'items-start justify-center overflow-y-auto py-6 px-4' : 'items-center justify-center pt-6 px-20'}`}>
         {page === 0 ? <RecipeCarousel /> :
-         page === 1 ? <IngredientPage /> :
-         page === 2 ? <ManageAgentsPage /> :
+         page === 1 ? <IngredientsSettings /> :
+         page === 2 ? <AgentsSettings /> :
          <SettingsPage />}
       </main>
       <BottomNav
