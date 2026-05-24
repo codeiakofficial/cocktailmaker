@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import AppearanceSettings from './AppearanceSettings'
+import AppearanceSettings, { restoreAppearance } from './AppearanceSettings'
 
 const mockSetTheme = vi.fn()
 const mockUseTheme = vi.fn()
@@ -17,6 +17,7 @@ beforeEach(() => {
     setItem: vi.fn(),
   })
   document.documentElement.style.cssText = ''
+  document.documentElement.style.fontFamily = ''
 })
 
 describe('AppearanceSettings — mode buttons', () => {
@@ -72,6 +73,16 @@ describe('AppearanceSettings — color pickers', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
     screen.getAllByDisplayValue(/^#/).forEach(input => expect(input).toBeEnabled())
+  })
+
+  test('initialises colors from stored localStorage values', () => {
+    localStorage.getItem = vi.fn((key: string) => {
+      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#111111', hover: '#222222', bg: '#333333', font: '#444444', muted: '#555555', title: '#666666', border: '#777777', mutedHover: '#888888' })
+      return null
+    })
+    render(<AppearanceSettings />)
+    expect(screen.getByDisplayValue('#111111')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('#222222')).toBeInTheDocument()
   })
 })
 
@@ -156,37 +167,107 @@ describe('AppearanceSettings — font selection', () => {
     await user.click(screen.getByRole('button', { name: 'Pacifico' }))
     expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
   })
+
+  test('selecting a font saves it to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: 'Pacifico' }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-font', expect.stringContaining('Pacifico'))
+  })
+
+  test('initialises font from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-font' ? "'Pacifico', cursive" : null)
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: 'Pacifico' })).toHaveClass('border-primary')
+  })
 })
 
-describe('AppearanceSettings — initial mode reflects current theme', () => {
-  test('dark button is active when theme is "dark"', () => {
+describe('AppearanceSettings — initial mode', () => {
+  test('dark button is active by default', () => {
     render(<AppearanceSettings />)
     expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
     expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'false')
     expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
   })
 
-  test('light button is active when theme is "light"', () => {
-    mockUseTheme.mockReturnValue({ theme: 'light', setTheme: mockSetTheme })
+  test('light button is active when localStorage has "light"', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'light' : null)
     render(<AppearanceSettings />)
     expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'true')
     expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
-    expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('custom button is active when localStorage has "custom"', () => {
-    localStorage.getItem = vi.fn().mockReturnValue('custom')
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'custom' : null)
     render(<AppearanceSettings />)
     expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'true')
     expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
-    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'false')
   })
 
-  test('switching mode persists it to localStorage', async () => {
+  test('switching to custom persists "custom" to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^light$/i }))
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'light')
+    await user.click(screen.getByRole('button', { name: /^custom$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
+  })
+
+  test('switching to dark persists "dark" to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^custom$/i }))
+    await user.click(screen.getByRole('button', { name: /^dark$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'dark')
+  })
+
+  test('changing a color picker while in dark mode saves "custom" display mode', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    fireEvent.change(screen.getAllByDisplayValue(/^#/)[0], { target: { value: '#abcdef' } })
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
+  })
+})
+
+describe('AppearanceSettings — color persistence', () => {
+  test('saves custom colors to localStorage when a color picker changes', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^custom$/i }))
+    fireEvent.change(screen.getAllByDisplayValue(/^#/)[0], { target: { value: '#abcdef' } })
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-custom-colors', expect.stringContaining('#abcdef'))
+  })
+})
+
+describe('AppearanceSettings — restoreAppearance', () => {
+  test('applies stored custom CSS vars when mode is "custom"', () => {
+    localStorage.getItem = vi.fn((key: string) => {
+      if (key === 'vite-ui-display-mode') return 'custom'
+      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#ff0000', hover: '#ee0000', bg: '#001122', font: '#ffffff', muted: '#aaaaaa', title: '#cccccc', border: '#444444', mutedHover: '#555555' })
+      return null
+    })
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#ff0000')
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#001122')
+    expect(document.documentElement.style.getPropertyValue('--primary-hover')).toBe('#ee0000')
+  })
+
+  test('applies tropical palette when mode is "light"', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'light' : null)
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#fef9ec')
+    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#e67e22')
+  })
+
+  test('does not set custom CSS vars when mode is "dark"', () => {
+    localStorage.getItem = vi.fn().mockReturnValue(null)
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('')
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('')
+  })
+
+  test('applies stored font regardless of mode', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-font' ? "'Pacifico', cursive" : null)
+    restoreAppearance()
+    expect(document.documentElement.style.fontFamily).toContain('Pacifico')
   })
 })
 

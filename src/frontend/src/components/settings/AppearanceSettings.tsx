@@ -2,7 +2,8 @@ import * as React from 'react'
 import { useTheme } from '../theme-provider'
 import { Button } from '../ui/button'
 
-type DisplayMode = 'light' | 'dark' | 'custom'
+type DisplayMode = 'dark' | 'light' | 'custom'
+type HeaderStyle = 'solid' | 'blur'
 
 const FONTS = [
   { label: 'Oxanium',  family: "'Oxanium Variable', sans-serif" },
@@ -32,34 +33,57 @@ const CUSTOM_PROPS = [
   '--title-color', '--border', '--input', '--primary-hover', '--muted-hover',
 ]
 
-const DISPLAY_MODE_KEY = 'vite-ui-display-mode'
+const DISPLAY_MODE_KEY  = 'vite-ui-display-mode'
+const HEADER_STYLE_KEY  = 'vite-ui-header-style'
+const CUSTOM_COLORS_KEY = 'vite-ui-custom-colors'
+const FONT_KEY          = 'vite-ui-font'
 
-function loadDisplayMode(theme: string): DisplayMode {
+interface CustomColors {
+  button: string; hover: string; bg: string; font: string
+  muted: string; title: string; border: string; mutedHover: string
+}
+
+const DEFAULT_COLORS: CustomColors = {
+  button: '#d4274a', hover: '#a01e38', bg: '#1a1a2e',
+  font: '#f5f5f5', muted: '#9a9ab0', title: '#ffffff',
+  border: '#2e2e3a', mutedHover: '#2e2e4a',
+}
+
+function loadDisplayMode(): DisplayMode {
   const stored = localStorage.getItem(DISPLAY_MODE_KEY)
-  if (stored === 'light' || stored === 'dark' || stored === 'custom') return stored
-  return theme === 'light' ? 'light' : 'dark'
+  if (stored === 'light' || stored === 'custom') return stored
+  return 'dark'
 }
 
 function saveDisplayMode(mode: DisplayMode) {
   localStorage.setItem(DISPLAY_MODE_KEY, mode)
 }
 
-const HEADER_STYLE_KEY = 'vite-ui-header-style'
-type HeaderStyle = 'solid' | 'blur'
+function loadCustomColors(): CustomColors {
+  try {
+    const stored = localStorage.getItem(CUSTOM_COLORS_KEY)
+    if (stored) return { ...DEFAULT_COLORS, ...JSON.parse(stored) }
+  } catch {}
+  return { ...DEFAULT_COLORS }
+}
+
+function saveCustomColors(c: CustomColors) {
+  localStorage.setItem(CUSTOM_COLORS_KEY, JSON.stringify(c))
+}
+
+function loadFont(): string {
+  return localStorage.getItem(FONT_KEY) ?? FONTS[0].family
+}
+
+function saveFont(f: string) {
+  localStorage.setItem(FONT_KEY, f)
+}
 
 function loadHeaderStyle(): HeaderStyle {
   return localStorage.getItem(HEADER_STYLE_KEY) === 'blur' ? 'blur' : 'solid'
 }
 
-export function applyHeaderStyle(style: HeaderStyle) {
-  if (style === 'blur') {
-    set('--header-bg', 'color-mix(in oklab, var(--background) 10%, transparent)')
-  } else {
-    unset('--header-bg')
-  }
-}
-
-const set = (prop: string, val: string) => document.documentElement.style.setProperty(prop, val)
+const set   = (prop: string, val: string) => document.documentElement.style.setProperty(prop, val)
 const unset = (prop: string) => document.documentElement.style.removeProperty(prop)
 
 function clearCustomOverrides() { CUSTOM_PROPS.forEach(unset) }
@@ -73,6 +97,33 @@ function applyTropicalLight() {
   set('--muted', p.muted); set('--muted-foreground', p.mutedFg)
   set('--border', p.border); set('--input', p.input)
   set('--title-color', p.titleColor)
+}
+
+export function applyHeaderStyle(style: HeaderStyle) {
+  if (style === 'blur') {
+    set('--header-bg', 'color-mix(in oklab, var(--background) 10%, transparent)')
+  } else {
+    unset('--header-bg')
+  }
+}
+
+export function restoreAppearance() {
+  const mode = localStorage.getItem(DISPLAY_MODE_KEY)
+  if (mode === 'custom') {
+    const c = loadCustomColors()
+    set('--background', c.bg);  set('--card', c.bg);  set('--popover', c.bg)
+    set('--foreground', c.font); set('--card-foreground', c.font); set('--popover-foreground', c.font)
+    set('--muted-foreground', c.muted)
+    set('--primary', c.button); set('--primary-foreground', '#ffffff')
+    set('--primary-hover', c.hover)
+    set('--muted-hover', c.mutedHover)
+    set('--title-color', c.title)
+    set('--border', c.border); set('--input', c.border)
+  } else if (mode === 'light') {
+    applyTropicalLight()
+  }
+  const font = localStorage.getItem(FONT_KEY)
+  if (font) document.documentElement.style.fontFamily = font
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -92,24 +143,34 @@ function ColorRow({ label, hex, disabled, onChange }: ColorRowProps) {
 }
 
 export default function AppearanceSettings() {
-  const { theme, setTheme } = useTheme()
-  const [displayMode,    setDisplayMode]    = React.useState<DisplayMode>(() => loadDisplayMode(theme))
-  const [buttonColor,    setButtonColor]    = React.useState('#d4274a')
-  const [hoverColor,     setHoverColor]     = React.useState('#a01e38')
-  const [bgColor,        setBgColor]        = React.useState('#1a1a2e')
-  const [fontColor,      setFontColor]      = React.useState('#f5f5f5')
-  const [mutedColor,     setMutedColor]     = React.useState('#9a9ab0')
-  const [titleColor,     setTitleColor]     = React.useState('#ffffff')
-  const [borderColor,    setBorderColor]    = React.useState('#2e2e3a')
-  const [mutedHoverColor,setMutedHoverColor]= React.useState('#2e2e4a')
-  const [activeFont,     setActiveFont]     = React.useState(FONTS[0].family)
-  const [headerStyle,    setHeaderStyle]    = React.useState<HeaderStyle>(() => loadHeaderStyle())
+  const { setTheme } = useTheme()
+  const [displayMode,     setDisplayMode]     = React.useState<DisplayMode>(() => loadDisplayMode())
+  const initColors = loadCustomColors()
+  const [buttonColor,     setButtonColor]     = React.useState(initColors.button)
+  const [hoverColor,      setHoverColor]      = React.useState(initColors.hover)
+  const [bgColor,         setBgColor]         = React.useState(initColors.bg)
+  const [fontColor,       setFontColor]       = React.useState(initColors.font)
+  const [mutedColor,      setMutedColor]      = React.useState(initColors.muted)
+  const [titleColor,      setTitleColor]      = React.useState(initColors.title)
+  const [borderColor,     setBorderColor]     = React.useState(initColors.border)
+  const [mutedHoverColor, setMutedHoverColor] = React.useState(initColors.mutedHover)
+  const [activeFont,      setActiveFont]      = React.useState(() => loadFont())
+  const [headerStyle,     setHeaderStyle]     = React.useState<HeaderStyle>(() => loadHeaderStyle())
 
   const isCustom = displayMode === 'custom'
-  const enterCustom = () => { setDisplayMode('custom'); setTheme('light') }
+
+  React.useEffect(() => {
+    saveCustomColors({ button: buttonColor, hover: hoverColor, bg: bgColor, font: fontColor, muted: mutedColor, title: titleColor, border: borderColor, mutedHover: mutedHoverColor })
+  }, [buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor])
+
+  const enterCustom = () => {
+    setDisplayMode('custom')
+    saveDisplayMode('custom')
+    setTheme('light')
+  }
 
   const applyAllCustom = (btn: string, hover: string, bg: string, font: string, muted: string, title: string, border: string, mutedHover: string, fontFam: string) => {
-    set('--background', bg); set('--card', bg); set('--popover', bg)
+    set('--background', bg);  set('--card', bg);  set('--popover', bg)
     set('--foreground', font); set('--card-foreground', font); set('--popover-foreground', font)
     set('--muted-foreground', muted)
     set('--primary', btn); set('--primary-foreground', '#ffffff')
@@ -123,25 +184,25 @@ export default function AppearanceSettings() {
   const handleModeChange = (mode: DisplayMode) => {
     setDisplayMode(mode)
     saveDisplayMode(mode)
-    if (mode === 'dark')        { setTheme('dark');  clearCustomOverrides() }
-    else if (mode === 'light')  { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
-    else { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
+    if (mode === 'dark')       { setTheme('dark');  clearCustomOverrides() }
+    else if (mode === 'light') { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
+    else                       { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
   }
 
   const picker = (setter: (v: string) => void, apply: (v: string) => void) => (v: string) => {
     setter(v); if (!isCustom) enterCustom(); apply(v)
   }
 
-  const handleButtonColor   = picker(setButtonColor,   v => set('--primary', v))
-  const handleHoverColor    = picker(setHoverColor,    v => set('--primary-hover', v))
-  const handleBgColor       = picker(setBgColor,       v => { set('--background', v); set('--card', v); set('--popover', v) })
-  const handleFontColor     = picker(setFontColor,     v => { set('--foreground', v); set('--card-foreground', v); set('--popover-foreground', v) })
-  const handleMutedColor    = picker(setMutedColor,    v => set('--muted-foreground', v))
-  const handleTitleColor    = picker(setTitleColor,    v => set('--title-color', v))
-  const handleBorderColor   = picker(setBorderColor,   v => { set('--border', v); set('--input', v) })
+  const handleButtonColor     = picker(setButtonColor,     v => set('--primary', v))
+  const handleHoverColor      = picker(setHoverColor,      v => set('--primary-hover', v))
+  const handleBgColor         = picker(setBgColor,         v => { set('--background', v); set('--card', v); set('--popover', v) })
+  const handleFontColor       = picker(setFontColor,       v => { set('--foreground', v); set('--card-foreground', v); set('--popover-foreground', v) })
+  const handleMutedColor      = picker(setMutedColor,      v => set('--muted-foreground', v))
+  const handleTitleColor      = picker(setTitleColor,      v => set('--title-color', v))
+  const handleBorderColor     = picker(setBorderColor,     v => { set('--border', v); set('--input', v) })
   const handleMutedHoverColor = picker(setMutedHoverColor, v => set('--muted-hover', v))
-  const handleFont          = (v: string) => { setActiveFont(v); document.documentElement.style.fontFamily = v }
-  const handleHeaderStyle   = (s: HeaderStyle) => { setHeaderStyle(s); applyHeaderStyle(s); localStorage.setItem(HEADER_STYLE_KEY, s) }
+  const handleFont            = (v: string) => { setActiveFont(v); document.documentElement.style.fontFamily = v; saveFont(v) }
+  const handleHeaderStyle     = (s: HeaderStyle) => { setHeaderStyle(s); applyHeaderStyle(s); localStorage.setItem(HEADER_STYLE_KEY, s) }
 
   return (
     <div className="space-y-8">

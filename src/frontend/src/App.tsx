@@ -12,7 +12,7 @@ import { AgentStatusBar } from './components/agents/AgentStatusBar'
 import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
 import { loadColorTheme, applyColorTheme } from './contexts/ColorTheme'
-import { applyHeaderStyle } from './components/settings/AppearanceSettings'
+import { applyHeaderStyle, restoreAppearance } from './components/settings/AppearanceSettings'
 
 function AppContent() {
   const [page, setPage] = useState(0)
@@ -22,8 +22,8 @@ function AppContent() {
 
   useEffect(() => {
     applyColorTheme(loadColorTheme())
-    const stored = localStorage.getItem('vite-ui-header-style')
-    applyHeaderStyle(stored === 'blur' ? 'blur' : 'solid')
+    restoreAppearance()
+    applyHeaderStyle(localStorage.getItem('vite-ui-header-style') === 'blur' ? 'blur' : 'solid')
   }, [])
 
   const goHome     = () => { setPage(0); fetchRecipes() }
