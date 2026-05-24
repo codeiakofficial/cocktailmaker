@@ -101,7 +101,7 @@ function applyTropicalLight() {
   set('--title-color', p.titleColor)
 }
 
-export function applyBackgroundUrl(url: string | null) {
+function applyBackgroundUrl(url: string | null) {
   if (url) {
     set('--bg-image-url', `url("${url}")`)
   } else {
