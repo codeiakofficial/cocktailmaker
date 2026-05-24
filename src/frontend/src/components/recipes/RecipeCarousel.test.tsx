@@ -42,6 +42,34 @@ function renderCarousel(agents: AgentContextType['agents'], dispense = vi.fn()) 
   return { dispense }
 }
 
+describe('RecipeCarousel — recipe image', () => {
+  test('renders recipe image when imageUrl is set', () => {
+    const recipeWithImage: IRecipe = { ...recipe, imageUrl: 'https://example.com/drink.jpg' }
+    const ctx: RecipeContextType = {
+      recipes: [recipeWithImage],
+      fetchRecipes: vi.fn(), saveRecipe: vi.fn(), updateRecipe: vi.fn(), deleteRecipe: vi.fn(),
+    }
+    const agentCtx: AgentContextType = {
+      agents: [], agentPumps: {}, fetchAgents: vi.fn(), dispense: vi.fn(),
+      fetchAgentPumps: vi.fn(), updateAgentName: vi.fn(), updateAgentPumps: vi.fn(),
+    }
+    render(
+      <RecipeContext.Provider value={ctx}>
+        <AgentContext.Provider value={agentCtx}>
+          <RecipeCarousel />
+        </AgentContext.Provider>
+      </RecipeContext.Provider>
+    )
+    const img = screen.getByRole('img')
+    expect(img).toHaveAttribute('src', 'https://example.com/drink.jpg')
+  })
+
+  test('does not render an img when imageUrl is absent', () => {
+    renderCarousel([])
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  })
+})
+
 describe('RecipeCarousel — Dispense button', () => {
   beforeEach(() => { vi.clearAllMocks() })
 

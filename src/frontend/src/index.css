@@ -118,6 +118,8 @@
 
   --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
 
+  --bg-image-url: url('../../../resources/bg.jpg');
+
   --background: oklch(1 0 0);
 
   --foreground: oklch(0.141 0.005 285.823);

@@ -60,8 +60,6 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
-| T30 | Background image picker (file upload + URL, bg-center fix, Docker volume) | Frontend + Backend + CI | In Progress |
-| T31 | Recipe images (ImageUrl field, card display, image picker in dialogs) | Frontend + Backend | In Progress |
 
 ## Last Review
 
@@ -76,6 +74,7 @@ Before merging, run a review in Claude Code: ask Claude to read `git diff main..
 | #5 | 2026-05-17 | T21: commit-msg + pre-push hooks, fixed Frontend verify command; pre-push requires pio locally (acceptable) |
 | #6 | 2026-05-23 | T28: Manage Agents page, pump mapping, ESP32 NVS config; NVS stores IDs only — names repopulated via retained MQTT on reconnect (acceptable) |
 | #7 | 2026-05-24 | T29: mobile nav, settings tabs, appearance customisation, header blur; muted-hover picker + header toggle added to requirements; localStorage persistence documented in architecture |
+| #8 | 2026-05-24 | T30/T31: background image picker + bg-center fix + recipe images; image upload API, Docker volume, Recipe.ImageUrl, EnsureSchema pattern documented |
 
 ---
 

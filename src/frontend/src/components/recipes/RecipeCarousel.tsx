@@ -32,6 +32,9 @@ export function RecipeCarousel() {
                 <DeleteRecipeButton recipeId={recipe.id} className="w-10 h-10" />
               </div>
               <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
+                {recipe.imageUrl && (
+                  <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-32 object-cover rounded-md mb-4" />
+                )}
                 <span className="text-4xl font-semibold">{recipe.name}</span>
                 <ul className="mt-4">
                   {recipe.recipeIngredients.map((ingredient, i) => (
