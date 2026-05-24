@@ -60,6 +60,8 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
+| T30 | Background image picker (file upload + URL, bg-center fix, Docker volume) | Frontend + Backend + CI | In Progress |
+| T31 | Recipe images (ImageUrl field, card display, image picker in dialogs) | Frontend + Backend | In Progress |
 
 ## Last Review
 
