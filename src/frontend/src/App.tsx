@@ -11,7 +11,6 @@ import AgentProvider, { useAgents } from './contexts/AgentContext'
 import { AgentStatusBar } from './components/agents/AgentStatusBar'
 import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
-import { loadColorTheme, applyColorTheme } from './contexts/ColorTheme'
 import { applyHeaderStyle, restoreAppearance } from './components/settings/AppearanceSettings'
 
 function AppContent() {
@@ -21,7 +20,6 @@ function AppContent() {
   const { fetchAgents } = useAgents()
 
   useEffect(() => {
-    applyColorTheme(loadColorTheme())
     restoreAppearance()
     applyHeaderStyle(localStorage.getItem('vite-ui-header-style') === 'blur' ? 'blur' : 'solid')
   }, [])
