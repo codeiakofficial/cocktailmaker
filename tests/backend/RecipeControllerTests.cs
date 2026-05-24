@@ -517,6 +517,72 @@ public class RecipeControllerTests
     }
 
     [Fact]
+    public async Task CreateRecipe_WithImageUrl_PersistsImageUrl()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            await controller.CreateRecipe(new Models.DTOs.CreateRecipeDto
+            {
+                Name = "Visual Cocktail",
+                ImageUrl = "http://example.com/drink.jpg",
+                RecipeIngredients = [],
+            });
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            var recipe = context.Recipes.First();
+            Assert.Equal("http://example.com/drink.jpg", recipe.ImageUrl);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateRecipe_WithImageUrl_UpdatesImageUrl()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Recipes.Add(new Recipe { Name = "Old", ImageUrl = "http://example.com/old.jpg" });
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            await controller.UpdateRecipe(1, new Models.DTOs.UpdateRecipeDto
+            {
+                Name = "Old",
+                ImageUrl = "http://example.com/new.jpg",
+                RecipeIngredients = [],
+            });
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            Assert.Equal("http://example.com/new.jpg", context.Recipes.First().ImageUrl);
+        }
+    }
+
+    [Fact]
+    public async Task GetRecipes_ReturnsImageUrl()
+    {
+        using (var context = new CocktailDbContext(_options))
+        {
+            context.Recipes.Add(new Recipe { Name = "Photo Cocktail", ImageUrl = "http://example.com/photo.jpg" });
+            context.SaveChanges();
+        }
+
+        using (var context = new CocktailDbContext(_options))
+        {
+            RecipeController controller = new RecipeController(context);
+            var result = await controller.GetRecipes();
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var dtos = Assert.IsType<List<Models.DTOs.RecipeDto>>(ok.Value);
+            Assert.Equal("http://example.com/photo.jpg", dtos[0].ImageUrl);
+        }
+    }
+
+    [Fact]
     public async Task IngredientUsedInRecipesIsUpdated()
     {
         // Create a recipe with an ingredient

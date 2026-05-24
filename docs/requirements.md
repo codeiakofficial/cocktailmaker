@@ -46,8 +46,15 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Changing any colour picker automatically activates Custom mode
 - The user can select a typeface from 9 options; font selection is independent of the appearance mode
 - The user can switch the header between solid (95 % opaque) and blur (transparent with backdrop-blur)
-- All appearance settings (mode, colours, font, header style) are saved to localStorage and restored on the next page load
+- The user can set a custom background image by entering a URL or uploading a file; the background is centered and covers the viewport
+- All appearance settings (mode, colours, font, header style, background image URL) are saved to localStorage and restored on the next page load
 - Colour pickers are disabled unless Custom mode is active
+
+**Recipe images**
+- A recipe can have an optional image URL
+- The user can set a recipe image by entering a URL or uploading a file in the New/Edit Recipe dialog
+- Uploaded images are stored on the backend (`POST /api/images`) and served from `/uploads/{filename}`
+- The recipe card in the carousel displays the image above the recipe name when an image is set
 
 ## Constraints
 
@@ -56,7 +63,8 @@ Derived from current implementation. Pending items are intended but not yet buil
 | Network topology | Pi is WiFi access point; agents and Pi are on the same LAN | Infrastructure |
 | MQTT broker | `eclipse-mosquitto:2`, port 1883, anonymous auth | `src/docker-compose.yml`, `src/mosquitto/mosquitto.conf` |
 | Frontend API base URL | `http://localhost:8080/api` | `src/frontend/src/config.ts` |
-| API route convention | Plural nouns — `api/recipes`, `api/ingredients`, `api/agents` | All controllers (explicit `[Route]` attribute) |
+| API route convention | Plural nouns — `api/recipes`, `api/ingredients`, `api/agents`, `api/images` | All controllers (explicit `[Route]` attribute) |
+| Image upload storage | Files saved to `wwwroot/uploads/` inside the container; persisted via Docker named volume `uploads` | `src/docker-compose.yml` |
 | CORS allowed origin | `http://localhost:5173` (hardcoded) | `Program.cs` |
 | Agent transport (status) | MQTT via `PubSubClient` — LWT + retained publish | `src/agent/src/mqtt_client.h` |
 | Agent transport (recipe fetch) | Plain HTTP via raw TCP | `src/agent/src/api_client.h` |

@@ -54,6 +54,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<CocktailDbContext>();
     dbContext.Database.EnsureCreated();
+    EnsureSchema(dbContext);
 
     // Seed development data only in development environment
     if (app.Environment.IsDevelopment())
@@ -88,3 +89,9 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static void EnsureSchema(CocktailMaker.Data.Contexts.CocktailDbContext db)
+{
+    // Add columns introduced after initial EnsureCreated — safe to run on every startup
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"Recipes\" ADD COLUMN \"ImageUrl\" TEXT"); } catch { }
+}

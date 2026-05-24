@@ -28,7 +28,7 @@ function AppContent() {
   const goSettings = () => { setPage(1); fetchIngredients(); fetchAgents() }
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[url('../../../resources/bg.jpg')] bg-cover">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'var(--bg-image-url)' }}>
       <header className="flex items-center justify-between p-3 backdrop-blur-md" style={{ backgroundColor: 'var(--header-bg)' }}>
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useTheme } from '../theme-provider'
 import { Button } from '../ui/button'
+import { API_BASE } from '../../config'
 
 type DisplayMode = 'dark' | 'light' | 'custom'
 type HeaderStyle = 'solid' | 'blur'
@@ -37,6 +38,7 @@ const DISPLAY_MODE_KEY  = 'vite-ui-display-mode'
 const HEADER_STYLE_KEY  = 'vite-ui-header-style'
 const CUSTOM_COLORS_KEY = 'vite-ui-custom-colors'
 const FONT_KEY          = 'vite-ui-font'
+const BG_URL_KEY        = 'vite-ui-bg-url'
 
 interface CustomColors {
   button: string; hover: string; bg: string; font: string
@@ -99,6 +101,14 @@ function applyTropicalLight() {
   set('--title-color', p.titleColor)
 }
 
+function applyBackgroundUrl(url: string | null) {
+  if (url) {
+    set('--bg-image-url', `url("${url}")`)
+  } else {
+    unset('--bg-image-url')
+  }
+}
+
 export function applyHeaderStyle(style: HeaderStyle) {
   if (style === 'blur') {
     set('--header-bg', 'color-mix(in oklab, var(--background) 10%, transparent)')
@@ -124,6 +134,8 @@ export function restoreAppearance() {
   }
   const font = localStorage.getItem(FONT_KEY)
   if (font) document.documentElement.style.fontFamily = font
+  const bgUrl = localStorage.getItem(BG_URL_KEY)
+  applyBackgroundUrl(bgUrl)
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -156,6 +168,8 @@ export default function AppearanceSettings() {
   const [mutedHoverColor, setMutedHoverColor] = React.useState(initColors.mutedHover)
   const [activeFont,      setActiveFont]      = React.useState(() => loadFont())
   const [headerStyle,     setHeaderStyle]     = React.useState<HeaderStyle>(() => loadHeaderStyle())
+  const [backgroundUrl,   setBackgroundUrl]   = React.useState(() => localStorage.getItem(BG_URL_KEY) ?? '')
+  const bgUploadRef = React.useRef<HTMLInputElement>(null)
 
   const isCustom = displayMode === 'custom'
 
@@ -204,6 +218,27 @@ export default function AppearanceSettings() {
   const handleFont            = (v: string) => { setActiveFont(v); document.documentElement.style.fontFamily = v; saveFont(v) }
   const handleHeaderStyle     = (s: HeaderStyle) => { setHeaderStyle(s); applyHeaderStyle(s); localStorage.setItem(HEADER_STYLE_KEY, s) }
 
+  const commitBgUrl = (url: string) => {
+    setBackgroundUrl(url)
+    localStorage.setItem(BG_URL_KEY, url)
+    applyBackgroundUrl(url || null)
+  }
+
+  const handleBgUrlKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') commitBgUrl((e.target as HTMLInputElement).value)
+  }
+
+  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch(`${API_BASE}/images`, { method: 'POST', body: form })
+    if (!res.ok) return
+    const { url } = await res.json()
+    commitBgUrl(url)
+  }
+
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -243,6 +278,23 @@ export default function AppearanceSettings() {
           <ColorRow label="Muted text"    hex={mutedColor}        disabled={!isCustom} onChange={handleMutedColor} />
           <ColorRow label="Title color"   hex={titleColor}        disabled={!isCustom} onChange={handleTitleColor} />
           <ColorRow label="Border color"  hex={borderColor}       disabled={!isCustom} onChange={handleBorderColor} />
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <p className="text-sm font-medium">Background Image</p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            placeholder="Background image URL"
+            value={backgroundUrl}
+            onChange={e => setBackgroundUrl(e.target.value)}
+            onKeyDown={handleBgUrlKey}
+            onBlur={e => commitBgUrl(e.target.value)}
+          />
+          <Button variant="outline" onClick={() => bgUploadRef.current?.click()}>Upload</Button>
+          <input ref={bgUploadRef} type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
         </div>
       </section>
 

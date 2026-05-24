@@ -167,6 +167,7 @@ erDiagram
     Recipe {
         int     Id                  PK
         string  Name
+        string  ImageUrl            "nullable — absolute URL to recipe image"
         json    RecipeIngredients   "denormalized JSON blob"
     }
     Ingredient {
@@ -194,4 +195,5 @@ erDiagram
 
 | # | Description | Location | Planned fix |
 |---|-------------|----------|-------------|
-| 1 | Appearance preferences (display mode, header style, font) are client-only — persisted in `localStorage`, no backend/API involved. Runtime theming applied by setting inline CSS vars on `document.documentElement`. | `src/frontend/src/components/settings/AppearanceSettings.tsx` | Accepted; no backend persistence planned |
+| 1 | Appearance preferences (display mode, header style, font, background image URL) are client-only — persisted in `localStorage`, no backend/API involved. Runtime theming applied by setting inline CSS vars on `document.documentElement`. | `src/frontend/src/components/settings/AppearanceSettings.tsx` | Accepted; no backend persistence planned |
+| 2 | `Recipe.ImageUrl` column added via raw `ALTER TABLE` in `EnsureSchema()` at startup, not via EF migrations (project has no migration history). Safe to run repeatedly; exception swallowed when column already exists. | `src/backend/Program.cs` | Accepted; migrate to EF migrations if schema evolution continues |

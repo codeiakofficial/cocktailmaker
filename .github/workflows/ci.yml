@@ -42,7 +42,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          body=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+          body=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body' | sed 's/\\`/`/g')
           if [[ "$body" != *'- [x] Review completed'* ]]; then
             echo "::error::PR body must contain a ticked '- [x] Review completed' checkbox. Add it from the PR template and tick it after running the @claude review."
             exit 1

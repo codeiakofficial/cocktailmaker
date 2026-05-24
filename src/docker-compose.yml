@@ -11,6 +11,7 @@ services:
       - "8080:8080"
     volumes:
       - ./data:/app/data
+      - uploads:/app/wwwroot/uploads
     depends_on:
       - mosquitto
 
@@ -20,3 +21,6 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+volumes:
+  uploads:

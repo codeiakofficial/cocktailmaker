@@ -1,6 +1,7 @@
 export interface IRecipe {
     id: number;
     name: string;
+    imageUrl?: string;
     recipeIngredients: {
         name: string;
         quantity: number;
