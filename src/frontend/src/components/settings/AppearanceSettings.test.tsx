@@ -219,8 +219,7 @@ describe('AppearanceSettings — initial mode', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'dark')
   })
 
-  test('changing a color picker while in dark mode saves "custom" display mode', async () => {
-    const user = userEvent.setup()
+  test('changing a color picker while in dark mode saves "custom" display mode', () => {
     render(<AppearanceSettings />)
     fireEvent.change(screen.getAllByDisplayValue(/^#/)[0], { target: { value: '#abcdef' } })
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
