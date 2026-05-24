@@ -73,6 +73,7 @@ Before merging, run a review in Claude Code: ask Claude to read `git diff main..
 | #4 | 2026-05-17 | T27: fix page navigation re-fetch; clean, minimal; pre-existing quantity input type issue noted (out of scope) |
 | #5 | 2026-05-17 | T21: commit-msg + pre-push hooks, fixed Frontend verify command; pre-push requires pio locally (acceptable) |
 | #6 | 2026-05-23 | T28: Manage Agents page, pump mapping, ESP32 NVS config; NVS stores IDs only — names repopulated via retained MQTT on reconnect (acceptable) |
+| #7 | 2026-05-24 | T29: mobile nav, settings tabs, appearance customisation, header blur; muted-hover picker + header toggle added to requirements; localStorage persistence documented in architecture |
 
 ---
 

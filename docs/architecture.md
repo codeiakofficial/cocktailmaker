@@ -194,3 +194,4 @@ erDiagram
 
 | # | Description | Location | Planned fix |
 |---|-------------|----------|-------------|
+| 1 | Appearance preferences (display mode, header style, font) are client-only — persisted in `localStorage`, no backend/API involved. Runtime theming applied by setting inline CSS vars on `document.documentElement`. | `src/frontend/src/components/settings/AppearanceSettings.tsx` | Accepted; no backend persistence planned |

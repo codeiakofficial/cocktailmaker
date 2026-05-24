@@ -1,4 +1,3 @@
-import './App.css'
 import { ThemeProvider } from "./components/theme-provider"
 import { RecipeCarousel } from './components/recipes/RecipeCarousel'
 import { Separator } from './components/ui/separator'
