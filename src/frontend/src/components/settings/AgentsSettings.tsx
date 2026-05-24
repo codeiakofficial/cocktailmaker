@@ -9,11 +9,10 @@ const PUMP_COUNT = 8
 
 type PumpMap = Record<number, number | null>
 
-export default function ManageAgentsPage() {
+export default function AgentsSettings() {
   const { agents, agentPumps, fetchAgentPumps, updateAgentName, updateAgentPumps } = useAgents()
   const { ingredients } = useIngredients()
-  const [renameInputs, setRenameInputs] = React.useState<Record<number, string>>({})
-  // pumpSelections[agentId][pumpIndex] = ingredientId | null
+  const [renameInputs,  setRenameInputs]  = React.useState<Record<number, string>>({})
   const [pumpSelections, setPumpSelections] = React.useState<Record<number, PumpMap>>({})
 
   React.useEffect(() => {
@@ -39,7 +38,6 @@ export default function ManageAgentsPage() {
     setPumpSelections(next)
   }, [agents, agentPumps])
 
-  // Returns which parts of an agent's state have changed from the saved baseline.
   const diffAgent = (agentId: number) => {
     const agent = agents.find(a => a.id === agentId)
     const saved = agentPumps[agentId] ?? []
@@ -57,7 +55,6 @@ export default function ManageAgentsPage() {
     if (!agent) return
     const { nameChanged, pumpsChanged } = diffAgent(agentId)
     const current = pumpSelections[agentId] ?? {}
-
     if (nameChanged) await updateAgentName(agentId, renameInputs[agentId])
     if (pumpsChanged) {
       const pumps: IUpdatePumpSlot[] = Array.from({ length: PUMP_COUNT }, (_, i) => ({
@@ -76,20 +73,18 @@ export default function ManageAgentsPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 space-y-10">
+    <div className="space-y-10">
       {agents.length === 0 && <p className="text-muted-foreground">No agents found.</p>}
       {agents.map(agent => {
         const { nameChanged, pumpsChanged } = diffAgent(agent.id)
         return (
           <div key={agent.id} className="space-y-4">
             <p className="text-sm font-medium">{agent.name}</p>
-
             <Input
               value={renameInputs[agent.id] ?? agent.name}
               onChange={e => setRenameInputs(prev => ({ ...prev, [agent.id]: e.target.value }))}
               className="max-w-xs"
             />
-
             <div className="flex flex-col gap-2 w-fit min-w-[20rem]">
               {Array.from({ length: PUMP_COUNT }, (_, i) => (
                 <div key={i} data-testid={`pump-slot-${i}`} className="flex items-center gap-2">
@@ -107,7 +102,6 @@ export default function ManageAgentsPage() {
                 </div>
               ))}
             </div>
-
             <Button disabled={!nameChanged && !pumpsChanged} onClick={() => handleSave(agent.id)}>
               Save Changes
             </Button>

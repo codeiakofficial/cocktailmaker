@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/oxanium";
+@import "@fontsource/pacifico";
+@import "@fontsource/lobster";
+@import "@fontsource/dancing-script";
+@import "@fontsource/righteous";
+@import "@fontsource/abril-fatface";
+@import "@fontsource/satisfy";
+@import "@fontsource-variable/playfair-display";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -102,6 +109,14 @@
 }
 
 :root {
+
+  --title-color: var(--foreground);
+
+  --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
+
+  --muted-hover: var(--muted);
+
+  --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
 
   --background: oklch(1 0 0);
 

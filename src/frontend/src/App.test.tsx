@@ -18,8 +18,8 @@ beforeEach(() => {
     clear: vi.fn(),
   })
   vi.stubGlobal('fetch', vi.fn((url: string) => {
-    if (url.includes('/agents')) return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
-    if (url.includes('/recipes')) return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+    if (url.includes('/agents'))      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+    if (url.includes('/recipes'))     return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
     if (url.includes('/ingredients')) return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
     return Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
   }))
@@ -31,31 +31,42 @@ const recipeCalls = () =>
 const ingredientCalls = () =>
   vi.mocked(fetch).mock.calls.filter(([url]) => String(url).includes('/ingredients')).length
 
-describe('App — page navigation re-fetches data', () => {
-  test('re-fetches recipes when navigating back to Home', async () => {
+const agentCalls = () =>
+  vi.mocked(fetch).mock.calls.filter(([url]) => String(url).includes('/agents')).length
+
+// jsdom renders both desktop nav and mobile BottomNav — target desktop nav with [0]
+const navButton = (name: string) => screen.getAllByRole('button', { name }).at(0)!
+
+describe('App — page navigation', () => {
+  test('shows Home by default', async () => {
+    render(<App />)
+    await screen.findAllByRole('button', { name: /^home$/i })
+    expect(navButton('Home')).toBeInTheDocument()
+  })
+
+  test('navigating to Settings and back to Home re-fetches recipes', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await screen.findByRole('button', { name: 'Home' })
+    await screen.findAllByRole('button', { name: /^home$/i })
 
     const countAfterMount = recipeCalls()
-
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
-    await user.click(screen.getByRole('button', { name: 'Home' }))
+    await user.click(navButton('Settings'))
+    await user.click(navButton('Home'))
 
     expect(recipeCalls()).toBeGreaterThan(countAfterMount)
   })
 
-  test('re-fetches ingredients when navigating to Manage Ingredients a second time', async () => {
+  test('navigating to Settings fetches ingredients and agents', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await screen.findByRole('button', { name: 'Home' })
+    await screen.findAllByRole('button', { name: /^home$/i })
 
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
-    const countAfterFirstVisit = ingredientCalls()
+    const ingBefore = ingredientCalls()
+    const agentBefore = agentCalls()
 
-    await user.click(screen.getByRole('button', { name: 'Home' }))
-    await user.click(screen.getByRole('button', { name: 'Manage Ingredients' }))
+    await user.click(navButton('Settings'))
 
-    expect(ingredientCalls()).toBeGreaterThan(countAfterFirstVisit)
+    expect(ingredientCalls()).toBeGreaterThan(ingBefore)
+    expect(agentCalls()).toBeGreaterThan(agentBefore)
   })
 })

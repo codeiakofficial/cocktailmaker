@@ -18,7 +18,7 @@ C4Context
 C4Container
     Person(user, "User")
 
-    Container(frontend, "Frontend", "React / TypeScript", "Recipe UI + agent health — port 5173")
+    Container(frontend, "Frontend", "React / TypeScript", "Recipe UI, agent management, appearance settings — port 5173")
     Container(backend, "Backend", "ASP.NET Core", "REST API + MQTT client — port 8080")
     Container(broker, "MQTT Broker", "Mosquitto", "Event bus — port 1883, runs on Pi")
     ContainerDb(db, "Database", "SQLite", "Recipes, ingredients, agents")
@@ -194,3 +194,4 @@ erDiagram
 
 | # | Description | Location | Planned fix |
 |---|-------------|----------|-------------|
+| 1 | Appearance preferences (display mode, header style, font) are client-only — persisted in `localStorage`, no backend/API involved. Runtime theming applied by setting inline CSS vars on `document.documentElement`. | `src/frontend/src/components/settings/AppearanceSettings.tsx` | Accepted; no backend persistence planned |
