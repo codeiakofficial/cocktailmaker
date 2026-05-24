@@ -53,7 +53,6 @@ describe('ImageSelector', () => {
   })
 
   test('clicking delete calls DELETE /api/images/{filename} and removes thumbnail', async () => {
-    const deleteFetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
     vi.stubGlobal('fetch', vi.fn()
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([UPLOADED_IMAGE]) })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
