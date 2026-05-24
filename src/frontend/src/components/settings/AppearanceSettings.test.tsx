@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import AppearanceSettings, { restoreAppearance } from './AppearanceSettings'
@@ -318,29 +318,31 @@ describe('AppearanceSettings — background image', () => {
 })
 
 describe('AppearanceSettings — header style toggle', () => {
+  const headerSection = () => within(screen.getByText('Header').closest('section')!)
+
   test('renders Solid and Blur header buttons', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^solid$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^blur$/i })).toBeInTheDocument()
+    expect(headerSection().getByRole('button', { name: /^solid$/i })).toBeInTheDocument()
+    expect(headerSection().getByRole('button', { name: /^blur$/i })).toBeInTheDocument()
   })
 
   test('Solid is active by default', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'false')
+    expect(headerSection().getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'true')
+    expect(headerSection().getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('Blur is active when localStorage has "blur"', () => {
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'false')
+    expect(headerSection().getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'true')
+    expect(headerSection().getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('clicking Blur sets --header-bg to a low-opacity value', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^blur$/i }))
+    await user.click(headerSection().getByRole('button', { name: /^blur$/i }))
     expect(document.documentElement.style.getPropertyValue('--header-bg')).not.toBe('')
   })
 
@@ -348,14 +350,14 @@ describe('AppearanceSettings — header style toggle', () => {
     const user = userEvent.setup()
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^solid$/i }))
+    await user.click(headerSection().getByRole('button', { name: /^solid$/i }))
     expect(document.documentElement.style.getPropertyValue('--header-bg')).toBe('')
   })
 
   test('clicking Blur persists "blur" to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^blur$/i }))
+    await user.click(headerSection().getByRole('button', { name: /^blur$/i }))
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-header-style', 'blur')
   })
 
@@ -363,66 +365,51 @@ describe('AppearanceSettings — header style toggle', () => {
     const user = userEvent.setup()
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^solid$/i }))
+    await user.click(headerSection().getByRole('button', { name: /^solid$/i }))
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-header-style', 'solid')
   })
 })
 
 describe('AppearanceSettings — border controls', () => {
-  test('renders a Border section with style preset buttons', () => {
+  const borderSection = () => within(screen.getByText('Border').closest('section')!)
+
+  test('renders a Border section with line style buttons', () => {
     render(<AppearanceSettings />)
     expect(screen.getByText('Border')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^none$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^subtle$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^normal$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^bold$/i })).toBeInTheDocument()
+    expect(borderSection().getByRole('button', { name: /^solid$/i })).toBeInTheDocument()
+    expect(borderSection().getByRole('button', { name: /^dashed$/i })).toBeInTheDocument()
+    expect(borderSection().getByRole('button', { name: /^dotted$/i })).toBeInTheDocument()
   })
 
   test('renders a border opacity slider', () => {
     render(<AppearanceSettings />)
-    const slider = screen.getByRole('slider', { name: /border opacity/i })
-    expect(slider).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: /border opacity/i })).toBeInTheDocument()
   })
 
-  test('Normal is active by default', () => {
+  test('Solid is active by default', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^normal$/i })).toHaveAttribute('data-active', 'true')
+    expect(borderSection().getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'true')
   })
 
-  test('clicking None sets --border-opacity to 0', async () => {
+  test('clicking Dashed sets --border-style to dashed', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^none$/i }))
-    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0')
+    await user.click(borderSection().getByRole('button', { name: /^dashed$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-style')).toBe('dashed')
   })
 
-  test('clicking Subtle sets --border-opacity to 0.3', async () => {
+  test('clicking Dotted sets --border-style to dotted', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^subtle$/i }))
-    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.3')
+    await user.click(borderSection().getByRole('button', { name: /^dotted$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-style')).toBe('dotted')
   })
 
-  test('clicking Normal sets --border-opacity to 1', async () => {
+  test('border line style persists to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^none$/i }))
-    await user.click(screen.getByRole('button', { name: /^normal$/i }))
-    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('1')
-  })
-
-  test('clicking Bold sets --border-opacity to 1', async () => {
-    const user = userEvent.setup()
-    render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^bold$/i }))
-    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('1')
-  })
-
-  test('border style preset persists to localStorage', async () => {
-    const user = userEvent.setup()
-    render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^subtle$/i }))
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-style', 'subtle')
+    await user.click(borderSection().getByRole('button', { name: /^dashed$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-line-style', 'dashed')
   })
 
   test('border opacity slider change sets --border-opacity', async () => {
@@ -439,11 +426,11 @@ describe('AppearanceSettings — border controls', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-opacity', '0.6')
   })
 
-  test('initialises style from localStorage', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-style' ? 'subtle' : null)
+  test('initialises line style from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-line-style' ? 'dashed' : null)
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^subtle$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^normal$/i })).toHaveAttribute('data-active', 'false')
+    expect(borderSection().getByRole('button', { name: /^dashed$/i })).toHaveAttribute('data-active', 'true')
+    expect(borderSection().getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('initialises slider value from localStorage', () => {
@@ -457,6 +444,44 @@ describe('AppearanceSettings — border controls', () => {
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-opacity' ? '0.5' : null)
     restoreAppearance()
     expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.5')
+  })
+
+  test('restoreAppearance applies stored border line style', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-line-style' ? 'dotted' : null)
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--border-style')).toBe('dotted')
+  })
+
+  test('renders a border thickness slider', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('slider', { name: /border thickness/i })).toBeInTheDocument()
+  })
+
+  test('border thickness slider change sets --border-width', () => {
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border thickness/i })
+    fireEvent.change(slider, { target: { value: '0.5' } })
+    expect(document.documentElement.style.getPropertyValue('--border-width')).toBe('0.5px')
+  })
+
+  test('border thickness persists to localStorage', () => {
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border thickness/i })
+    fireEvent.change(slider, { target: { value: '0.75' } })
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-width', '0.75')
+  })
+
+  test('initialises thickness slider from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-width' ? '0.5' : null)
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border thickness/i })
+    expect((slider as HTMLInputElement).value).toBe('0.5')
+  })
+
+  test('restoreAppearance applies stored border width', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-width' ? '0.5' : null)
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--border-width')).toBe('0.5px')
   })
 })
 

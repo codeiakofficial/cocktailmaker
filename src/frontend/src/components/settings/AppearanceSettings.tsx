@@ -39,13 +39,13 @@ const HEADER_STYLE_KEY    = 'vite-ui-header-style'
 const CUSTOM_COLORS_KEY   = 'vite-ui-custom-colors'
 const FONT_KEY            = 'vite-ui-font'
 const BG_URL_KEY          = 'vite-ui-bg-url'
-const BORDER_OPACITY_KEY  = 'vite-ui-border-opacity'
-const BORDER_STYLE_KEY    = 'vite-ui-border-style'
-const VIGNETTE_KEY        = 'vite-ui-vignette'
-const ANIMATIONS_KEY      = 'vite-ui-animations'
+const BORDER_OPACITY_KEY    = 'vite-ui-border-opacity'
+const BORDER_WIDTH_KEY      = 'vite-ui-border-width'
+const BORDER_LINE_STYLE_KEY = 'vite-ui-border-line-style'
+const VIGNETTE_KEY          = 'vite-ui-vignette'
+const ANIMATIONS_KEY        = 'vite-ui-animations'
 
-type BorderStyle = 'none' | 'subtle' | 'normal' | 'bold'
-const BORDER_STYLE_OPACITY: Record<BorderStyle, number> = { none: 0, subtle: 0.3, normal: 1, bold: 1 }
+type BorderLineStyle = 'solid' | 'dashed' | 'dotted'
 
 interface CustomColors {
   button: string; hover: string; bg: string; font: string
@@ -145,6 +145,10 @@ export function restoreAppearance() {
   applyBackgroundUrl(bgUrl)
   const borderOpacity = localStorage.getItem(BORDER_OPACITY_KEY)
   if (borderOpacity !== null) set('--border-opacity', borderOpacity)
+  const borderWidth = localStorage.getItem(BORDER_WIDTH_KEY)
+  if (borderWidth !== null) set('--border-width', `${borderWidth}px`)
+  const borderLineStyle = localStorage.getItem(BORDER_LINE_STYLE_KEY)
+  if (borderLineStyle) set('--border-style', borderLineStyle)
   if (localStorage.getItem(VIGNETTE_KEY) === 'true') document.documentElement.classList.add('vignette')
   if (localStorage.getItem(ANIMATIONS_KEY) === 'true') document.documentElement.classList.add('animations')
 }
@@ -175,7 +179,7 @@ function ToggleRow({ label, checked, ariaLabel, onChange }: ToggleRowProps) {
         aria-label={ariaLabel}
         aria-checked={checked}
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-primary' : 'bg-muted'}`}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-primary' : 'bg-muted-foreground/20'}`}
       >
         <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
@@ -198,8 +202,9 @@ export default function AppearanceSettings() {
   const [activeFont,      setActiveFont]      = React.useState(() => loadFont())
   const [headerStyle,     setHeaderStyle]     = React.useState<HeaderStyle>(() => loadHeaderStyle())
   const [backgroundUrl,   setBackgroundUrl]   = React.useState(() => localStorage.getItem(BG_URL_KEY) ?? '')
-  const [borderStyle,     setBorderStyle]     = React.useState<BorderStyle>(() => (localStorage.getItem(BORDER_STYLE_KEY) as BorderStyle) ?? 'normal')
+  const [borderLineStyle, setBorderLineStyle] = React.useState<BorderLineStyle>(() => (localStorage.getItem(BORDER_LINE_STYLE_KEY) as BorderLineStyle) ?? 'solid')
   const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
+  const [borderWidth,     setBorderWidth]     = React.useState(() => parseFloat(localStorage.getItem(BORDER_WIDTH_KEY) ?? '1'))
   const [vignette,        setVignette]        = React.useState(() => localStorage.getItem(VIGNETTE_KEY) === 'true')
   const [animations,      setAnimations]      = React.useState(() => localStorage.getItem(ANIMATIONS_KEY) === 'true')
 
@@ -256,21 +261,22 @@ export default function AppearanceSettings() {
     applyBackgroundUrl(url || null)
   }
 
-  const applyBorderOpacity = (val: number) => set('--border-opacity', String(val))
-
-  const handleBorderStyle = (style: BorderStyle) => {
-    const opacity = BORDER_STYLE_OPACITY[style]
-    setBorderStyle(style)
-    setBorderOpacity(opacity)
-    localStorage.setItem(BORDER_STYLE_KEY, style)
-    localStorage.setItem(BORDER_OPACITY_KEY, String(opacity))
-    applyBorderOpacity(opacity)
+  const handleBorderLineStyle = (style: BorderLineStyle) => {
+    setBorderLineStyle(style)
+    localStorage.setItem(BORDER_LINE_STYLE_KEY, style)
+    set('--border-style', style)
   }
 
   const handleBorderOpacity = (val: number) => {
     setBorderOpacity(val)
     localStorage.setItem(BORDER_OPACITY_KEY, String(val))
-    applyBorderOpacity(val)
+    set('--border-opacity', String(val))
+  }
+
+  const handleBorderWidth = (val: number) => {
+    setBorderWidth(val)
+    localStorage.setItem(BORDER_WIDTH_KEY, String(val))
+    set('--border-width', `${val}px`)
   }
 
   const handleVignette = () => {
@@ -324,11 +330,12 @@ export default function AppearanceSettings() {
       <section className="space-y-3">
         <p className="text-sm font-medium">Border</p>
         <div className="flex gap-2">
-          {(['none', 'subtle', 'normal', 'bold'] as BorderStyle[]).map(s => (
+          {(['solid', 'dashed', 'dotted'] as BorderLineStyle[]).map(s => (
             <Button key={s} variant="outline"
-              data-active={borderStyle === s ? 'true' : 'false'}
-              className={`flex-1 capitalize${borderStyle === s ? ' border-primary text-primary' : ''}`}
-              onClick={() => handleBorderStyle(s)}
+              data-active={borderLineStyle === s ? 'true' : 'false'}
+              className={`flex-1 capitalize${borderLineStyle === s ? ' border-primary text-primary' : ''}`}
+              style={{ borderStyle: s, borderWidth: `${borderWidth}px` }}
+              onClick={() => handleBorderLineStyle(s)}
             >{s}</Button>
           ))}
         </div>
@@ -340,6 +347,17 @@ export default function AppearanceSettings() {
             min="0" max="1" step="0.05"
             value={borderOpacity}
             onChange={e => handleBorderOpacity(parseFloat(e.target.value))}
+            className="w-32"
+          />
+        </label>
+        <label className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Border thickness</span>
+          <input
+            type="range"
+            aria-label="Border thickness"
+            min="0.25" max="1" step="0.05"
+            value={borderWidth}
+            onChange={e => handleBorderWidth(parseFloat(e.target.value))}
             className="w-32"
           />
         </label>

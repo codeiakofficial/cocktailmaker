@@ -19,6 +19,11 @@ html.clean-view .cv-hide {
   transition: opacity 0.35s;
 }
 
+html.clean-view header {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+}
+
 /* Vignette — frost effect applied only to the bg-layer via the vignette-overlay sibling */
 html.vignette .vignette-overlay {
   background: radial-gradient(ellipse at center, transparent 30%, oklch(0.04 0 0 / 0.65) 100%);
@@ -37,6 +42,18 @@ html.animations .bg-layer {
   animation: bg-drift 14s ease-in-out infinite;
   transform-origin: center center;
 }
+
+/* Unlayered — overrides @layer utilities */
+* { border-style: var(--border-style, solid); }
+
+/* Target only Tailwind border-width utilities so we don't give every element a border */
+.border   { border-width: var(--border-width, 1px); }
+.border-t { border-top-width: var(--border-width, 1px); }
+.border-b { border-bottom-width: var(--border-width, 1px); }
+.border-l { border-left-width: var(--border-width, 1px); }
+.border-r { border-right-width: var(--border-width, 1px); }
+.border-x { border-inline-width: var(--border-width, 1px); }
+.border-y { border-block-width: var(--border-width, 1px); }
 
 @layer base {
   body {
@@ -85,9 +102,9 @@ html.animations .bg-layer {
 
   --color-ring: var(--ring);
 
-  --color-input: var(--input);
+  --color-input: color-mix(in oklch, var(--input) calc(var(--border-opacity, 1) * 100%), transparent);
 
-  --color-border: var(--border);
+  --color-border: color-mix(in oklch, var(--border) calc(var(--border-opacity, 1) * 100%), transparent);
 
   --color-destructive: var(--destructive);
 
@@ -138,6 +155,10 @@ html.animations .bg-layer {
 
   --border-opacity: 1;
 
+  --border-style: solid;
+
+  --border-width: 1px;
+
   --title-color: var(--foreground);
 
   --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
@@ -178,9 +199,9 @@ html.animations .bg-layer {
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(0.92 0.004 286.32 / var(--border-opacity, 1));
+  --border: oklch(0.92 0.004 286.32);
 
-  --input: oklch(0.92 0.004 286.32 / var(--border-opacity, 1));
+  --input: oklch(0.92 0.004 286.32);
 
   --ring: oklch(0.705 0.015 286.067);
 
@@ -245,9 +266,9 @@ html.animations .bg-layer {
 
   --destructive: oklch(0.704 0.191 22.216);
 
-  --border: oklch(1 0 0 / calc(0.1 * var(--border-opacity, 1)));
+  --border: oklch(1 0 0 / 10%);
 
-  --input: oklch(1 0 0 / calc(0.15 * var(--border-opacity, 1)));
+  --input: oklch(1 0 0 / 15%);
 
   --ring: oklch(0.552 0.016 285.938);
 
