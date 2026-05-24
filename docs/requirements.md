@@ -45,7 +45,8 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Custom mode enables per-variable colour pickers: button colour, button hover, muted hover, background, font colour, muted text, title colour, border
 - Changing any colour picker automatically activates Custom mode
 - The user can select a typeface from 9 options; font selection is independent of the appearance mode
-- The user can switch the header between solid (95 % opaque) and blur (transparent with backdrop-blur); selection persists across page reloads
+- The user can switch the header between solid (95 % opaque) and blur (transparent with backdrop-blur)
+- All appearance settings (mode, colours, font, header style) are saved to localStorage and restored on the next page load
 - Colour pickers are disabled unless Custom mode is active
 
 ## Constraints
