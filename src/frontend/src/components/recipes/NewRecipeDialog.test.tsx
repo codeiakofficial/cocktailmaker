@@ -24,7 +24,10 @@ function renderDialog(overrides: Partial<RecipeContextType> = {}) {
 }
 
 describe('NewRecipeDialog', () => {
-  beforeEach(() => { vi.clearAllMocks() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
+  })
 
   test('renders image URL input in dialog', async () => {
     const user = userEvent.setup()
@@ -33,17 +36,17 @@ describe('NewRecipeDialog', () => {
     expect(screen.getByPlaceholderText(/image url/i)).toBeInTheDocument()
   })
 
-  test('uploading an image calls POST /api/images and stores the url', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ url: 'http://localhost:8080/uploads/cocktail.jpg' }),
-    }))
+  test('uploading an image calls POST /api/images and shows a preview', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ url: 'http://localhost:8080/uploads/cocktail.jpg', filename: 'cocktail.jpg' }) })
+    )
     const user = userEvent.setup()
     renderDialog()
     await user.click(screen.getByRole('button', { name: 'New Recipe' }))
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
     await userEvent.upload(fileInput, new File(['data'], 'cocktail.jpg', { type: 'image/jpeg' }))
-    expect(screen.getByDisplayValue('http://localhost:8080/uploads/cocktail.jpg')).toBeInTheDocument()
+    expect(screen.getByAltText('Preview')).toBeInTheDocument()
   })
 
   test('opens dialog on trigger click', async () => {

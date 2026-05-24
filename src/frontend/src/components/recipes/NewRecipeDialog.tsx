@@ -11,10 +11,10 @@ import {
 } from "../ui/dialog"
 import { Field, FieldDescription, FieldLabel } from "../ui/field"
 import { Input } from "../ui/input"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useRecipes } from "../../contexts/RecipeContext"
 import type { IRecipe } from "../../contexts/Recipe"
-import { API_BASE } from "../../config"
+import { ImageSelector } from "../ui/ImageSelector"
 
 interface RecipeDialogProps {
     recipe?: IRecipe;
@@ -32,7 +32,6 @@ export function NewRecipeDialog({ recipe, trigger }: RecipeDialogProps) {
     const [formData, setFormData] = useState<FormState>({ name: "", imageUrl: "", recipeIngredients: [] });
     const [page, setPage] = useState<number>(0);
     const { saveRecipe, updateRecipe } = useRecipes();
-    const imgUploadRef = useRef<HTMLInputElement>(null);
     const isEditMode = !!recipe;
 
     // Reset form when dialog opens/closes
@@ -53,17 +52,6 @@ export function NewRecipeDialog({ recipe, trigger }: RecipeDialogProps) {
 
     function updateRecipeName(value: string): void {
         setFormData({ ...formData, name: value });
-    }
-
-    const handleImgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        const form = new FormData()
-        form.append('file', file)
-        const res = await fetch(`${API_BASE}/images`, { method: 'POST', body: form })
-        if (!res.ok) return
-        const { url } = await res.json()
-        setFormData(d => ({ ...d, imageUrl: url }))
     }
 
     const updateIngredientName = (index: number, value: string) => {
@@ -155,16 +143,10 @@ export function NewRecipeDialog({ recipe, trigger }: RecipeDialogProps) {
                 {/* Image */}
                 <Field>
                     <FieldLabel>Image</FieldLabel>
-                    <div className="flex gap-2">
-                        <Input
-                            type="text"
-                            placeholder="Image URL"
-                            value={formData.imageUrl}
-                            onChange={e => setFormData(d => ({ ...d, imageUrl: e.target.value }))}
-                        />
-                        <Button type="button" variant="outline" onClick={() => imgUploadRef.current?.click()}>Upload</Button>
-                        <input ref={imgUploadRef} type="file" accept="image/*" className="hidden" onChange={handleImgUpload} />
-                    </div>
+                    <ImageSelector
+                        value={formData.imageUrl}
+                        onChange={url => setFormData(d => ({ ...d, imageUrl: url }))}
+                    />
                     {formData.imageUrl && (
                         <img src={formData.imageUrl} alt="Preview" className="mt-2 h-24 w-full object-cover rounded-md" />
                     )}

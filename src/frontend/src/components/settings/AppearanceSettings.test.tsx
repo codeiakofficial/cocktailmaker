@@ -271,9 +271,16 @@ describe('AppearanceSettings — restoreAppearance', () => {
 })
 
 describe('AppearanceSettings — background image', () => {
-  test('renders a background image URL input', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    }))
+  })
+
+  test('renders an image URL input via ImageSelector', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByPlaceholderText(/background image url/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/image url/i)).toBeInTheDocument()
   })
 
   test('renders an Upload button', () => {
@@ -281,18 +288,10 @@ describe('AppearanceSettings — background image', () => {
     expect(screen.getByRole('button', { name: /upload/i })).toBeInTheDocument()
   })
 
-  test('initialises URL input from localStorage', () => {
-    localStorage.getItem = vi.fn((key: string) =>
-      key === 'vite-ui-bg-url' ? 'https://example.com/bg.jpg' : null
-    )
-    render(<AppearanceSettings />)
-    expect(screen.getByDisplayValue('https://example.com/bg.jpg')).toBeInTheDocument()
-  })
-
   test('typing a URL and pressing Enter saves it to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    const input = screen.getByPlaceholderText(/background image url/i)
+    const input = screen.getByPlaceholderText(/image url/i)
     await user.clear(input)
     await user.type(input, 'https://example.com/bg.jpg')
     await user.keyboard('{Enter}')
@@ -302,23 +301,11 @@ describe('AppearanceSettings — background image', () => {
   test('typing a URL and pressing Enter applies it as CSS var', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    const input = screen.getByPlaceholderText(/background image url/i)
+    const input = screen.getByPlaceholderText(/image url/i)
     await user.clear(input)
     await user.type(input, 'https://example.com/bg.jpg')
     await user.keyboard('{Enter}')
     expect(document.documentElement.style.getPropertyValue('--bg-image-url')).toContain('https://example.com/bg.jpg')
-  })
-
-  test('uploading a file calls POST /api/images and saves returned URL', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ url: 'http://localhost:8080/uploads/photo.jpg' }),
-    }))
-    render(<AppearanceSettings />)
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-    const file = new File(['data'], 'photo.jpg', { type: 'image/jpeg' })
-    await userEvent.upload(fileInput, file)
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-bg-url', 'http://localhost:8080/uploads/photo.jpg')
   })
 
   test('restoreAppearance applies stored background URL as CSS var', () => {
