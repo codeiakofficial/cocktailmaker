@@ -41,8 +41,8 @@ const FONT_KEY            = 'vite-ui-font'
 const BG_URL_KEY          = 'vite-ui-bg-url'
 const BORDER_OPACITY_KEY  = 'vite-ui-border-opacity'
 const BORDER_STYLE_KEY    = 'vite-ui-border-style'
-const CLEAN_VIEW_KEY      = 'vite-ui-clean-view'
 const VIGNETTE_KEY        = 'vite-ui-vignette'
+const ANIMATIONS_KEY      = 'vite-ui-animations'
 
 type BorderStyle = 'none' | 'subtle' | 'normal' | 'bold'
 const BORDER_STYLE_OPACITY: Record<BorderStyle, number> = { none: 0, subtle: 0.3, normal: 1, bold: 1 }
@@ -145,12 +145,8 @@ export function restoreAppearance() {
   applyBackgroundUrl(bgUrl)
   const borderOpacity = localStorage.getItem(BORDER_OPACITY_KEY)
   if (borderOpacity !== null) set('--border-opacity', borderOpacity)
-  if (localStorage.getItem(CLEAN_VIEW_KEY) === 'true') {
-    document.documentElement.classList.add('clean-view')
-  }
-  if (localStorage.getItem(VIGNETTE_KEY) === 'true') {
-    document.documentElement.classList.add('vignette')
-  }
+  if (localStorage.getItem(VIGNETTE_KEY) === 'true') document.documentElement.classList.add('vignette')
+  if (localStorage.getItem(ANIMATIONS_KEY) === 'true') document.documentElement.classList.add('animations')
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -165,6 +161,24 @@ function ColorRow({ label, hex, disabled, onChange }: ColorRowProps) {
           className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5 disabled:cursor-not-allowed"
         />
       </div>
+    </label>
+  )
+}
+
+interface ToggleRowProps { label: string; checked: boolean; ariaLabel: string; onChange: () => void }
+function ToggleRow({ label, checked, ariaLabel, onChange }: ToggleRowProps) {
+  return (
+    <label className="flex items-center justify-between text-sm cursor-pointer select-none">
+      <span className="text-muted-foreground">{label}</span>
+      <button
+        role="switch"
+        aria-label={ariaLabel}
+        aria-checked={checked}
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-primary' : 'bg-muted'}`}
+      >
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      </button>
     </label>
   )
 }
@@ -186,8 +200,8 @@ export default function AppearanceSettings() {
   const [backgroundUrl,   setBackgroundUrl]   = React.useState(() => localStorage.getItem(BG_URL_KEY) ?? '')
   const [borderStyle,     setBorderStyle]     = React.useState<BorderStyle>(() => (localStorage.getItem(BORDER_STYLE_KEY) as BorderStyle) ?? 'normal')
   const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
-  const [cleanView,       setCleanView]       = React.useState(() => localStorage.getItem(CLEAN_VIEW_KEY) === 'true')
   const [vignette,        setVignette]        = React.useState(() => localStorage.getItem(VIGNETTE_KEY) === 'true')
+  const [animations,      setAnimations]      = React.useState(() => localStorage.getItem(ANIMATIONS_KEY) === 'true')
 
   const isCustom = displayMode === 'custom'
 
@@ -259,18 +273,18 @@ export default function AppearanceSettings() {
     applyBorderOpacity(val)
   }
 
-  const handleCleanView = () => {
-    const next = !cleanView
-    setCleanView(next)
-    localStorage.setItem(CLEAN_VIEW_KEY, String(next))
-    document.documentElement.classList.toggle('clean-view', next)
-  }
-
   const handleVignette = () => {
     const next = !vignette
     setVignette(next)
     localStorage.setItem(VIGNETTE_KEY, String(next))
     document.documentElement.classList.toggle('vignette', next)
+  }
+
+  const handleAnimations = () => {
+    const next = !animations
+    setAnimations(next)
+    localStorage.setItem(ANIMATIONS_KEY, String(next))
+    document.documentElement.classList.toggle('animations', next)
   }
 
   return (
@@ -303,20 +317,8 @@ export default function AppearanceSettings() {
 
       <section className="space-y-3">
         <p className="text-sm font-medium">View</p>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            data-active={cleanView ? 'true' : 'false'}
-            className={`flex-1${cleanView ? ' border-primary text-primary' : ''}`}
-            onClick={handleCleanView}
-          >Clean View</Button>
-          <Button
-            variant="outline"
-            data-active={vignette ? 'true' : 'false'}
-            className={`flex-1${vignette ? ' border-primary text-primary' : ''}`}
-            onClick={handleVignette}
-          >Vignette</Button>
-        </div>
+        <ToggleRow label="Vignette" checked={vignette} ariaLabel="Vignette" onChange={handleVignette} />
+        <ToggleRow label="Animations" checked={animations} ariaLabel="Animations" onChange={handleAnimations} />
       </section>
 
       <section className="space-y-3">

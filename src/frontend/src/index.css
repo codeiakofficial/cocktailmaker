@@ -12,31 +12,30 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html.clean-view [data-clean-view-hide] {
+/* Clean view — hides all .cv-hide elements and the entire main area */
+html.clean-view .cv-hide {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s;
+  transition: opacity 0.35s;
 }
 
-@keyframes drop-fall {
-  0%   { transform: translateY(-12px) scaleY(1.1); opacity: 0.9; }
-  60%  { transform: translateY(0) scaleY(0.95); opacity: 1; }
-  80%  { transform: translateY(-4px) scaleY(1.02); }
-  100% { transform: translateY(0) scaleY(1); opacity: 1; }
+/* Vignette — frost effect applied only to the bg-layer via the vignette-overlay sibling */
+html.vignette .vignette-overlay {
+  background: radial-gradient(ellipse at center, transparent 30%, oklch(0.04 0 0 / 0.65) 100%);
+  backdrop-filter: blur(5px) saturate(0.45) brightness(0.7);
+  transition: opacity 0.5s;
 }
 
-.drop-animate {
-  animation: drop-fall 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+/* Ambient animations — gentle drift on the background layer only */
+@keyframes bg-drift {
+  0%, 100% { transform: scale(1) translate(0, 0); filter: brightness(1) saturate(1); }
+  30%       { transform: scale(1.025) translate(-0.6%, 0.4%); filter: brightness(1.04) saturate(1.08); }
+  70%       { transform: scale(1.02)  translate(0.4%, -0.5%); filter: brightness(0.97) saturate(0.94); }
 }
 
-html.vignette body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-  background: radial-gradient(ellipse at center, transparent 40%, oklch(0 0 0 / 0.72) 100%);
-  backdrop-filter: blur(1px) brightness(0.88);
+html.animations .bg-layer {
+  animation: bg-drift 14s ease-in-out infinite;
+  transform-origin: center center;
 }
 
 @layer base {

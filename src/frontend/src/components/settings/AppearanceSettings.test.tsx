@@ -466,30 +466,35 @@ describe('AppearanceSettings — vignette', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
   })
 
-  test('renders a Vignette toggle button', () => {
+  test('renders a Vignette toggle switch', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /vignette/i })).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: /vignette/i })).toBeInTheDocument()
   })
 
-  test('clicking Vignette adds vignette class to html element', async () => {
+  test('toggle is unchecked by default', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'false')
+  })
+
+  test('clicking Vignette switch adds vignette class to html', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /vignette/i }))
     expect(document.documentElement.classList.contains('vignette')).toBe(true)
   })
 
-  test('clicking Vignette again removes vignette class', async () => {
+  test('clicking again removes vignette class', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /vignette/i }))
-    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /vignette/i }))
     expect(document.documentElement.classList.contains('vignette')).toBe(false)
   })
 
   test('vignette state persists to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /vignette/i }))
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-vignette', 'true')
   })
 
@@ -499,57 +504,56 @@ describe('AppearanceSettings — vignette', () => {
     expect(document.documentElement.classList.contains('vignette')).toBe(true)
   })
 
-  test('button shows active state when vignette is on', async () => {
+  test('switch aria-checked is true when vignette is on', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /vignette/i }))
-    expect(screen.getByRole('button', { name: /vignette/i })).toHaveAttribute('data-active', 'true')
+    await user.click(screen.getByRole('switch', { name: /vignette/i }))
+    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'true')
+  })
+
+  test('initialises as checked from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-vignette' ? 'true' : null)
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'true')
   })
 })
 
-describe('AppearanceSettings — clean view', () => {
+describe('AppearanceSettings — animations', () => {
   beforeEach(() => {
-    document.documentElement.classList.remove('clean-view')
+    document.documentElement.classList.remove('animations')
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
   })
 
-  test('renders a Clean View toggle button', () => {
+  test('renders an Animations toggle switch', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /clean view/i })).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: /animations/i })).toBeInTheDocument()
   })
 
-  test('clicking Clean View adds clean-view class to html element', async () => {
+  test('clicking adds animations class to html', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /clean view/i }))
-    expect(document.documentElement.classList.contains('clean-view')).toBe(true)
+    await user.click(screen.getByRole('switch', { name: /animations/i }))
+    expect(document.documentElement.classList.contains('animations')).toBe(true)
   })
 
-  test('clicking Clean View again removes clean-view class', async () => {
+  test('clicking again removes animations class', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /clean view/i }))
-    await user.click(screen.getByRole('button', { name: /clean view/i }))
-    expect(document.documentElement.classList.contains('clean-view')).toBe(false)
+    await user.click(screen.getByRole('switch', { name: /animations/i }))
+    await user.click(screen.getByRole('switch', { name: /animations/i }))
+    expect(document.documentElement.classList.contains('animations')).toBe(false)
   })
 
-  test('clean view state persists to localStorage', async () => {
+  test('animations state persists to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /clean view/i }))
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-clean-view', 'true')
+    await user.click(screen.getByRole('switch', { name: /animations/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-animations', 'true')
   })
 
-  test('restoreAppearance applies clean-view class when stored', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-clean-view' ? 'true' : null)
+  test('restoreAppearance applies animations class when stored', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-animations' ? 'true' : null)
     restoreAppearance()
-    expect(document.documentElement.classList.contains('clean-view')).toBe(true)
-  })
-
-  test('button shows active state when clean view is on', async () => {
-    const user = userEvent.setup()
-    render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /clean view/i }))
-    expect(screen.getByRole('button', { name: /clean view/i })).toHaveAttribute('data-active', 'true')
+    expect(document.documentElement.classList.contains('animations')).toBe(true)
   })
 })
