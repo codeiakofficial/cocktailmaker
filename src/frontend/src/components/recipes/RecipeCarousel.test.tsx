@@ -70,6 +70,19 @@ describe('RecipeCarousel — recipe image', () => {
   })
 })
 
+describe('RecipeCarousel — drop animation', () => {
+  test('card gets drop-animate class after Dispense click', async () => {
+    const user = userEvent.setup()
+    const { dispense } = renderCarousel([
+      { id: 1, name: 'Dispenser 1', agentId: 'dispenser-1', isOnline: true, lastSeen: null },
+    ])
+    const dispenseBtn = screen.getByRole('button', { name: 'Dispense' })
+    await user.click(dispenseBtn)
+    const card = dispenseBtn.closest('[data-drop-target]')
+    expect(card).toHaveClass('drop-animate')
+  })
+})
+
 describe('RecipeCarousel — Dispense button', () => {
   beforeEach(() => { vi.clearAllMocks() })
 

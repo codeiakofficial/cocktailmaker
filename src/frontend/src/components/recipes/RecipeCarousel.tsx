@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from "../ui/card"
 import {
   Carousel,
@@ -16,6 +17,13 @@ export function RecipeCarousel() {
   const { recipes } = useRecipes();
   const { agents, dispense } = useAgents();
   const hasOnlineAgent = agents.some(a => a.isOnline);
+  const [dispensingId, setDispensingId] = useState<number | null>(null);
+
+  const handleDispense = (recipeId: number) => {
+    dispense(recipeId);
+    setDispensingId(recipeId);
+    setTimeout(() => setDispensingId(null), 700);
+  };
 
   return (
     <Carousel className="w-full" opts={{
@@ -26,7 +34,7 @@ export function RecipeCarousel() {
       <CarouselContent>
         {recipes.map((recipe, index) => (
           <CarouselItem key={recipe.id} className="basis-1/3 pl-10">
-            <Card className='relative'>
+            <Card data-drop-target className={`relative${dispensingId === recipe.id ? ' drop-animate' : ''}`}>
               <div className="absolute top-4 right-4 flex gap-2">
                 <EditRecipeButton recipe={recipes[index]} className="w-10 h-10" />
                 <DeleteRecipeButton recipeId={recipe.id} className="w-10 h-10" />
@@ -47,7 +55,7 @@ export function RecipeCarousel() {
                   <Button
                     className="mt-6"
                     disabled={!hasOnlineAgent}
-                    onClick={() => dispense(recipe.id)}
+                    onClick={() => handleDispense(recipe.id)}
                     title={hasOnlineAgent ? undefined : 'No agent online'}
                   >
                     Dispense
