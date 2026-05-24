@@ -175,7 +175,7 @@ Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or 
 
 ### Code Reviewer Agent
 
-Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns.
+Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns. For every exported symbol and every module imported only in one place, verify it is actually called from app code — not just from its own tests. Dead exports (functions defined but never called, constants never read outside their file) must be flagged for removal.
 
 ### Infrastructure Agent
 
