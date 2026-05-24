@@ -132,16 +132,13 @@ export default function SettingsPage() {
         <p className="text-sm font-medium">Appearance</p>
         <div className="flex gap-2">
           {(['light', 'dark', 'custom'] as DisplayMode[]).map(mode => (
-            <Button key={mode} variant="default"
+            <Button key={mode} variant="outline"
               data-active={displayMode === mode ? 'true' : 'false'}
               className={`flex-1 capitalize${displayMode === mode ? ' border-primary text-primary' : ''}`}
               onClick={() => handleModeChange(mode)}
             >{mode}</Button>
           ))}
         </div>
-        {displayMode === 'light' && (
-          <p className="text-xs text-muted-foreground">Tropical light palette — fixed</p>
-        )}
       </section>
 
       <section className="space-y-3">
