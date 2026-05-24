@@ -27,7 +27,7 @@ function AppContent() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[url('../../../resources/bg.jpg')] bg-cover">
-      <header className="flex items-center justify-between p-3">
+      <header className="flex items-center justify-between p-3 bg-background/95 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>
           <AgentStatusBar />
@@ -46,7 +46,7 @@ function AppContent() {
         </div>
       </header>
       <Separator className="my-0" />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
         {page === 0
           ? <div className="flex min-h-full items-center justify-center px-20 pt-6"><RecipeCarousel /></div>
           : <SettingsPage />

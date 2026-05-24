@@ -32,6 +32,18 @@ const CUSTOM_PROPS = [
   '--title-color', '--border', '--input', '--primary-hover', '--muted-hover',
 ]
 
+const DISPLAY_MODE_KEY = 'vite-ui-display-mode'
+
+function loadDisplayMode(theme: string): DisplayMode {
+  const stored = localStorage.getItem(DISPLAY_MODE_KEY)
+  if (stored === 'light' || stored === 'dark' || stored === 'custom') return stored
+  return theme === 'light' ? 'light' : 'dark'
+}
+
+function saveDisplayMode(mode: DisplayMode) {
+  localStorage.setItem(DISPLAY_MODE_KEY, mode)
+}
+
 const set = (prop: string, val: string) => document.documentElement.style.setProperty(prop, val)
 const unset = (prop: string) => document.documentElement.style.removeProperty(prop)
 
@@ -65,8 +77,8 @@ function ColorRow({ label, hex, disabled, onChange }: ColorRowProps) {
 }
 
 export default function AppearanceSettings() {
-  const { setTheme } = useTheme()
-  const [displayMode,    setDisplayMode]    = React.useState<DisplayMode>('dark')
+  const { theme, setTheme } = useTheme()
+  const [displayMode,    setDisplayMode]    = React.useState<DisplayMode>(() => loadDisplayMode(theme))
   const [buttonColor,    setButtonColor]    = React.useState('#d4274a')
   const [hoverColor,     setHoverColor]     = React.useState('#a01e38')
   const [bgColor,        setBgColor]        = React.useState('#1a1a2e')
@@ -94,6 +106,7 @@ export default function AppearanceSettings() {
 
   const handleModeChange = (mode: DisplayMode) => {
     setDisplayMode(mode)
+    saveDisplayMode(mode)
     if (mode === 'dark')        { setTheme('dark');  clearCustomOverrides() }
     else if (mode === 'light')  { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
     else { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }

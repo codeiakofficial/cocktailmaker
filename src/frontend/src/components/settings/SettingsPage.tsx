@@ -4,14 +4,14 @@ import IngredientsSettings from './IngredientsSettings'
 import AgentsSettings from './AgentsSettings'
 import AppearanceSettings from './AppearanceSettings'
 
-type Tab = 'ingredients' | 'agents' | 'appearance'
-const TABS: Tab[] = ['ingredients', 'agents', 'appearance']
+type Tab = 'appearance' | 'agents' | 'ingredients'
+const TABS: Tab[] = ['appearance', 'agents', 'ingredients']
 
 export default function SettingsPage() {
-  const [tab, setTab] = React.useState<Tab>('ingredients')
+  const [tab, setTab] = React.useState<Tab>('appearance')
 
   return (
-    <div className="w-full max-w-2xl mx-auto my-6 px-4 sm:px-0 rounded-xl bg-background/70 backdrop-blur-md p-8 shadow-lg space-y-6">
+    <div className="w-full max-w-2xl mx-auto my-6 rounded-xl bg-background/70 backdrop-blur-md p-8 shadow-lg space-y-6">
       <div className="flex gap-2">
         {TABS.map(t => (
           <Button key={t} variant="outline"
@@ -21,9 +21,9 @@ export default function SettingsPage() {
           >{t}</Button>
         ))}
       </div>
-      {tab === 'ingredients' && <IngredientsSettings />}
-      {tab === 'agents'      && <AgentsSettings />}
       {tab === 'appearance'  && <AppearanceSettings />}
+      {tab === 'agents'      && <AgentsSettings />}
+      {tab === 'ingredients' && <IngredientsSettings />}
     </div>
   )
 }

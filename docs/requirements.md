@@ -37,8 +37,9 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Health state is updated in near-real-time in the UI via SSE stream
 
 **Navigation & Settings**
-- On mobile, a fixed bottom tab bar provides access to Home, Ingredients, Agents, and Settings
-- On desktop, the same pages are reachable from the top navigation bar
+- On mobile, a fixed bottom tab bar provides access to Home and Settings
+- On desktop, Home and Settings are reachable from the top navigation bar
+- The Settings page exposes three sub-tabs: Ingredients, Agents, and Appearance
 - The user can switch between Dark, Light, and Custom appearance modes
 - Dark mode applies the default dark palette; Light mode applies a fixed tropical warm palette
 - Custom mode enables per-variable colour pickers: button colour, button hover, background, font colour, muted text, title colour, border

@@ -4,12 +4,14 @@ import { describe, test, expect, vi, beforeEach } from 'vitest'
 import AppearanceSettings from './AppearanceSettings'
 
 const mockSetTheme = vi.fn()
+const mockUseTheme = vi.fn()
 vi.mock('../theme-provider', () => ({
-  useTheme: () => ({ theme: 'dark', setTheme: mockSetTheme }),
+  useTheme: () => mockUseTheme(),
 }))
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockUseTheme.mockReturnValue({ theme: 'dark', setTheme: mockSetTheme })
   vi.stubGlobal('localStorage', {
     getItem: vi.fn().mockReturnValue(null),
     setItem: vi.fn(),
@@ -153,5 +155,37 @@ describe('AppearanceSettings — font selection', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: 'Pacifico' }))
     expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
+  })
+})
+
+describe('AppearanceSettings — initial mode reflects current theme', () => {
+  test('dark button is active when theme is "dark"', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('light button is active when theme is "light"', () => {
+    mockUseTheme.mockReturnValue({ theme: 'light', setTheme: mockSetTheme })
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('custom button is active when localStorage has "custom"', () => {
+    localStorage.getItem = vi.fn().mockReturnValue('custom')
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('switching mode persists it to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^light$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'light')
   })
 })

@@ -15,18 +15,18 @@ describe('SettingsPage — tabs', () => {
     expect(screen.getByRole('button', { name: /^appearance$/i })).toBeInTheDocument()
   })
 
-  test('Ingredients tab is active by default', () => {
+  test('Appearance tab is active by default', () => {
     render(<SettingsPage />)
-    expect(screen.getByRole('button', { name: /^ingredients$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^appearance$/i })).toHaveAttribute('data-active', 'true')
     expect(screen.getByRole('button', { name: /^agents$/i })).toHaveAttribute('data-active', 'false')
-    expect(screen.getByRole('button', { name: /^appearance$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^ingredients$/i })).toHaveAttribute('data-active', 'false')
   })
 
-  test('shows Ingredients content by default', () => {
+  test('shows Appearance content by default', () => {
     render(<SettingsPage />)
-    expect(screen.getByText('ingredients-content')).toBeInTheDocument()
+    expect(screen.getByText('appearance-content')).toBeInTheDocument()
     expect(screen.queryByText('agents-content')).not.toBeInTheDocument()
-    expect(screen.queryByText('appearance-content')).not.toBeInTheDocument()
+    expect(screen.queryByText('ingredients-content')).not.toBeInTheDocument()
   })
 
   test('clicking Agents shows agents content and hides others', async () => {
@@ -34,16 +34,16 @@ describe('SettingsPage — tabs', () => {
     render(<SettingsPage />)
     await user.click(screen.getByRole('button', { name: /^agents$/i }))
     expect(screen.getByText('agents-content')).toBeInTheDocument()
-    expect(screen.queryByText('ingredients-content')).not.toBeInTheDocument()
     expect(screen.queryByText('appearance-content')).not.toBeInTheDocument()
+    expect(screen.queryByText('ingredients-content')).not.toBeInTheDocument()
   })
 
-  test('clicking Appearance shows appearance content and hides others', async () => {
+  test('clicking Ingredients shows ingredients content and hides others', async () => {
     const user = userEvent.setup()
     render(<SettingsPage />)
-    await user.click(screen.getByRole('button', { name: /^appearance$/i }))
-    expect(screen.getByText('appearance-content')).toBeInTheDocument()
-    expect(screen.queryByText('ingredients-content')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /^ingredients$/i }))
+    expect(screen.getByText('ingredients-content')).toBeInTheDocument()
+    expect(screen.queryByText('appearance-content')).not.toBeInTheDocument()
     expect(screen.queryByText('agents-content')).not.toBeInTheDocument()
   })
 
@@ -52,7 +52,7 @@ describe('SettingsPage — tabs', () => {
     render(<SettingsPage />)
     await user.click(screen.getByRole('button', { name: /^agents$/i }))
     expect(screen.getByRole('button', { name: /^agents$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^ingredients$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^appearance$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('only one tab is active at a time', async () => {
