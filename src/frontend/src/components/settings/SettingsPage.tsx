@@ -37,7 +37,7 @@ const CUSTOM_PROPS = [
   '--background', '--card', '--popover',
   '--foreground', '--card-foreground', '--popover-foreground',
   '--muted', '--muted-foreground',
-  '--title-color', '--border', '--input', '--primary-hover',
+  '--title-color', '--border', '--input', '--primary-hover', '--muted-hover',
 ]
 
 const set = (prop: string, val: string) => document.documentElement.style.setProperty(prop, val)
@@ -45,9 +45,6 @@ const unset = (prop: string) => document.documentElement.style.removeProperty(pr
 
 function clearCustomOverrides() {
   CUSTOM_PROPS.forEach(unset)
-  document.documentElement.style.removeProperty('font-family')
-  const el = document.getElementById('color-theme-override')
-  if (el) el.textContent = ''
 }
 
 function applyTropicalLight() {
@@ -61,15 +58,6 @@ function applyTropicalLight() {
   set('--title-color', p.titleColor)
 }
 
-function injectHoverAndDarkPrimary(primary: string, hover: string) {
-  const styleId = 'color-theme-override'
-  let el = document.getElementById(styleId) as HTMLStyleElement | null
-  if (!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el) }
-  el.textContent = [
-    `.dark { --primary: ${primary}; }`,
-    `[data-slot="button"][data-variant="default"]:hover { background-color: ${hover} !important; }`,
-  ].join('\n')
-}
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
 function ColorRow({ label, hex, disabled, onChange }: ColorRowProps) {
@@ -96,42 +84,45 @@ export default function SettingsPage() {
   const [fontColor,    setFontColor]    = React.useState('#f5f5f5')
   const [mutedColor,   setMutedColor]   = React.useState('#9a9ab0')
   const [titleColor,   setTitleColor]   = React.useState('#ffffff')
-  const [borderColor,  setBorderColor]  = React.useState('#2e2e3a')
-  const [activeFont,   setActiveFont]   = React.useState(FONTS[0].family)
+  const [borderColor,    setBorderColor]    = React.useState('#2e2e3a')
+  const [mutedHoverColor, setMutedHoverColor] = React.useState('#2e2e4a')
+  const [activeFont,     setActiveFont]     = React.useState(FONTS[0].family)
 
   const isCustom = displayMode === 'custom'
 
   const enterCustom = () => { setDisplayMode('custom'); setTheme('light') }
 
-  const applyAllCustom = (btn: string, hover: string, bg: string, font: string, muted: string, title: string, border: string, fontFam: string) => {
+  const applyAllCustom = (btn: string, hover: string, bg: string, font: string, muted: string, title: string, border: string, mutedHover: string, fontFam: string) => {
     set('--background', bg); set('--card', bg); set('--popover', bg)
     set('--foreground', font); set('--card-foreground', font); set('--popover-foreground', font)
     set('--muted-foreground', muted)
     set('--primary', btn); set('--primary-foreground', '#ffffff')
+    set('--primary-hover', hover)
+    set('--muted-hover', mutedHover)
     set('--title-color', title)
     set('--border', border); set('--input', border)
     document.documentElement.style.fontFamily = fontFam
-    injectHoverAndDarkPrimary(btn, hover)
   }
 
   const handleModeChange = (mode: DisplayMode) => {
     setDisplayMode(mode)
     if (mode === 'dark')   { setTheme('dark');  clearCustomOverrides() }
     else if (mode === 'light') { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
-    else { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, activeFont) }
+    else { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
   }
 
   const picker = (setter: (v: string) => void, apply: (v: string) => void) => (v: string) => {
     setter(v); if (!isCustom) enterCustom(); apply(v)
   }
 
-  const handleButtonColor  = picker(setButtonColor,  v => { set('--primary', v); injectHoverAndDarkPrimary(v, hoverColor) })
-  const handleHoverColor   = picker(setHoverColor,   v => injectHoverAndDarkPrimary(buttonColor, v))
+  const handleButtonColor  = picker(setButtonColor,  v => set('--primary', v))
+  const handleHoverColor   = picker(setHoverColor,   v => set('--primary-hover', v))
   const handleBgColor      = picker(setBgColor,      v => { set('--background', v); set('--card', v); set('--popover', v) })
   const handleFontColor    = picker(setFontColor,    v => { set('--foreground', v); set('--card-foreground', v); set('--popover-foreground', v) })
   const handleMutedColor   = picker(setMutedColor,   v => set('--muted-foreground', v))
   const handleTitleColor   = picker(setTitleColor,   v => set('--title-color', v))
-  const handleBorderColor  = picker(setBorderColor,  v => { set('--border', v); set('--input', v) })
+  const handleBorderColor    = picker(setBorderColor,    v => { set('--border', v); set('--input', v) })
+  const handleMutedHoverColor = picker(setMutedHoverColor, v => set('--muted-hover', v))
   const handleFont         = (v: string) => { setActiveFont(v); document.documentElement.style.fontFamily = v }
 
   return (
@@ -141,7 +132,7 @@ export default function SettingsPage() {
         <p className="text-sm font-medium">Appearance</p>
         <div className="flex gap-2">
           {(['light', 'dark', 'custom'] as DisplayMode[]).map(mode => (
-            <Button key={mode} variant="outline"
+            <Button key={mode} variant="default"
               data-active={displayMode === mode ? 'true' : 'false'}
               className={`flex-1 capitalize${displayMode === mode ? ' border-primary text-primary' : ''}`}
               onClick={() => handleModeChange(mode)}
@@ -156,8 +147,9 @@ export default function SettingsPage() {
       <section className="space-y-3">
         <p className={`text-sm font-medium${!isCustom ? ' opacity-40' : ''}`}>Colors</p>
         <div className="flex flex-col gap-3">
-          <ColorRow label="Button color"   hex={buttonColor}  disabled={!isCustom} onChange={handleButtonColor} />
-          <ColorRow label="Button hover"   hex={hoverColor}   disabled={!isCustom} onChange={handleHoverColor} />
+          <ColorRow label="Button color"   hex={buttonColor}      disabled={!isCustom} onChange={handleButtonColor} />
+          <ColorRow label="Button hover"   hex={hoverColor}       disabled={!isCustom} onChange={handleHoverColor} />
+          <ColorRow label="Muted hover"    hex={mutedHoverColor}  disabled={!isCustom} onChange={handleMutedHoverColor} />
           <ColorRow label="Background"     hex={bgColor}      disabled={!isCustom} onChange={handleBgColor} />
           <ColorRow label="Font color"     hex={fontColor}    disabled={!isCustom} onChange={handleFontColor} />
           <ColorRow label="Muted text"     hex={mutedColor}   disabled={!isCustom} onChange={handleMutedColor} />

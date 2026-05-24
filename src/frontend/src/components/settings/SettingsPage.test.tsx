@@ -15,8 +15,6 @@ beforeEach(() => {
     setItem: vi.fn(),
   })
   document.documentElement.style.cssText = ''
-  const el = document.getElementById('color-theme-override')
-  if (el) el.textContent = ''
 })
 
 describe('SettingsPage — appearance modes', () => {
@@ -54,6 +52,7 @@ describe('SettingsPage — color pickers', () => {
     render(<SettingsPage />)
     expect(screen.getByText('Button color')).toBeInTheDocument()
     expect(screen.getByText('Button hover')).toBeInTheDocument()
+    expect(screen.getByText('Muted hover')).toBeInTheDocument()
     expect(screen.getByText('Background')).toBeInTheDocument()
     expect(screen.getByText('Font color')).toBeInTheDocument()
     expect(screen.getByText('Muted text')).toBeInTheDocument()
