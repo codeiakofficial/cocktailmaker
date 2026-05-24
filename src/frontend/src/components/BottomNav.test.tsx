@@ -8,8 +8,6 @@ function renderNav(page: number, overrides: Partial<Parameters<typeof BottomNav>
     <BottomNav
       page={page}
       onHome={vi.fn()}
-      onIngredients={vi.fn()}
-      onAgents={vi.fn()}
       onSettings={vi.fn()}
       {...overrides}
     />
@@ -17,38 +15,29 @@ function renderNav(page: number, overrides: Partial<Parameters<typeof BottomNav>
 }
 
 describe('BottomNav — rendering', () => {
-  test('renders Home, Ingredients, Agents and Settings tabs', () => {
+  test('renders Home and Settings tabs only', () => {
     renderNav(0)
-    expect(screen.getByRole('button', { name: /home/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /ingredients/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /agents/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^home$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^settings$/i })).toBeInTheDocument()
+    expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 })
 
 describe('BottomNav — active state', () => {
   test('Home tab is active when page is 0', () => {
     renderNav(0)
-    expect(screen.getByRole('button', { name: /home/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^home$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^settings$/i })).toHaveAttribute('data-active', 'false')
   })
 
-  test('Ingredients tab is active when page is 1', () => {
+  test('Settings tab is active when page is 1', () => {
     renderNav(1)
-    expect(screen.getByRole('button', { name: /ingredients/i })).toHaveAttribute('data-active', 'true')
-  })
-
-  test('Agents tab is active when page is 2', () => {
-    renderNav(2)
-    expect(screen.getByRole('button', { name: /agents/i })).toHaveAttribute('data-active', 'true')
-  })
-
-  test('Settings tab is active when page is 3', () => {
-    renderNav(3)
-    expect(screen.getByRole('button', { name: /settings/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^settings$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^home$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('only one tab is active at a time', () => {
-    renderNav(1)
+    renderNav(0)
     const active = screen.getAllByRole('button').filter(b => b.getAttribute('data-active') === 'true')
     expect(active).toHaveLength(1)
   })
@@ -59,31 +48,15 @@ describe('BottomNav — navigation', () => {
     const onHome = vi.fn()
     const user = userEvent.setup()
     renderNav(1, { onHome })
-    await user.click(screen.getByRole('button', { name: /home/i }))
+    await user.click(screen.getByRole('button', { name: /^home$/i }))
     expect(onHome).toHaveBeenCalledOnce()
-  })
-
-  test('clicking Ingredients calls onIngredients', async () => {
-    const onIngredients = vi.fn()
-    const user = userEvent.setup()
-    renderNav(0, { onIngredients })
-    await user.click(screen.getByRole('button', { name: /ingredients/i }))
-    expect(onIngredients).toHaveBeenCalledOnce()
-  })
-
-  test('clicking Agents calls onAgents', async () => {
-    const onAgents = vi.fn()
-    const user = userEvent.setup()
-    renderNav(0, { onAgents })
-    await user.click(screen.getByRole('button', { name: /agents/i }))
-    expect(onAgents).toHaveBeenCalledOnce()
   })
 
   test('clicking Settings calls onSettings', async () => {
     const onSettings = vi.fn()
     const user = userEvent.setup()
     renderNav(0, { onSettings })
-    await user.click(screen.getByRole('button', { name: /settings/i }))
+    await user.click(screen.getByRole('button', { name: /^settings$/i }))
     expect(onSettings).toHaveBeenCalledOnce()
   })
 })

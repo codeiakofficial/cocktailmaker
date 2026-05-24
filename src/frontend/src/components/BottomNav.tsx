@@ -1,23 +1,19 @@
-import { Home, FlaskConical, Bot, Settings } from 'lucide-react'
+import { Home, Settings } from 'lucide-react'
 
 interface BottomNavProps {
   page: number
   onHome: () => void
-  onIngredients: () => void
-  onAgents: () => void
   onSettings: () => void
 }
 
 const tabs = [
-  { label: 'Home',        icon: Home,         page: 0, handler: 'onHome'        },
-  { label: 'Ingredients', icon: FlaskConical,  page: 1, handler: 'onIngredients' },
-  { label: 'Agents',      icon: Bot,           page: 2, handler: 'onAgents'      },
-  { label: 'Settings',    icon: Settings,      page: 3, handler: 'onSettings'    },
+  { label: 'Home',     icon: Home,     page: 0, handler: 'onHome'     },
+  { label: 'Settings', icon: Settings, page: 1, handler: 'onSettings' },
 ] as const
 
 type Handler = typeof tabs[number]['handler']
 
-export default function BottomNav(props: BottomNavProps & { page: number }) {
+export default function BottomNav(props: BottomNavProps) {
   const { page } = props
 
   return (
