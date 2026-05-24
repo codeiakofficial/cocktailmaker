@@ -5,13 +5,12 @@ import { NewRecipeDialog } from './components/recipes/NewRecipeDialog'
 import RecipeProvider, { useRecipes } from './contexts/RecipeContext'
 import { Button } from './components/ui/button'
 import { Plus } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import IngredientProvider, { useIngredients } from './contexts/IngredientContext'
 import AgentProvider, { useAgents } from './contexts/AgentContext'
 import { AgentStatusBar } from './components/agents/AgentStatusBar'
 import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
-import { applyHeaderStyle, restoreAppearance } from './components/settings/AppearanceSettings'
 import { CleanViewToggle } from './components/ui/CleanViewToggle'
 import { ParticleOverlay } from './components/ui/ParticleOverlay'
 
@@ -20,11 +19,6 @@ function AppContent() {
   const { fetchRecipes } = useRecipes()
   const { fetchIngredients } = useIngredients()
   const { fetchAgents } = useAgents()
-
-  useEffect(() => {
-    restoreAppearance()
-    applyHeaderStyle(localStorage.getItem('vite-ui-header-style') === 'blur' ? 'blur' : 'solid')
-  }, [])
 
   const goHome     = () => { setPage(0); fetchRecipes() }
   const goSettings = () => { setPage(1); fetchIngredients(); fetchAgents() }

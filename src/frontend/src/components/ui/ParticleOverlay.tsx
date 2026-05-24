@@ -19,7 +19,7 @@ function mkParticle(w: number, h: number): Particle {
     vx: (Math.random() - 0.5) * SPEED,
     vy: (Math.random() - 0.5) * SPEED,
     radius: 28 + Math.random() * 60,
-    alpha: Math.random() * MAX_ALPHA,
+    alpha: 0,
     alphaVel: (0.0002 + Math.random() * 0.0004) * (Math.random() < 0.5 ? 1 : -1),
   }
 }

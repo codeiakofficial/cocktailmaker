@@ -491,35 +491,35 @@ describe('AppearanceSettings — vignette', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
   })
 
-  test('renders a Vignette toggle switch', () => {
+  test('renders a Frost toggle switch', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('switch', { name: /vignette/i })).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: /frost/i })).toBeInTheDocument()
   })
 
   test('toggle is unchecked by default', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'false')
+    expect(screen.getByRole('switch', { name: /frost/i })).toHaveAttribute('aria-checked', 'false')
   })
 
-  test('clicking Vignette switch adds vignette class to html', async () => {
+  test('clicking Frost switch adds vignette class to html', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('switch', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /frost/i }))
     expect(document.documentElement.classList.contains('vignette')).toBe(true)
   })
 
   test('clicking again removes vignette class', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('switch', { name: /vignette/i }))
-    await user.click(screen.getByRole('switch', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /frost/i }))
+    await user.click(screen.getByRole('switch', { name: /frost/i }))
     expect(document.documentElement.classList.contains('vignette')).toBe(false)
   })
 
   test('vignette state persists to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('switch', { name: /vignette/i }))
+    await user.click(screen.getByRole('switch', { name: /frost/i }))
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-vignette', 'true')
   })
 
@@ -532,14 +532,14 @@ describe('AppearanceSettings — vignette', () => {
   test('switch aria-checked is true when vignette is on', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('switch', { name: /vignette/i }))
-    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'true')
+    await user.click(screen.getByRole('switch', { name: /frost/i }))
+    expect(screen.getByRole('switch', { name: /frost/i })).toHaveAttribute('aria-checked', 'true')
   })
 
   test('initialises as checked from localStorage', () => {
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-vignette' ? 'true' : null)
     render(<AppearanceSettings />)
-    expect(screen.getByRole('switch', { name: /vignette/i })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('switch', { name: /frost/i })).toHaveAttribute('aria-checked', 'true')
   })
 })
 

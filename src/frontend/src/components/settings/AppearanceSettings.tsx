@@ -323,7 +323,7 @@ export default function AppearanceSettings() {
 
       <section className="space-y-3">
         <p className="text-sm font-medium">View</p>
-        <ToggleRow label="Vignette" checked={vignette} ariaLabel="Vignette" onChange={handleVignette} />
+        <ToggleRow label="Frost" checked={vignette} ariaLabel="Frost" onChange={handleVignette} />
         <ToggleRow label="Animations" checked={animations} ariaLabel="Animations" onChange={handleAnimations} />
       </section>
 
