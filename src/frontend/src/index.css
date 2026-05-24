@@ -116,6 +116,8 @@
 
   --muted-hover: var(--muted);
 
+  --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
+
   --background: oklch(1 0 0);
 
   --foreground: oklch(0.141 0.005 285.823);

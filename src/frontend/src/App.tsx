@@ -13,6 +13,7 @@ import { AgentStatusBar } from './components/agents/AgentStatusBar'
 import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
 import { loadColorTheme, applyColorTheme } from './contexts/ColorTheme'
+import { applyHeaderStyle } from './components/settings/AppearanceSettings'
 
 function AppContent() {
   const [page, setPage] = useState(0)
@@ -20,14 +21,18 @@ function AppContent() {
   const { fetchIngredients } = useIngredients()
   const { fetchAgents } = useAgents()
 
-  useEffect(() => { applyColorTheme(loadColorTheme()) }, [])
+  useEffect(() => {
+    applyColorTheme(loadColorTheme())
+    const stored = localStorage.getItem('vite-ui-header-style')
+    applyHeaderStyle(stored === 'blur' ? 'blur' : 'solid')
+  }, [])
 
   const goHome     = () => { setPage(0); fetchRecipes() }
   const goSettings = () => { setPage(1); fetchIngredients(); fetchAgents() }
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[url('../../../resources/bg.jpg')] bg-cover">
-      <header className="flex items-center justify-between p-3 bg-background/95 backdrop-blur-sm">
+      <header className="flex items-center justify-between p-3 backdrop-blur-md" style={{ backgroundColor: 'var(--header-bg)' }}>
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>
           <AgentStatusBar />

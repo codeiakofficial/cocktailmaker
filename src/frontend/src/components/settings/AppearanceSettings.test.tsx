@@ -189,3 +189,54 @@ describe('AppearanceSettings — initial mode reflects current theme', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'light')
   })
 })
+
+describe('AppearanceSettings — header style toggle', () => {
+  test('renders Solid and Blur header buttons', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^solid$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^blur$/i })).toBeInTheDocument()
+  })
+
+  test('Solid is active by default', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('Blur is active when localStorage has "blur"', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^blur$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^solid$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('clicking Blur sets --header-bg to a low-opacity value', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^blur$/i }))
+    expect(document.documentElement.style.getPropertyValue('--header-bg')).not.toBe('')
+  })
+
+  test('clicking Solid clears the --header-bg override', async () => {
+    const user = userEvent.setup()
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^solid$/i }))
+    expect(document.documentElement.style.getPropertyValue('--header-bg')).toBe('')
+  })
+
+  test('clicking Blur persists "blur" to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^blur$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-header-style', 'blur')
+  })
+
+  test('clicking Solid persists "solid" to localStorage', async () => {
+    const user = userEvent.setup()
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-header-style' ? 'blur' : null)
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^solid$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-header-style', 'solid')
+  })
+})

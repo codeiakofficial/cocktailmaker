@@ -44,6 +44,21 @@ function saveDisplayMode(mode: DisplayMode) {
   localStorage.setItem(DISPLAY_MODE_KEY, mode)
 }
 
+const HEADER_STYLE_KEY = 'vite-ui-header-style'
+type HeaderStyle = 'solid' | 'blur'
+
+function loadHeaderStyle(): HeaderStyle {
+  return localStorage.getItem(HEADER_STYLE_KEY) === 'blur' ? 'blur' : 'solid'
+}
+
+export function applyHeaderStyle(style: HeaderStyle) {
+  if (style === 'blur') {
+    set('--header-bg', 'color-mix(in oklab, var(--background) 10%, transparent)')
+  } else {
+    unset('--header-bg')
+  }
+}
+
 const set = (prop: string, val: string) => document.documentElement.style.setProperty(prop, val)
 const unset = (prop: string) => document.documentElement.style.removeProperty(prop)
 
@@ -88,6 +103,7 @@ export default function AppearanceSettings() {
   const [borderColor,    setBorderColor]    = React.useState('#2e2e3a')
   const [mutedHoverColor,setMutedHoverColor]= React.useState('#2e2e4a')
   const [activeFont,     setActiveFont]     = React.useState(FONTS[0].family)
+  const [headerStyle,    setHeaderStyle]    = React.useState<HeaderStyle>(() => loadHeaderStyle())
 
   const isCustom = displayMode === 'custom'
   const enterCustom = () => { setDisplayMode('custom'); setTheme('light') }
@@ -125,6 +141,7 @@ export default function AppearanceSettings() {
   const handleBorderColor   = picker(setBorderColor,   v => { set('--border', v); set('--input', v) })
   const handleMutedHoverColor = picker(setMutedHoverColor, v => set('--muted-hover', v))
   const handleFont          = (v: string) => { setActiveFont(v); document.documentElement.style.fontFamily = v }
+  const handleHeaderStyle   = (s: HeaderStyle) => { setHeaderStyle(s); applyHeaderStyle(s); localStorage.setItem(HEADER_STYLE_KEY, s) }
 
   return (
     <div className="space-y-8">
@@ -137,6 +154,19 @@ export default function AppearanceSettings() {
               className={`flex-1 capitalize${displayMode === mode ? ' border-primary text-primary' : ''}`}
               onClick={() => handleModeChange(mode)}
             >{mode}</Button>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <p className="text-sm font-medium">Header</p>
+        <div className="flex gap-2">
+          {(['solid', 'blur'] as HeaderStyle[]).map(s => (
+            <Button key={s} variant="outline"
+              data-active={headerStyle === s ? 'true' : 'false'}
+              className={`flex-1 capitalize${headerStyle === s ? ' border-primary text-primary' : ''}`}
+              onClick={() => handleHeaderStyle(s)}
+            >{s}</Button>
           ))}
         </div>
       </section>
