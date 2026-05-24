@@ -11,7 +11,8 @@
 - Always apply domain best practices (C#/.NET conventions, REST API design, Docker, architectural patterns, ESP32/embedded). If existing code deviates from best practice, report the mismatch to the user before proceeding — do not silently fix or silently ignore it.
 - After any backend change, `dotnet test` must pass — including `ArchitectureTests` (conventions) and `DocumentationTests` (docs/architecture.md contract). A failing architecture or documentation test means code and docs disagree — fix the code or update the docs, never delete the test.
 - All new functionality must be test-driven: write a failing test first, verify the failure is for the right reason, then implement. Never commit an implementation without a prior failing test commit.
-- PR descriptions must be short and precise: three sections only — Task (IDs + names), Changes (one bullet per change), Review (template block + checkboxes). No prose, no explanations. Update title and description immediately when scope changes — never leave them out of sync with the actual content.
+- PR descriptions must be short and precise: three sections only — Task (IDs + names), Changes (one bullet per change), Review (template block + checkboxes). No prose, no explanations. Update title and description immediately when scope changes — never leave them out of sync with the actual content. Omit any change introduced and removed within the same PR — it is zero net delta and is noise in the description.
+- Never remove an existing user-facing feature, UI option, or behaviour unless explicitly instructed to do so. When a user reports "the old X shouldn't be available", confirm whether they mean a broken/unintended fallback state or the named feature before acting.
 - The roadmap row for a task must be removed in the final commit of its PR — not deferred. A row with status "In Progress" must not remain once the task is complete; CI blocks merge if any such row is present.
 
 ---
