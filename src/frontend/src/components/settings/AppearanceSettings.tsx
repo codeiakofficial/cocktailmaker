@@ -34,11 +34,16 @@ const CUSTOM_PROPS = [
   '--title-color', '--border', '--input', '--primary-hover', '--muted-hover',
 ]
 
-const DISPLAY_MODE_KEY  = 'vite-ui-display-mode'
-const HEADER_STYLE_KEY  = 'vite-ui-header-style'
-const CUSTOM_COLORS_KEY = 'vite-ui-custom-colors'
-const FONT_KEY          = 'vite-ui-font'
-const BG_URL_KEY        = 'vite-ui-bg-url'
+const DISPLAY_MODE_KEY    = 'vite-ui-display-mode'
+const HEADER_STYLE_KEY    = 'vite-ui-header-style'
+const CUSTOM_COLORS_KEY   = 'vite-ui-custom-colors'
+const FONT_KEY            = 'vite-ui-font'
+const BG_URL_KEY          = 'vite-ui-bg-url'
+const BORDER_OPACITY_KEY  = 'vite-ui-border-opacity'
+const BORDER_STYLE_KEY    = 'vite-ui-border-style'
+
+type BorderStyle = 'none' | 'subtle' | 'normal' | 'bold'
+const BORDER_STYLE_OPACITY: Record<BorderStyle, number> = { none: 0, subtle: 0.3, normal: 1, bold: 1 }
 
 interface CustomColors {
   button: string; hover: string; bg: string; font: string
@@ -136,6 +141,8 @@ export function restoreAppearance() {
   if (font) document.documentElement.style.fontFamily = font
   const bgUrl = localStorage.getItem(BG_URL_KEY)
   applyBackgroundUrl(bgUrl)
+  const borderOpacity = localStorage.getItem(BORDER_OPACITY_KEY)
+  if (borderOpacity !== null) set('--border-opacity', borderOpacity)
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -169,6 +176,8 @@ export default function AppearanceSettings() {
   const [activeFont,      setActiveFont]      = React.useState(() => loadFont())
   const [headerStyle,     setHeaderStyle]     = React.useState<HeaderStyle>(() => loadHeaderStyle())
   const [backgroundUrl,   setBackgroundUrl]   = React.useState(() => localStorage.getItem(BG_URL_KEY) ?? '')
+  const [borderStyle,     setBorderStyle]     = React.useState<BorderStyle>(() => (localStorage.getItem(BORDER_STYLE_KEY) as BorderStyle) ?? 'normal')
+  const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
 
   const isCustom = displayMode === 'custom'
 
@@ -223,6 +232,23 @@ export default function AppearanceSettings() {
     applyBackgroundUrl(url || null)
   }
 
+  const applyBorderOpacity = (val: number) => set('--border-opacity', String(val))
+
+  const handleBorderStyle = (style: BorderStyle) => {
+    const opacity = BORDER_STYLE_OPACITY[style]
+    setBorderStyle(style)
+    setBorderOpacity(opacity)
+    localStorage.setItem(BORDER_STYLE_KEY, style)
+    localStorage.setItem(BORDER_OPACITY_KEY, String(opacity))
+    applyBorderOpacity(opacity)
+  }
+
+  const handleBorderOpacity = (val: number) => {
+    setBorderOpacity(val)
+    localStorage.setItem(BORDER_OPACITY_KEY, String(val))
+    applyBorderOpacity(val)
+  }
+
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -249,6 +275,30 @@ export default function AppearanceSettings() {
             >{s}</Button>
           ))}
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <p className="text-sm font-medium">Border</p>
+        <div className="flex gap-2">
+          {(['none', 'subtle', 'normal', 'bold'] as BorderStyle[]).map(s => (
+            <Button key={s} variant="outline"
+              data-active={borderStyle === s ? 'true' : 'false'}
+              className={`flex-1 capitalize${borderStyle === s ? ' border-primary text-primary' : ''}`}
+              onClick={() => handleBorderStyle(s)}
+            >{s}</Button>
+          ))}
+        </div>
+        <label className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Border opacity</span>
+          <input
+            type="range"
+            aria-label="Border opacity"
+            min="0" max="1" step="0.05"
+            value={borderOpacity}
+            onChange={e => handleBorderOpacity(parseFloat(e.target.value))}
+            className="w-32"
+          />
+        </label>
       </section>
 
       <section className="space-y-3">

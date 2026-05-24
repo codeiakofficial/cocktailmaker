@@ -367,3 +367,95 @@ describe('AppearanceSettings — header style toggle', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-header-style', 'solid')
   })
 })
+
+describe('AppearanceSettings — border controls', () => {
+  test('renders a Border section with style preset buttons', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByText('Border')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^none$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^subtle$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^normal$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^bold$/i })).toBeInTheDocument()
+  })
+
+  test('renders a border opacity slider', () => {
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border opacity/i })
+    expect(slider).toBeInTheDocument()
+  })
+
+  test('Normal is active by default', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^normal$/i })).toHaveAttribute('data-active', 'true')
+  })
+
+  test('clicking None sets --border-opacity to 0', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^none$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0')
+  })
+
+  test('clicking Subtle sets --border-opacity to 0.3', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^subtle$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.3')
+  })
+
+  test('clicking Normal sets --border-opacity to 1', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^none$/i }))
+    await user.click(screen.getByRole('button', { name: /^normal$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('1')
+  })
+
+  test('clicking Bold sets --border-opacity to 1', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^bold$/i }))
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('1')
+  })
+
+  test('border style preset persists to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /^subtle$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-style', 'subtle')
+  })
+
+  test('border opacity slider change sets --border-opacity', async () => {
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border opacity/i })
+    fireEvent.change(slider, { target: { value: '0.5' } })
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.5')
+  })
+
+  test('border opacity persists to localStorage', () => {
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border opacity/i })
+    fireEvent.change(slider, { target: { value: '0.6' } })
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-border-opacity', '0.6')
+  })
+
+  test('initialises style from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-style' ? 'subtle' : null)
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /^subtle$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^normal$/i })).toHaveAttribute('data-active', 'false')
+  })
+
+  test('initialises slider value from localStorage', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-opacity' ? '0.4' : null)
+    render(<AppearanceSettings />)
+    const slider = screen.getByRole('slider', { name: /border opacity/i })
+    expect((slider as HTMLInputElement).value).toBe('0.4')
+  })
+
+  test('restoreAppearance applies stored border opacity', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-border-opacity' ? '0.5' : null)
+    restoreAppearance()
+    expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.5')
+  })
+})

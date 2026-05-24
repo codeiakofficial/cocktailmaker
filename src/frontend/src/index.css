@@ -110,6 +110,8 @@
 
 :root {
 
+  --border-opacity: 1;
+
   --title-color: var(--foreground);
 
   --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
@@ -150,9 +152,9 @@
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(0.92 0.004 286.32);
+  --border: oklch(0.92 0.004 286.32 / var(--border-opacity, 1));
 
-  --input: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32 / var(--border-opacity, 1));
 
   --ring: oklch(0.705 0.015 286.067);
 
@@ -217,9 +219,9 @@
 
   --destructive: oklch(0.704 0.191 22.216);
 
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / calc(0.1 * var(--border-opacity, 1)));
 
-  --input: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / calc(0.15 * var(--border-opacity, 1)));
 
   --ring: oklch(0.552 0.016 285.938);
 
