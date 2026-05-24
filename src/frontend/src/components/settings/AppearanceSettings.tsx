@@ -41,6 +41,7 @@ const FONT_KEY            = 'vite-ui-font'
 const BG_URL_KEY          = 'vite-ui-bg-url'
 const BORDER_OPACITY_KEY  = 'vite-ui-border-opacity'
 const BORDER_STYLE_KEY    = 'vite-ui-border-style'
+const CLEAN_VIEW_KEY      = 'vite-ui-clean-view'
 
 type BorderStyle = 'none' | 'subtle' | 'normal' | 'bold'
 const BORDER_STYLE_OPACITY: Record<BorderStyle, number> = { none: 0, subtle: 0.3, normal: 1, bold: 1 }
@@ -143,6 +144,9 @@ export function restoreAppearance() {
   applyBackgroundUrl(bgUrl)
   const borderOpacity = localStorage.getItem(BORDER_OPACITY_KEY)
   if (borderOpacity !== null) set('--border-opacity', borderOpacity)
+  if (localStorage.getItem(CLEAN_VIEW_KEY) === 'true') {
+    document.documentElement.classList.add('clean-view')
+  }
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -178,6 +182,7 @@ export default function AppearanceSettings() {
   const [backgroundUrl,   setBackgroundUrl]   = React.useState(() => localStorage.getItem(BG_URL_KEY) ?? '')
   const [borderStyle,     setBorderStyle]     = React.useState<BorderStyle>(() => (localStorage.getItem(BORDER_STYLE_KEY) as BorderStyle) ?? 'normal')
   const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
+  const [cleanView,       setCleanView]       = React.useState(() => localStorage.getItem(CLEAN_VIEW_KEY) === 'true')
 
   const isCustom = displayMode === 'custom'
 
@@ -249,6 +254,13 @@ export default function AppearanceSettings() {
     applyBorderOpacity(val)
   }
 
+  const handleCleanView = () => {
+    const next = !cleanView
+    setCleanView(next)
+    localStorage.setItem(CLEAN_VIEW_KEY, String(next))
+    document.documentElement.classList.toggle('clean-view', next)
+  }
+
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -275,6 +287,16 @@ export default function AppearanceSettings() {
             >{s}</Button>
           ))}
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <p className="text-sm font-medium">View</p>
+        <Button
+          variant="outline"
+          data-active={cleanView ? 'true' : 'false'}
+          className={`w-full${cleanView ? ' border-primary text-primary' : ''}`}
+          onClick={handleCleanView}
+        >Clean View</Button>
       </section>
 
       <section className="space-y-3">

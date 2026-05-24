@@ -12,6 +12,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html.clean-view [data-clean-view-hide] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground;

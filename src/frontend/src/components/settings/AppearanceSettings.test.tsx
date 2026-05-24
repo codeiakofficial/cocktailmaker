@@ -459,3 +459,50 @@ describe('AppearanceSettings — border controls', () => {
     expect(document.documentElement.style.getPropertyValue('--border-opacity')).toBe('0.5')
   })
 })
+
+describe('AppearanceSettings — clean view', () => {
+  beforeEach(() => {
+    document.documentElement.classList.remove('clean-view')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
+  })
+
+  test('renders a Clean View toggle button', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /clean view/i })).toBeInTheDocument()
+  })
+
+  test('clicking Clean View adds clean-view class to html element', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /clean view/i }))
+    expect(document.documentElement.classList.contains('clean-view')).toBe(true)
+  })
+
+  test('clicking Clean View again removes clean-view class', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /clean view/i }))
+    await user.click(screen.getByRole('button', { name: /clean view/i }))
+    expect(document.documentElement.classList.contains('clean-view')).toBe(false)
+  })
+
+  test('clean view state persists to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /clean view/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-clean-view', 'true')
+  })
+
+  test('restoreAppearance applies clean-view class when stored', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-clean-view' ? 'true' : null)
+    restoreAppearance()
+    expect(document.documentElement.classList.contains('clean-view')).toBe(true)
+  })
+
+  test('button shows active state when clean view is on', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /clean view/i }))
+    expect(screen.getByRole('button', { name: /clean view/i })).toHaveAttribute('data-active', 'true')
+  })
+})

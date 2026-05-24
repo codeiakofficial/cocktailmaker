@@ -32,25 +32,27 @@ export function RecipeCarousel() {
                 <DeleteRecipeButton recipeId={recipe.id} className="w-10 h-10" />
               </div>
               <CardContent className="flex aspect-square items-center justify-center p-6 flex-col">
-                {recipe.imageUrl && (
-                  <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-32 object-cover rounded-md mb-4" />
-                )}
-                <span className="text-4xl font-semibold">{recipe.name}</span>
-                <ul className="mt-4">
-                  {recipe.recipeIngredients.map((ingredient, i) => (
-                    <li key={i} className="text-sm text-gray-500">
-                      {ingredient.name}: {ingredient.quantity} {ingredient.unit}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className="mt-6"
-                  disabled={!hasOnlineAgent}
-                  onClick={() => dispense(recipe.id)}
-                  title={hasOnlineAgent ? undefined : 'No agent online'}
-                >
-                  Dispense
-                </Button>
+                <div data-clean-view-hide className="contents">
+                  {recipe.imageUrl && (
+                    <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-32 object-cover rounded-md mb-4" />
+                  )}
+                  <span className="text-4xl font-semibold">{recipe.name}</span>
+                  <ul className="mt-4">
+                    {recipe.recipeIngredients.map((ingredient, i) => (
+                      <li key={i} className="text-sm text-gray-500">
+                        {ingredient.name}: {ingredient.quantity} {ingredient.unit}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className="mt-6"
+                    disabled={!hasOnlineAgent}
+                    onClick={() => dispense(recipe.id)}
+                    title={hasOnlineAgent ? undefined : 'No agent online'}
+                  >
+                    Dispense
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </CarouselItem>
