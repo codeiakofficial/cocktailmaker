@@ -86,6 +86,66 @@ public class ImageControllerTests : IDisposable
         Assert.IsType<BadRequestObjectResult>(result);
     }
 
+    [Fact]
+    public void List_ReturnsUploadsAndDefaults()
+    {
+        Directory.CreateDirectory(Path.Combine(_uploadsDir, "uploads"));
+        Directory.CreateDirectory(Path.Combine(_uploadsDir, "defaults"));
+        File.WriteAllBytes(Path.Combine(_uploadsDir, "uploads", "photo.jpg"), new byte[] { 1 });
+        File.WriteAllBytes(Path.Combine(_uploadsDir, "defaults", "bg.jpg"), new byte[] { 2 });
+
+        var result = _controller.List();
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var items = Assert.IsAssignableFrom<IEnumerable<object>>(ok.Value);
+        Assert.Equal(2, items.Count());
+    }
+
+    [Fact]
+    public void List_WhenNoUploads_ReturnsDefaultsOnly()
+    {
+        Directory.CreateDirectory(Path.Combine(_uploadsDir, "defaults"));
+        File.WriteAllBytes(Path.Combine(_uploadsDir, "defaults", "bg.jpg"), new byte[] { 2 });
+
+        var result = _controller.List();
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var items = Assert.IsAssignableFrom<IEnumerable<object>>(ok.Value);
+        Assert.Single(items);
+    }
+
+    [Fact]
+    public void Delete_UploadedFile_ReturnsOkAndDeletesFile()
+    {
+        Directory.CreateDirectory(Path.Combine(_uploadsDir, "uploads"));
+        var filePath = Path.Combine(_uploadsDir, "uploads", "photo.jpg");
+        File.WriteAllBytes(filePath, new byte[] { 1 });
+
+        var result = _controller.Delete("photo.jpg");
+
+        Assert.IsType<OkResult>(result);
+        Assert.False(File.Exists(filePath));
+    }
+
+    [Fact]
+    public void Delete_DefaultFile_ReturnsForbidden()
+    {
+        Directory.CreateDirectory(Path.Combine(_uploadsDir, "defaults"));
+        File.WriteAllBytes(Path.Combine(_uploadsDir, "defaults", "bg.jpg"), new byte[] { 2 });
+
+        var result = _controller.Delete("bg.jpg");
+
+        Assert.IsType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public void Delete_NonExistentFile_ReturnsNotFound()
+    {
+        var result = _controller.Delete("missing.jpg");
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_uploadsDir))
