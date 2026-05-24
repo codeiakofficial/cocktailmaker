@@ -460,6 +460,53 @@ describe('AppearanceSettings — border controls', () => {
   })
 })
 
+describe('AppearanceSettings — vignette', () => {
+  beforeEach(() => {
+    document.documentElement.classList.remove('vignette')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
+  })
+
+  test('renders a Vignette toggle button', () => {
+    render(<AppearanceSettings />)
+    expect(screen.getByRole('button', { name: /vignette/i })).toBeInTheDocument()
+  })
+
+  test('clicking Vignette adds vignette class to html element', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    expect(document.documentElement.classList.contains('vignette')).toBe(true)
+  })
+
+  test('clicking Vignette again removes vignette class', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    expect(document.documentElement.classList.contains('vignette')).toBe(false)
+  })
+
+  test('vignette state persists to localStorage', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-vignette', 'true')
+  })
+
+  test('restoreAppearance applies vignette class when stored', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-vignette' ? 'true' : null)
+    restoreAppearance()
+    expect(document.documentElement.classList.contains('vignette')).toBe(true)
+  })
+
+  test('button shows active state when vignette is on', async () => {
+    const user = userEvent.setup()
+    render(<AppearanceSettings />)
+    await user.click(screen.getByRole('button', { name: /vignette/i }))
+    expect(screen.getByRole('button', { name: /vignette/i })).toHaveAttribute('data-active', 'true')
+  })
+})
+
 describe('AppearanceSettings — clean view', () => {
   beforeEach(() => {
     document.documentElement.classList.remove('clean-view')

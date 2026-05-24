@@ -42,6 +42,7 @@ const BG_URL_KEY          = 'vite-ui-bg-url'
 const BORDER_OPACITY_KEY  = 'vite-ui-border-opacity'
 const BORDER_STYLE_KEY    = 'vite-ui-border-style'
 const CLEAN_VIEW_KEY      = 'vite-ui-clean-view'
+const VIGNETTE_KEY        = 'vite-ui-vignette'
 
 type BorderStyle = 'none' | 'subtle' | 'normal' | 'bold'
 const BORDER_STYLE_OPACITY: Record<BorderStyle, number> = { none: 0, subtle: 0.3, normal: 1, bold: 1 }
@@ -147,6 +148,9 @@ export function restoreAppearance() {
   if (localStorage.getItem(CLEAN_VIEW_KEY) === 'true') {
     document.documentElement.classList.add('clean-view')
   }
+  if (localStorage.getItem(VIGNETTE_KEY) === 'true') {
+    document.documentElement.classList.add('vignette')
+  }
 }
 
 interface ColorRowProps { label: string; hex: string; disabled: boolean; onChange: (v: string) => void }
@@ -183,6 +187,7 @@ export default function AppearanceSettings() {
   const [borderStyle,     setBorderStyle]     = React.useState<BorderStyle>(() => (localStorage.getItem(BORDER_STYLE_KEY) as BorderStyle) ?? 'normal')
   const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
   const [cleanView,       setCleanView]       = React.useState(() => localStorage.getItem(CLEAN_VIEW_KEY) === 'true')
+  const [vignette,        setVignette]        = React.useState(() => localStorage.getItem(VIGNETTE_KEY) === 'true')
 
   const isCustom = displayMode === 'custom'
 
@@ -261,6 +266,13 @@ export default function AppearanceSettings() {
     document.documentElement.classList.toggle('clean-view', next)
   }
 
+  const handleVignette = () => {
+    const next = !vignette
+    setVignette(next)
+    localStorage.setItem(VIGNETTE_KEY, String(next))
+    document.documentElement.classList.toggle('vignette', next)
+  }
+
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -291,12 +303,20 @@ export default function AppearanceSettings() {
 
       <section className="space-y-3">
         <p className="text-sm font-medium">View</p>
-        <Button
-          variant="outline"
-          data-active={cleanView ? 'true' : 'false'}
-          className={`w-full${cleanView ? ' border-primary text-primary' : ''}`}
-          onClick={handleCleanView}
-        >Clean View</Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            data-active={cleanView ? 'true' : 'false'}
+            className={`flex-1${cleanView ? ' border-primary text-primary' : ''}`}
+            onClick={handleCleanView}
+          >Clean View</Button>
+          <Button
+            variant="outline"
+            data-active={vignette ? 'true' : 'false'}
+            className={`flex-1${vignette ? ' border-primary text-primary' : ''}`}
+            onClick={handleVignette}
+          >Vignette</Button>
+        </div>
       </section>
 
       <section className="space-y-3">
