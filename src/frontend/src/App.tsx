@@ -13,6 +13,7 @@ import SettingsPage from './components/settings/SettingsPage'
 import BottomNav from './components/BottomNav'
 import { applyHeaderStyle, restoreAppearance } from './components/settings/AppearanceSettings'
 import { CleanViewToggle } from './components/ui/CleanViewToggle'
+import { ParticleOverlay } from './components/ui/ParticleOverlay'
 
 function AppContent() {
   const [page, setPage] = useState(0)
@@ -34,6 +35,8 @@ function AppContent() {
       <div className="bg-layer absolute inset-0 bg-cover bg-center -z-10" style={{ backgroundImage: 'var(--bg-image-url)' }} />
       {/* Vignette overlay — sits between background and content; backdrop-filter blurs only the bg layer */}
       <div className="vignette-overlay absolute inset-0 pointer-events-none" style={{ zIndex: -1 }} />
+      {/* Particle overlay — above vignette (z:0), below content (z:1); driven by html.animations class */}
+      <ParticleOverlay />
 
       <header className="relative flex items-center justify-between p-3 backdrop-blur-md" style={{ backgroundColor: 'var(--header-bg)', zIndex: 1 }}>
         <div className="cv-hide flex items-center gap-4">
