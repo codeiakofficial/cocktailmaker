@@ -27,6 +27,7 @@ public class RecipeController : ControllerBase
             .Select(r => new RecipeDto(
                 r.Id,
                 r.Name,
+                r.ImageUrl,
                 r.RecipeIngredients ?? new List<RecipeIngredient>()
             ))
             .ToList();
@@ -47,6 +48,7 @@ public class RecipeController : ControllerBase
         var recipeDto = new RecipeDto(
             recipe.Id,
             recipe.Name,
+            recipe.ImageUrl,
             recipe.RecipeIngredients ?? new List<RecipeIngredient>()
         );
         return Ok(recipeDto);
@@ -59,6 +61,7 @@ public class RecipeController : ControllerBase
         var recipe = new Recipe
         {
             Name = createDto.Name,
+            ImageUrl = createDto.ImageUrl,
             RecipeIngredients = createDto.RecipeIngredients ?? new List<RecipeIngredient>(),
         };
 
@@ -73,6 +76,7 @@ public class RecipeController : ControllerBase
         var recipeDto = new RecipeDto(
             recipe.Id,
             recipe.Name,
+            recipe.ImageUrl,
             recipe.RecipeIngredients ?? new List<RecipeIngredient>()
         );
 
@@ -163,6 +167,7 @@ public class RecipeController : ControllerBase
         }
 
         recipe.Name = updateDto.Name;
+        recipe.ImageUrl = updateDto.ImageUrl;
         recipe.RecipeIngredients = updateDto.RecipeIngredients ?? new List<RecipeIngredient>();
 
         await _context.SaveChangesAsync();
