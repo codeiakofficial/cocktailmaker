@@ -60,6 +60,12 @@ All changes to `main` go through a pull request. Direct pushes are blocked by br
 
 | Task | Description | Phase | Status |
 |------|-------------|-------|--------|
+| T32 | Image management API — GET /api/images (merged uploads + defaults), DELETE /api/images/{filename} | Backend | In Progress |
+| T33 | ImageSelector component — gallery, select, delete; used in AppearanceSettings + Recipe dialogs | Frontend | In Progress |
+| T34 | Border opacity slider + border style selector in AppearanceSettings | Frontend | In Progress |
+| T35 | Clean view toggle — hides content/recipe elements to expose background and animations | Frontend | In Progress |
+| T36 | Frozen vignette overlay — radial dark-edge gradient + backdrop blur; toggle in AppearanceSettings | Frontend | In Progress |
+| T37 | Drop animation — liquid drop effect on recipe card interaction | Frontend | In Progress |
 
 ## Last Review
 
