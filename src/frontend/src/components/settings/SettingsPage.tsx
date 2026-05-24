@@ -11,7 +11,7 @@ export default function SettingsPage() {
   const [tab, setTab] = React.useState<Tab>('ingredients')
 
   return (
-    <div className="w-full max-w-2xl max-h-[calc(100vh-9rem)] overflow-y-auto rounded-xl bg-background/70 backdrop-blur-md p-8 shadow-lg space-y-6">
+    <div className="w-full max-w-2xl mx-auto my-6 px-4 sm:px-0 rounded-xl bg-background/70 backdrop-blur-md p-8 shadow-lg space-y-6">
       <div className="flex gap-2">
         {TABS.map(t => (
           <Button key={t} variant="outline"

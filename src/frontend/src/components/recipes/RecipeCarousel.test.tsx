@@ -25,6 +25,7 @@ function renderCarousel(agents: AgentContextType['agents'], dispense = vi.fn()) 
   const agentCtx: AgentContextType = {
     agents,
     agentPumps: {},
+    fetchAgents: vi.fn(),
     dispense,
     fetchAgentPumps: vi.fn(),
     updateAgentName: vi.fn(),

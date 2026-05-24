@@ -22,6 +22,7 @@ describe('AgentStatusBar', () => {
 
   const noopContext = {
     agentPumps: {},
+    fetchAgents: async () => {},
     dispense: async () => {},
     fetchAgentPumps: async () => {},
     updateAgentName: async () => {},

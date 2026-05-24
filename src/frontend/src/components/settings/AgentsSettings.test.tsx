@@ -10,6 +10,7 @@ import AgentsSettings from './AgentsSettings'
 const noopAgent: AgentContextType = {
   agents: [],
   agentPumps: {},
+  fetchAgents: vi.fn(),
   dispense: async () => {},
   fetchAgentPumps: vi.fn(),
   updateAgentName: vi.fn(),

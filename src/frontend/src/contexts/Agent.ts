@@ -20,6 +20,7 @@ export interface IUpdatePumpSlot {
 export type AgentContextType = {
   agents: IAgent[]
   agentPumps: Record<number, IAgentPump[]>
+  fetchAgents: () => Promise<void>
   dispense: (recipeId: number) => Promise<void>
   fetchAgentPumps: (agentId: number) => Promise<void>
   updateAgentName: (id: number, name: string) => Promise<void>

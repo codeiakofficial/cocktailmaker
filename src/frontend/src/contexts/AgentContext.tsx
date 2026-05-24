@@ -113,6 +113,7 @@ const AgentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const value: AgentContextType = {
     agents,
     agentPumps,
+    fetchAgents,
     dispense,
     fetchAgentPumps,
     updateAgentName,
