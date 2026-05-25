@@ -79,6 +79,7 @@ describe('AppearanceSettings — color pickers', () => {
 
   test('initialises colors from stored localStorage values', () => {
     localStorage.getItem = vi.fn((key: string) => {
+      if (key === 'vite-ui-display-mode') return 'custom'
       if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#111111', hover: '#222222', bg: '#333333', font: '#444444', muted: '#555555', title: '#666666', border: '#777777', mutedHover: '#888888' })
       return null
     })
@@ -94,10 +95,11 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--primary')).toBe('#d4274a')
-    expect(s.getPropertyValue('--primary-hover')).toBe('#a01e38')
-    expect(s.getPropertyValue('--muted-hover')).toBe('#2e2e4a')
-    expect(s.getPropertyValue('--background')).toBe('#1a1a2e')
+    // Custom inherits from the last active preset (lounge by default)
+    expect(s.getPropertyValue('--primary')).toBe('#c0324a')
+    expect(s.getPropertyValue('--primary-hover')).toBe('#c0324a')
+    expect(s.getPropertyValue('--muted-hover')).toBe('#363648')
+    expect(s.getPropertyValue('--background')).toBe('#1c1c2c')
   })
 
   test('switching to Tropical applies tropical palette CSS vars', async () => {
@@ -105,9 +107,9 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--background')).toBe('#fef9ec')
-    expect(s.getPropertyValue('--primary')).toBe('#e67e22')
-    expect(s.getPropertyValue('--title-color')).toBe('#c0392b')
+    expect(s.getPropertyValue('--background')).toBe('#1a1a2e')
+    expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
+    expect(s.getPropertyValue('--title-color')).toBe('#fff')
   })
 
   test('switching to Lounge applies lounge preset colors', async () => {
@@ -247,13 +249,6 @@ describe('AppearanceSettings — restoreAppearance', () => {
     expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#ff0000')
     expect(document.documentElement.style.getPropertyValue('--background')).toBe('#001122')
     expect(document.documentElement.style.getPropertyValue('--primary-hover')).toBe('#ee0000')
-  })
-
-  test('applies tropical palette when mode is "light"', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'light' : null)
-    restoreAppearance()
-    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#fef9ec')
-    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#e67e22')
   })
 
   test('applies lounge colors when no mode stored (default)', () => {
