@@ -32,27 +32,35 @@
         // Font
         var font = ls.getItem('vite-ui-font'); if (font) s.fontFamily = font;
 
-        // Color mode
+        // Color mode — keep in sync with PRESETS in AppearanceSettings.tsx
         var mode = ls.getItem('vite-ui-display-mode');
-        if (mode === 'tropical' || mode === 'light') {
-          s.setProperty('--background', '#fef9ec'); s.setProperty('--card', '#fef9ec'); s.setProperty('--popover', '#fef9ec');
-          s.setProperty('--foreground', '#2c1a0e'); s.setProperty('--card-foreground', '#2c1a0e'); s.setProperty('--popover-foreground', '#2c1a0e');
-          s.setProperty('--primary', '#e67e22'); s.setProperty('--primary-foreground', '#ffffff');
-          s.setProperty('--muted', '#f5e6c8'); s.setProperty('--muted-foreground', '#92400e');
-          s.setProperty('--border', '#d4a853'); s.setProperty('--input', '#d4a853');
-          s.setProperty('--title-color', '#c0392b');
+        if (mode === 'light') mode = 'tropical'; // backwards compat
+        var presets = {
+          tropical: { bg:'#fef9ec', fg:'#2c1a0e', pr:'#e67e22', prFg:'#ffffff', sec:'#d4a853', secFg:'#2c1a0e', mu:'#f5e6c8', muFg:'#92400e', bo:'#d4a853', inp:'#d4a853', ti:'#c0392b' },
+          lounge:   { bg:'#1c1c2c', fg:'#f5f5f5', pr:'#c0324a', prFg:'#f8f0f4', sec:'#363648', secFg:'#f5f5f5', mu:'#363648', muFg:'#9697a8', bo:'rgba(255,255,255,0.10)', inp:'rgba(255,255,255,0.15)', ti:'#f0e6d3' },
+          haze:     { bg:'#0e0f1a', fg:'#e8e0f8', pr:'#8b6cc4', prFg:'#ffffff',  sec:'#2a1f4a', secFg:'#e8e0f8', mu:'#2a1f4a', muFg:'#8878a8', bo:'rgba(180,150,255,0.15)', inp:'rgba(180,150,255,0.20)', ti:'#d8c8f8' },
+        };
+        var p = presets[mode];
+        if (p) {
+          s.setProperty('--background', p.bg);  s.setProperty('--card', p.bg);  s.setProperty('--popover', p.bg);
+          s.setProperty('--foreground', p.fg);  s.setProperty('--card-foreground', p.fg);  s.setProperty('--popover-foreground', p.fg);
+          s.setProperty('--primary', p.pr);     s.setProperty('--primary-foreground', p.prFg);
+          s.setProperty('--secondary', p.sec);  s.setProperty('--secondary-foreground', p.secFg);
+          s.setProperty('--muted', p.mu);       s.setProperty('--muted-foreground', p.muFg);
+          s.setProperty('--border', p.bo);      s.setProperty('--input', p.inp);
+          s.setProperty('--title-color', p.ti);
         } else if (mode === 'custom') {
           try {
             var c = JSON.parse(ls.getItem('vite-ui-custom-colors') || '{}');
-            if (c.bg)         { s.setProperty('--background', c.bg); s.setProperty('--card', c.bg); s.setProperty('--popover', c.bg); }
-            if (c.font)       { s.setProperty('--foreground', c.font); s.setProperty('--card-foreground', c.font); s.setProperty('--popover-foreground', c.font); }
-            if (c.muted)      s.setProperty('--muted-foreground', c.muted);
-            if (c.button)           { s.setProperty('--primary', c.button); s.setProperty('--primary-foreground', '#ffffff'); }
-            if (c.hover)            s.setProperty('--primary-hover', c.hover);
-            if (c.secondaryButton)  { s.setProperty('--secondary', c.secondaryButton); s.setProperty('--secondary-foreground', '#ffffff'); }
-            if (c.mutedHover) s.setProperty('--muted-hover', c.mutedHover);
-            if (c.title)      s.setProperty('--title-color', c.title);
-            if (c.border)     { s.setProperty('--border', c.border); s.setProperty('--input', c.border); }
+            if (c.bg)              { s.setProperty('--background', c.bg); s.setProperty('--card', c.bg); s.setProperty('--popover', c.bg); }
+            if (c.font)            { s.setProperty('--foreground', c.font); s.setProperty('--card-foreground', c.font); s.setProperty('--popover-foreground', c.font); }
+            if (c.muted)           s.setProperty('--muted-foreground', c.muted);
+            if (c.button)          { s.setProperty('--primary', c.button); s.setProperty('--primary-foreground', '#ffffff'); }
+            if (c.hover)           s.setProperty('--primary-hover', c.hover);
+            if (c.secondaryButton) { s.setProperty('--secondary', c.secondaryButton); s.setProperty('--secondary-foreground', '#ffffff'); }
+            if (c.mutedHover)      s.setProperty('--muted-hover', c.mutedHover);
+            if (c.title)           s.setProperty('--title-color', c.title);
+            if (c.border)          { s.setProperty('--border', c.border); s.setProperty('--input', c.border); }
           } catch (e) {}
         }
       })();

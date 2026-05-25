@@ -3,7 +3,8 @@ import { useTheme } from '../theme-provider'
 import { Button } from '../ui/button'
 import { ImageSelector } from '../ui/ImageSelector'
 
-type DisplayMode = 'tropical' | 'lounge' | 'custom'
+type DisplayMode = 'tropical' | 'lounge' | 'haze' | 'custom'
+type PresetMode  = Exclude<DisplayMode, 'custom'>
 type HeaderStyle = 'solid' | 'blur'
 
 const FONTS = [
@@ -19,18 +20,59 @@ const FONTS = [
 ]
 
 // ─── Preset fine-tuning ───────────────────────────────────────────────────────
-// Edit TROPICAL_LIGHT to tune the Tropical preset colors.
-// For Lounge, edit the `.dark { ... }` block in src/frontend/src/index.css.
-const TROPICAL_BG   = '/defaults/tropical.jpg'
-const LOUNGE_BG     = '/defaults/lounge.jpg'
+// All preset styles live here. To add a new preset: extend DisplayMode,
+// add a PresetMode entry, and add an entry to PRESETS below.
+// animations / vignette: when defined they override the toggle on preset select.
+interface PresetColors {
+  background: string; card: string; popover: string
+  foreground: string; cardForeground: string
+  primary: string; primaryFg: string
+  secondary: string; secondaryFg: string
+  muted: string; mutedFg: string
+  border: string; input: string; titleColor: string
+}
+interface Preset {
+  colors: PresetColors
+  bg: string
+  theme: 'light' | 'dark'
+  animations?: boolean
+  vignette?: boolean
+}
 
-const TROPICAL_LIGHT = {
-  background: '#fef9ec', card: '#fef9ec', popover: '#fef9ec',
-  foreground: '#2c1a0e', cardForeground: '#2c1a0e',
-  primary: '#e67e22', primaryFg: '#ffffff',
-  secondary: '#d4a853', secondaryFg: '#2c1a0e',
-  muted: '#f5e6c8', mutedFg: '#92400e',
-  border: '#d4a853', input: '#d4a853', titleColor: '#c0392b',
+const PRESETS: Record<PresetMode, Preset> = {
+  tropical: {
+    colors: {
+      background: '#fef9ec', card: '#fef9ec', popover: '#fef9ec',
+      foreground: '#2c1a0e', cardForeground: '#2c1a0e',
+      primary: '#e67e22', primaryFg: '#ffffff',
+      secondary: '#d4a853', secondaryFg: '#2c1a0e',
+      muted: '#f5e6c8', mutedFg: '#92400e',
+      border: '#d4a853', input: '#d4a853', titleColor: '#c0392b',
+    },
+    bg: '/defaults/tropical.jpg', theme: 'light', animations: true, vignette: true,
+  },
+  lounge: {
+    colors: {
+      background: '#1c1c2c', card: '#1c1c2c', popover: '#1c1c2c',
+      foreground: '#f5f5f5', cardForeground: '#f5f5f5',
+      primary: '#c0324a', primaryFg: '#f8f0f4',
+      secondary: '#363648', secondaryFg: '#f5f5f5',
+      muted: '#363648', mutedFg: '#9697a8',
+      border: 'rgba(255,255,255,0.10)', input: 'rgba(255,255,255,0.15)', titleColor: '#f0e6d3',
+    },
+    bg: '/defaults/lounge.jpg', theme: 'dark',
+  },
+  haze: {
+    colors: {
+      background: '#0e0f1a', card: '#0e0f1a', popover: '#0e0f1a',
+      foreground: '#e8e0f8', cardForeground: '#e8e0f8',
+      primary: '#8b6cc4', primaryFg: '#ffffff',
+      secondary: '#2a1f4a', secondaryFg: '#e8e0f8',
+      muted: '#2a1f4a', mutedFg: '#8878a8',
+      border: 'rgba(180,150,255,0.15)', input: 'rgba(180,150,255,0.20)', titleColor: '#d8c8f8',
+    },
+    bg: '/defaults/haze.jpg', theme: 'dark',
+  },
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -69,8 +111,8 @@ const DEFAULT_COLORS: CustomColors = {
 
 function loadDisplayMode(): DisplayMode {
   const stored = localStorage.getItem(DISPLAY_MODE_KEY)
-  if (stored === 'tropical' || stored === 'lounge' || stored === 'custom') return stored
-  if (stored === 'light') return 'tropical'   // backwards compat
+  if (stored === 'tropical' || stored === 'lounge' || stored === 'haze' || stored === 'custom') return stored
+  if (stored === 'light') return 'tropical'
   return 'lounge'
 }
 
@@ -107,8 +149,7 @@ const unset = (prop: string) => document.documentElement.style.removeProperty(pr
 
 function clearCustomOverrides() { CUSTOM_PROPS.forEach(unset) }
 
-function applyTropicalLight() {
-  const p = TROPICAL_LIGHT
+function applyPreset(p: PresetColors) {
   set('--background', p.background); set('--card', p.card); set('--popover', p.popover)
   set('--foreground', p.foreground); set('--card-foreground', p.cardForeground)
   set('--popover-foreground', p.foreground)
@@ -136,10 +177,13 @@ export function applyHeaderStyle(style: HeaderStyle) {
 }
 
 export function restoreAppearance() {
-  const mode = localStorage.getItem(DISPLAY_MODE_KEY)
-  if (mode === 'tropical' || mode === 'light') {
-    applyTropicalLight()
-  } else if (mode === 'custom') {
+  const stored = localStorage.getItem(DISPLAY_MODE_KEY)
+  const mode: DisplayMode = stored === 'tropical' || stored === 'lounge' || stored === 'haze' || stored === 'custom'
+    ? (stored as DisplayMode) : stored === 'light' ? 'tropical' : 'lounge'
+  const preset = PRESETS[mode as PresetMode]
+  if (preset) {
+    applyPreset(preset.colors)
+  } else {
     const c = loadCustomColors()
     set('--background', c.bg);  set('--card', c.bg);  set('--popover', c.bg)
     set('--foreground', c.font); set('--card-foreground', c.font); set('--popover-foreground', c.font)
@@ -249,25 +293,24 @@ export default function AppearanceSettings() {
   const handleModeChange = (mode: DisplayMode) => {
     setDisplayMode(mode)
     saveDisplayMode(mode)
-    if (mode === 'lounge') {
-      setTheme('dark')
+    const preset = PRESETS[mode as PresetMode]
+    if (preset) {
+      setTheme(preset.theme)
       clearCustomOverrides()
-      setBackgroundUrl(LOUNGE_BG)
-      localStorage.setItem(BG_URL_KEY, LOUNGE_BG)
-      applyBackgroundUrl(LOUNGE_BG)
-    } else if (mode === 'tropical') {
-      setTheme('light')
-      clearCustomOverrides()
-      applyTropicalLight()
-      setBackgroundUrl(TROPICAL_BG)
-      localStorage.setItem(BG_URL_KEY, TROPICAL_BG)
-      applyBackgroundUrl(TROPICAL_BG)
-      setAnimations(true)
-      localStorage.setItem(ANIMATIONS_KEY, 'true')
-      document.documentElement.classList.add('animations')
-      setVignette(true)
-      localStorage.setItem(VIGNETTE_KEY, 'true')
-      document.documentElement.classList.add('vignette')
+      applyPreset(preset.colors)
+      setBackgroundUrl(preset.bg)
+      localStorage.setItem(BG_URL_KEY, preset.bg)
+      applyBackgroundUrl(preset.bg)
+      if (preset.animations !== undefined) {
+        setAnimations(preset.animations)
+        localStorage.setItem(ANIMATIONS_KEY, String(preset.animations))
+        document.documentElement.classList.toggle('animations', preset.animations)
+      }
+      if (preset.vignette !== undefined) {
+        setVignette(preset.vignette)
+        localStorage.setItem(VIGNETTE_KEY, String(preset.vignette))
+        document.documentElement.classList.toggle('vignette', preset.vignette)
+      }
     } else {
       enterCustom()
       applyAllCustom(buttonColor, hoverColor, secondaryButtonColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont)
@@ -333,7 +376,7 @@ export default function AppearanceSettings() {
       <section className="space-y-3">
         <p className="text-sm font-medium">Appearance</p>
         <div className="flex gap-2">
-          {(['tropical', 'lounge', 'custom'] as DisplayMode[]).map(mode => (
+          {(['tropical', 'lounge', 'haze', 'custom'] as DisplayMode[]).map(mode => (
             <Button key={mode} variant="outline"
               data-active={displayMode === mode ? 'true' : 'false'}
               className={`flex-1 capitalize${displayMode === mode ? ' border-primary text-primary' : ''}`}

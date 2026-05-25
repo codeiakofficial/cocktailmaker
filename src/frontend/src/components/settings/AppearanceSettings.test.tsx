@@ -21,10 +21,11 @@ beforeEach(() => {
 })
 
 describe('AppearanceSettings — mode buttons', () => {
-  test('renders Tropical, Lounge and Custom buttons', () => {
+  test('renders Tropical, Lounge, Haze and Custom buttons', () => {
     render(<AppearanceSettings />)
     expect(screen.getByRole('button', { name: /^tropical$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^lounge$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^haze$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^custom$/i })).toBeInTheDocument()
   })
 
@@ -109,16 +110,15 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     expect(s.getPropertyValue('--title-color')).toBe('#c0392b')
   })
 
-  test('switching to Lounge clears all custom CSS vars', async () => {
+  test('switching to Lounge applies lounge preset colors', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
     await user.click(screen.getByRole('button', { name: /^lounge$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--primary')).toBe('')
-    expect(s.getPropertyValue('--background')).toBe('')
-    expect(s.getPropertyValue('--primary-hover')).toBe('')
-    expect(s.getPropertyValue('--muted-hover')).toBe('')
+    expect(s.getPropertyValue('--primary')).toBe('#c0324a')
+    expect(s.getPropertyValue('--background')).toBe('#1c1c2c')
+    expect(s.getPropertyValue('--title-color')).toBe('#f0e6d3')
   })
 
   test('changing button hover color sets --primary-hover', async () => {
@@ -257,11 +257,11 @@ describe('AppearanceSettings — restoreAppearance', () => {
     expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#e67e22')
   })
 
-  test('does not set custom CSS vars when mode is "dark"', () => {
+  test('applies lounge colors when no mode stored (default)', () => {
     localStorage.getItem = vi.fn().mockReturnValue(null)
     restoreAppearance()
-    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('')
-    expect(document.documentElement.style.getPropertyValue('--background')).toBe('')
+    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#c0324a')
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#1c1c2c')
   })
 
   test('applies stored font regardless of mode', () => {
