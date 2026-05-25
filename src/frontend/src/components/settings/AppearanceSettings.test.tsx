@@ -98,7 +98,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     // Custom inherits from the last active preset (lounge by default)
     expect(s.getPropertyValue('--primary')).toBe('#c0324a')
     expect(s.getPropertyValue('--primary-hover')).toBe('#c0324a')
-    expect(s.getPropertyValue('--muted-hover')).toBe('#363648')
+    expect(s.getPropertyValue('--muted-hover')).toBe('#454560')
     expect(s.getPropertyValue('--background')).toBe('#1c1c2c')
   })
 
@@ -107,7 +107,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--background')).toBe('#1a1a2e')
+    expect(s.getPropertyValue('--background')).toBe('#64648a')
     expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
     expect(s.getPropertyValue('--title-color')).toBe('#fff')
   })

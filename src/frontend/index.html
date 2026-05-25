@@ -32,34 +32,19 @@
         // Font
         var font = ls.getItem('vite-ui-font'); if (font) s.fontFamily = font;
 
-        // Color mode — keep in sync with PRESETS in AppearanceSettings.tsx
-        var mode = ls.getItem('vite-ui-display-mode');
-        var presets = {
-          tropical: { bg:'#1a1a2e', fg:'#fff', pr:'#27b6d3', prFg:'#eee', sec:'#d4a853', secFg:'#2c1a0e', mu:'#0000e3', muFg:'#c5c5c5', bo:'#b1b6c4', inp:'#fff', ti:'#fff' },
-          lounge:   { bg:'#1c1c2c', fg:'#f5f5f5', pr:'#c0324a', prFg:'#f8f0f4', sec:'#363648', secFg:'#f5f5f5', mu:'#363648', muFg:'#9697a8', bo:'rgba(255,255,255,0.10)', inp:'rgba(255,255,255,0.15)', ti:'#f0e6d3' },
-          haze:     { bg:'#0e0f1a', fg:'#e8e0f8', pr:'#8b6cc4', prFg:'#ffffff',  sec:'#2a1f4a', secFg:'#e8e0f8', mu:'#2a1f4a', muFg:'#8878a8', bo:'rgba(180,150,255,0.15)', inp:'rgba(180,150,255,0.20)', ti:'#d8c8f8' },
-        };
-        var p = presets[mode];
-        if (p) {
-          s.setProperty('--background', p.bg);  s.setProperty('--card', p.bg);  s.setProperty('--popover', p.bg);
-          s.setProperty('--foreground', p.fg);  s.setProperty('--card-foreground', p.fg);  s.setProperty('--popover-foreground', p.fg);
-          s.setProperty('--primary', p.pr);     s.setProperty('--primary-foreground', p.prFg);
-          s.setProperty('--secondary', p.sec);  s.setProperty('--secondary-foreground', p.secFg);
-          s.setProperty('--muted', p.mu);       s.setProperty('--muted-foreground', p.muFg);
-          s.setProperty('--border', p.bo);      s.setProperty('--input', p.inp);
-          s.setProperty('--title-color', p.ti);
-        } else if (mode === 'custom') {
+        // Custom color mode — apply stored colors; presets render without FOUC prevention
+        if (ls.getItem('vite-ui-display-mode') === 'custom') {
           try {
             var c = JSON.parse(ls.getItem('vite-ui-custom-colors') || '{}');
-            if (c.bg)              { s.setProperty('--background', c.bg); s.setProperty('--card', c.bg); s.setProperty('--popover', c.bg); }
-            if (c.font)            { s.setProperty('--foreground', c.font); s.setProperty('--card-foreground', c.font); s.setProperty('--popover-foreground', c.font); }
-            if (c.muted)           s.setProperty('--muted-foreground', c.muted);
-            if (c.button)          { s.setProperty('--primary', c.button); s.setProperty('--primary-foreground', '#ffffff'); }
-            if (c.hover)           s.setProperty('--primary-hover', c.hover);
-            if (c.secondaryButton) { s.setProperty('--secondary', c.secondaryButton); s.setProperty('--secondary-foreground', '#ffffff'); }
-            if (c.mutedHover)      s.setProperty('--muted-hover', c.mutedHover);
-            if (c.title)           s.setProperty('--title-color', c.title);
-            if (c.border)          { s.setProperty('--border', c.border); s.setProperty('--input', c.border); }
+            var bg  = c.background      || c.bg;              if (bg)  { s.setProperty('--background', bg);  s.setProperty('--card', bg);  s.setProperty('--popover', bg); }
+            var fg  = c.foreground      || c.font;            if (fg)  { s.setProperty('--foreground', fg);  s.setProperty('--card-foreground', fg); s.setProperty('--popover-foreground', fg); }
+            var mu  = c.mutedForeground || c.muted;           if (mu)  s.setProperty('--muted-foreground', mu);
+            var pr  = c.primary         || c.button;          if (pr)  { s.setProperty('--primary', pr); s.setProperty('--primary-foreground', '#ffffff'); }
+            var ph  = c.primaryHover    || c.hover;           if (ph)  s.setProperty('--primary-hover', ph);
+            var sec = c.secondary       || c.secondaryButton; if (sec) { s.setProperty('--secondary', sec); s.setProperty('--secondary-foreground', '#ffffff'); }
+            var mh  = c.mutedHover;                           if (mh)  s.setProperty('--muted-hover', mh);
+            var ti  = c.titleColor      || c.title;           if (ti)  s.setProperty('--title-color', ti);
+            var bo  = c.border;                               if (bo)  { s.setProperty('--border', bo); s.setProperty('--input', bo); }
           } catch (e) {}
         }
       })();

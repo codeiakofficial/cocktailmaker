@@ -185,6 +185,8 @@ Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or 
 
 Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns. For every exported symbol and every module imported only in one place, verify it is actually called from app code — not just from its own tests. Dead exports (functions defined but never called, constants never read outside their file) must be flagged for removal. Apply the cross-cutting naming consistency check above across all frontend, backend, and ESP32 source files touched by the PR.
 
+**CSS custom property reachability:** When a CSS custom property is set in every JS code path (e.g. by both `applyPresetColors` and `applyCustomColors`), verify that the app-config `:root` block in `index.css` contains no default for that property — it would be dead code that never takes effect. For every custom property touched in the diff, trace all JS write paths and confirm whether any CSS default remains reachable.
+
 ### Infrastructure Agent
 
 Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance. PRs are squash-merged — the PR title becomes the single commit on `main` and is the only message GitVersion reads for version bumping; individual branch commit types are irrelevant. Verify the PR title type is correct (`feat:` → minor, `fix:` → patch, anything else → patch) and accurately reflects the full scope. Verify the PR description covers all changed tasks and contains no outdated or missing information. Apply the cross-cutting naming consistency check above to CI job names, environment variable names, secret names, and workflow file names.

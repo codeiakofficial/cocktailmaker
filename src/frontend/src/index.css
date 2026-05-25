@@ -159,23 +159,18 @@ html.animations .bg-layer {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* app-config: properties managed at runtime by appearance-store.ts */
 :root {
-
   --border-opacity: 1;
-
   --border-style: solid;
-
   --border-width: 1px;
-
-  --title-color: var(--foreground);
-
   --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
-
-  --muted-hover: var(--muted);
-
   --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
-
   --bg-image-url: url('/defaults/tropical.jpg');
+}
+
+/* shadcn base theme */
+:root {
 
   --background: oklch(1 0 0);
 
