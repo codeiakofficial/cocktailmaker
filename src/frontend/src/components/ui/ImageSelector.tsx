@@ -60,7 +60,7 @@ export function ImageSelector({ value, onChange }: ImageSelectorProps) {
               className={`relative cursor-pointer rounded-md overflow-hidden border-2 ${value === img.url ? 'border-primary' : 'border-transparent'}`}
               onClick={() => onChange(img.url)}
             >
-              <img src={img.url} alt={img.filename} className="w-full h-16 object-cover" />
+              <img src={img.url} alt={img.filename} className="w-full aspect-video object-cover" />
               {!img.isDefault && (
                 <button
                   aria-label="Delete"

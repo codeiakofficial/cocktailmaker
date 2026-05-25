@@ -328,6 +328,11 @@ export default function AppearanceSettings() {
       </section>
 
       <section className="space-y-3">
+        <p className="text-sm font-medium">Background Image</p>
+        <ImageSelector value={backgroundUrl} onChange={commitBgUrl} />
+      </section>
+
+      <section className="space-y-3">
         <p className="text-sm font-medium">Border</p>
         <div className="flex gap-2">
           {(['solid', 'dashed', 'dotted'] as BorderLineStyle[]).map(s => (
@@ -375,11 +380,6 @@ export default function AppearanceSettings() {
           <ColorRow label="Title color"   hex={titleColor}        disabled={!isCustom} onChange={handleTitleColor} />
           <ColorRow label="Border color"  hex={borderColor}       disabled={!isCustom} onChange={handleBorderColor} />
         </div>
-      </section>
-
-      <section className="space-y-3">
-        <p className="text-sm font-medium">Background Image</p>
-        <ImageSelector value={backgroundUrl} onChange={commitBgUrl} />
       </section>
 
       <section className="space-y-3">
