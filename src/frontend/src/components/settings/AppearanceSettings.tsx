@@ -28,6 +28,7 @@ const TROPICAL_LIGHT = {
 
 const CUSTOM_PROPS = [
   '--primary', '--primary-foreground',
+  '--secondary', '--secondary-foreground',
   '--background', '--card', '--popover',
   '--foreground', '--card-foreground', '--popover-foreground',
   '--muted', '--muted-foreground',
@@ -48,12 +49,12 @@ const ANIMATIONS_KEY        = 'vite-ui-animations'
 type BorderLineStyle = 'solid' | 'dashed' | 'dotted'
 
 interface CustomColors {
-  button: string; hover: string; bg: string; font: string
+  button: string; hover: string; secondaryButton: string; bg: string; font: string
   muted: string; title: string; border: string; mutedHover: string
 }
 
 const DEFAULT_COLORS: CustomColors = {
-  button: '#d4274a', hover: '#a01e38', bg: '#1a1a2e',
+  button: '#d4274a', hover: '#a01e38', secondaryButton: '#2d3748', bg: '#1a1a2e',
   font: '#f5f5f5', muted: '#9a9ab0', title: '#ffffff',
   border: '#2e2e3a', mutedHover: '#2e2e4a',
 }
@@ -133,6 +134,7 @@ export function restoreAppearance() {
     set('--muted-foreground', c.muted)
     set('--primary', c.button); set('--primary-foreground', '#ffffff')
     set('--primary-hover', c.hover)
+    set('--secondary', c.secondaryButton); set('--secondary-foreground', '#ffffff')
     set('--muted-hover', c.mutedHover)
     set('--title-color', c.title)
     set('--border', c.border); set('--input', c.border)
@@ -191,9 +193,10 @@ export default function AppearanceSettings() {
   const { setTheme } = useTheme()
   const [displayMode,     setDisplayMode]     = React.useState<DisplayMode>(() => loadDisplayMode())
   const initColors = loadCustomColors()
-  const [buttonColor,     setButtonColor]     = React.useState(initColors.button)
-  const [hoverColor,      setHoverColor]      = React.useState(initColors.hover)
-  const [bgColor,         setBgColor]         = React.useState(initColors.bg)
+  const [buttonColor,          setButtonColor]          = React.useState(initColors.button)
+  const [hoverColor,           setHoverColor]           = React.useState(initColors.hover)
+  const [secondaryButtonColor, setSecondaryButtonColor] = React.useState(initColors.secondaryButton)
+  const [bgColor,              setBgColor]              = React.useState(initColors.bg)
   const [fontColor,       setFontColor]       = React.useState(initColors.font)
   const [mutedColor,      setMutedColor]      = React.useState(initColors.muted)
   const [titleColor,      setTitleColor]      = React.useState(initColors.title)
@@ -211,8 +214,8 @@ export default function AppearanceSettings() {
   const isCustom = displayMode === 'custom'
 
   React.useEffect(() => {
-    saveCustomColors({ button: buttonColor, hover: hoverColor, bg: bgColor, font: fontColor, muted: mutedColor, title: titleColor, border: borderColor, mutedHover: mutedHoverColor })
-  }, [buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor])
+    saveCustomColors({ button: buttonColor, hover: hoverColor, secondaryButton: secondaryButtonColor, bg: bgColor, font: fontColor, muted: mutedColor, title: titleColor, border: borderColor, mutedHover: mutedHoverColor })
+  }, [buttonColor, hoverColor, secondaryButtonColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor])
 
   const enterCustom = () => {
     setDisplayMode('custom')
@@ -220,12 +223,13 @@ export default function AppearanceSettings() {
     setTheme('light')
   }
 
-  const applyAllCustom = (btn: string, hover: string, bg: string, font: string, muted: string, title: string, border: string, mutedHover: string, fontFam: string) => {
+  const applyAllCustom = (btn: string, hover: string, secondary: string, bg: string, font: string, muted: string, title: string, border: string, mutedHover: string, fontFam: string) => {
     set('--background', bg);  set('--card', bg);  set('--popover', bg)
     set('--foreground', font); set('--card-foreground', font); set('--popover-foreground', font)
     set('--muted-foreground', muted)
     set('--primary', btn); set('--primary-foreground', '#ffffff')
     set('--primary-hover', hover)
+    set('--secondary', secondary); set('--secondary-foreground', '#ffffff')
     set('--muted-hover', mutedHover)
     set('--title-color', title)
     set('--border', border); set('--input', border)
@@ -237,15 +241,16 @@ export default function AppearanceSettings() {
     saveDisplayMode(mode)
     if (mode === 'dark')       { setTheme('dark');  clearCustomOverrides() }
     else if (mode === 'light') { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
-    else                       { enterCustom(); applyAllCustom(buttonColor, hoverColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
+    else                       { enterCustom(); applyAllCustom(buttonColor, hoverColor, secondaryButtonColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
   }
 
   const picker = (setter: (v: string) => void, apply: (v: string) => void) => (v: string) => {
     setter(v); if (!isCustom) enterCustom(); apply(v)
   }
 
-  const handleButtonColor     = picker(setButtonColor,     v => set('--primary', v))
-  const handleHoverColor      = picker(setHoverColor,      v => set('--primary-hover', v))
+  const handleButtonColor          = picker(setButtonColor,          v => set('--primary', v))
+  const handleHoverColor           = picker(setHoverColor,           v => set('--primary-hover', v))
+  const handleSecondaryButtonColor = picker(setSecondaryButtonColor, v => { set('--secondary', v); set('--secondary-foreground', '#ffffff') })
   const handleBgColor         = picker(setBgColor,         v => { set('--background', v); set('--card', v); set('--popover', v) })
   const handleFontColor       = picker(setFontColor,       v => { set('--foreground', v); set('--card-foreground', v); set('--popover-foreground', v) })
   const handleMutedColor      = picker(setMutedColor,      v => set('--muted-foreground', v))
@@ -371,9 +376,10 @@ export default function AppearanceSettings() {
       <section className="space-y-3">
         <p className={`text-sm font-medium${!isCustom ? ' opacity-40' : ''}`}>Colors</p>
         <div className="flex flex-col gap-3">
-          <ColorRow label="Button color"  hex={buttonColor}       disabled={!isCustom} onChange={handleButtonColor} />
-          <ColorRow label="Button hover"  hex={hoverColor}        disabled={!isCustom} onChange={handleHoverColor} />
-          <ColorRow label="Muted hover"   hex={mutedHoverColor}   disabled={!isCustom} onChange={handleMutedHoverColor} />
+          <ColorRow label="Primary button"    hex={buttonColor}          disabled={!isCustom} onChange={handleButtonColor} />
+          <ColorRow label="Primary hover"     hex={hoverColor}           disabled={!isCustom} onChange={handleHoverColor} />
+          <ColorRow label="Secondary button"  hex={secondaryButtonColor} disabled={!isCustom} onChange={handleSecondaryButtonColor} />
+          <ColorRow label="Muted hover"       hex={mutedHoverColor}      disabled={!isCustom} onChange={handleMutedHoverColor} />
           <ColorRow label="Background"    hex={bgColor}           disabled={!isCustom} onChange={handleBgColor} />
           <ColorRow label="Font color"    hex={fontColor}         disabled={!isCustom} onChange={handleFontColor} />
           <ColorRow label="Muted text"    hex={mutedColor}        disabled={!isCustom} onChange={handleMutedColor} />

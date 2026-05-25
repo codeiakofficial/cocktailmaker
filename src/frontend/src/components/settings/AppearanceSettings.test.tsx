@@ -53,8 +53,9 @@ describe('AppearanceSettings — mode buttons', () => {
 describe('AppearanceSettings — color pickers', () => {
   test('renders all color picker rows', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByText('Button color')).toBeInTheDocument()
-    expect(screen.getByText('Button hover')).toBeInTheDocument()
+    expect(screen.getByText('Primary button')).toBeInTheDocument()
+    expect(screen.getByText('Primary hover')).toBeInTheDocument()
+    expect(screen.getByText('Secondary button')).toBeInTheDocument()
     expect(screen.getByText('Muted hover')).toBeInTheDocument()
     expect(screen.getByText('Background')).toBeInTheDocument()
     expect(screen.getByText('Font color')).toBeInTheDocument()
@@ -132,7 +133,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
-    fireEvent.change(screen.getAllByDisplayValue(/^#/)[2], { target: { value: '#aabbcc' } })
+    fireEvent.change(screen.getAllByDisplayValue(/^#/)[3], { target: { value: '#aabbcc' } })
     expect(document.documentElement.style.getPropertyValue('--muted-hover')).toBe('#aabbcc')
   })
 })

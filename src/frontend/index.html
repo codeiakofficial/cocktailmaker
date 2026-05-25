@@ -47,8 +47,9 @@
             if (c.bg)         { s.setProperty('--background', c.bg); s.setProperty('--card', c.bg); s.setProperty('--popover', c.bg); }
             if (c.font)       { s.setProperty('--foreground', c.font); s.setProperty('--card-foreground', c.font); s.setProperty('--popover-foreground', c.font); }
             if (c.muted)      s.setProperty('--muted-foreground', c.muted);
-            if (c.button)     { s.setProperty('--primary', c.button); s.setProperty('--primary-foreground', '#ffffff'); }
-            if (c.hover)      s.setProperty('--primary-hover', c.hover);
+            if (c.button)           { s.setProperty('--primary', c.button); s.setProperty('--primary-foreground', '#ffffff'); }
+            if (c.hover)            s.setProperty('--primary-hover', c.hover);
+            if (c.secondaryButton)  { s.setProperty('--secondary', c.secondaryButton); s.setProperty('--secondary-foreground', '#ffffff'); }
             if (c.mutedHover) s.setProperty('--muted-hover', c.mutedHover);
             if (c.title)      s.setProperty('--title-color', c.title);
             if (c.border)     { s.setProperty('--border', c.border); s.setProperty('--input', c.border); }
