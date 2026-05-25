@@ -3,7 +3,7 @@ import { useTheme } from '../theme-provider'
 import { Button } from '../ui/button'
 import { ImageSelector } from '../ui/ImageSelector'
 
-type DisplayMode = 'dark' | 'light' | 'custom'
+type DisplayMode = 'tropical' | 'lounge' | 'custom'
 type HeaderStyle = 'solid' | 'blur'
 
 const FONTS = [
@@ -18,13 +18,21 @@ const FONTS = [
   { label: 'Mono',     family: 'ui-monospace, monospace' },
 ]
 
+// ─── Preset fine-tuning ───────────────────────────────────────────────────────
+// Edit TROPICAL_LIGHT to tune the Tropical preset colors.
+// For Lounge, edit the `.dark { ... }` block in src/frontend/src/index.css.
+const TROPICAL_BG   = '/defaults/tropical.jpg'
+const LOUNGE_BG     = '/defaults/lounge.jpg'
+
 const TROPICAL_LIGHT = {
   background: '#fef9ec', card: '#fef9ec', popover: '#fef9ec',
   foreground: '#2c1a0e', cardForeground: '#2c1a0e',
   primary: '#e67e22', primaryFg: '#ffffff',
+  secondary: '#d4a853', secondaryFg: '#2c1a0e',
   muted: '#f5e6c8', mutedFg: '#92400e',
   border: '#d4a853', input: '#d4a853', titleColor: '#c0392b',
 }
+// ─────────────────────────────────────────────────────────────────────────────
 
 const CUSTOM_PROPS = [
   '--primary', '--primary-foreground',
@@ -61,8 +69,9 @@ const DEFAULT_COLORS: CustomColors = {
 
 function loadDisplayMode(): DisplayMode {
   const stored = localStorage.getItem(DISPLAY_MODE_KEY)
-  if (stored === 'light' || stored === 'custom') return stored
-  return 'dark'
+  if (stored === 'tropical' || stored === 'lounge' || stored === 'custom') return stored
+  if (stored === 'light') return 'tropical'   // backwards compat
+  return 'lounge'
 }
 
 function saveDisplayMode(mode: DisplayMode) {
@@ -104,6 +113,7 @@ function applyTropicalLight() {
   set('--foreground', p.foreground); set('--card-foreground', p.cardForeground)
   set('--popover-foreground', p.foreground)
   set('--primary', p.primary); set('--primary-foreground', p.primaryFg)
+  set('--secondary', p.secondary); set('--secondary-foreground', p.secondaryFg)
   set('--muted', p.muted); set('--muted-foreground', p.mutedFg)
   set('--border', p.border); set('--input', p.input)
   set('--title-color', p.titleColor)
@@ -127,7 +137,9 @@ export function applyHeaderStyle(style: HeaderStyle) {
 
 export function restoreAppearance() {
   const mode = localStorage.getItem(DISPLAY_MODE_KEY)
-  if (mode === 'custom') {
+  if (mode === 'tropical' || mode === 'light') {
+    applyTropicalLight()
+  } else if (mode === 'custom') {
     const c = loadCustomColors()
     set('--background', c.bg);  set('--card', c.bg);  set('--popover', c.bg)
     set('--foreground', c.font); set('--card-foreground', c.font); set('--popover-foreground', c.font)
@@ -138,8 +150,6 @@ export function restoreAppearance() {
     set('--muted-hover', c.mutedHover)
     set('--title-color', c.title)
     set('--border', c.border); set('--input', c.border)
-  } else if (mode === 'light') {
-    applyTropicalLight()
   }
   const font = localStorage.getItem(FONT_KEY)
   if (font) document.documentElement.style.fontFamily = font
@@ -239,9 +249,29 @@ export default function AppearanceSettings() {
   const handleModeChange = (mode: DisplayMode) => {
     setDisplayMode(mode)
     saveDisplayMode(mode)
-    if (mode === 'dark')       { setTheme('dark');  clearCustomOverrides() }
-    else if (mode === 'light') { setTheme('light'); clearCustomOverrides(); applyTropicalLight() }
-    else                       { enterCustom(); applyAllCustom(buttonColor, hoverColor, secondaryButtonColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont) }
+    if (mode === 'lounge') {
+      setTheme('dark')
+      clearCustomOverrides()
+      setBackgroundUrl(LOUNGE_BG)
+      localStorage.setItem(BG_URL_KEY, LOUNGE_BG)
+      applyBackgroundUrl(LOUNGE_BG)
+    } else if (mode === 'tropical') {
+      setTheme('light')
+      clearCustomOverrides()
+      applyTropicalLight()
+      setBackgroundUrl(TROPICAL_BG)
+      localStorage.setItem(BG_URL_KEY, TROPICAL_BG)
+      applyBackgroundUrl(TROPICAL_BG)
+      setAnimations(true)
+      localStorage.setItem(ANIMATIONS_KEY, 'true')
+      document.documentElement.classList.add('animations')
+      setVignette(true)
+      localStorage.setItem(VIGNETTE_KEY, 'true')
+      document.documentElement.classList.add('vignette')
+    } else {
+      enterCustom()
+      applyAllCustom(buttonColor, hoverColor, secondaryButtonColor, bgColor, fontColor, mutedColor, titleColor, borderColor, mutedHoverColor, activeFont)
+    }
   }
 
   const picker = (setter: (v: string) => void, apply: (v: string) => void) => (v: string) => {
@@ -303,7 +333,7 @@ export default function AppearanceSettings() {
       <section className="space-y-3">
         <p className="text-sm font-medium">Appearance</p>
         <div className="flex gap-2">
-          {(['light', 'dark', 'custom'] as DisplayMode[]).map(mode => (
+          {(['tropical', 'lounge', 'custom'] as DisplayMode[]).map(mode => (
             <Button key={mode} variant="outline"
               data-active={displayMode === mode ? 'true' : 'false'}
               className={`flex-1 capitalize${displayMode === mode ? ' border-primary text-primary' : ''}`}

@@ -21,24 +21,24 @@ beforeEach(() => {
 })
 
 describe('AppearanceSettings — mode buttons', () => {
-  test('renders Light, Dark and Custom buttons', () => {
+  test('renders Tropical, Lounge and Custom buttons', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^light$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^dark$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^tropical$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^custom$/i })).toBeInTheDocument()
   })
 
-  test('clicking Dark calls setTheme with "dark"', async () => {
+  test('clicking Lounge calls setTheme with "dark"', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^dark$/i }))
+    await user.click(screen.getByRole('button', { name: /^lounge$/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 
-  test('clicking Light calls setTheme with "light"', async () => {
+  test('clicking Tropical calls setTheme with "light"', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^light$/i }))
+    await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('light')
   })
 
@@ -99,21 +99,21 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     expect(s.getPropertyValue('--background')).toBe('#1a1a2e')
   })
 
-  test('switching to Light applies tropical palette CSS vars', async () => {
+  test('switching to Tropical applies tropical palette CSS vars', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^light$/i }))
+    await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     const s = document.documentElement.style
     expect(s.getPropertyValue('--background')).toBe('#fef9ec')
     expect(s.getPropertyValue('--primary')).toBe('#e67e22')
     expect(s.getPropertyValue('--title-color')).toBe('#c0392b')
   })
 
-  test('switching to Dark clears all custom CSS vars', async () => {
+  test('switching to Lounge clears all custom CSS vars', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
-    await user.click(screen.getByRole('button', { name: /^dark$/i }))
+    await user.click(screen.getByRole('button', { name: /^lounge$/i }))
     const s = document.documentElement.style
     expect(s.getPropertyValue('--primary')).toBe('')
     expect(s.getPropertyValue('--background')).toBe('')
@@ -156,9 +156,9 @@ describe('AppearanceSettings — font selection', () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: 'Pacifico' }))
-    await user.click(screen.getByRole('button', { name: /^light$/i }))
+    await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     expect(document.documentElement.style.fontFamily).toContain('Pacifico')
-    await user.click(screen.getByRole('button', { name: /^dark$/i }))
+    await user.click(screen.getByRole('button', { name: /^lounge$/i }))
     expect(document.documentElement.style.fontFamily).toContain('Pacifico')
   })
 
@@ -166,7 +166,7 @@ describe('AppearanceSettings — font selection', () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: 'Pacifico' }))
-    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'true')
   })
 
   test('selecting a font saves it to localStorage', async () => {
@@ -184,25 +184,25 @@ describe('AppearanceSettings — font selection', () => {
 })
 
 describe('AppearanceSettings — initial mode', () => {
-  test('dark button is active by default', () => {
+  test('lounge button is active by default', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^tropical$/i })).toHaveAttribute('data-active', 'false')
     expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
   })
 
-  test('light button is active when localStorage has "light"', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'light' : null)
+  test('tropical button is active when localStorage has "tropical"', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'tropical' : null)
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^light$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^tropical$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('custom button is active when localStorage has "custom"', () => {
     localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-display-mode' ? 'custom' : null)
     render(<AppearanceSettings />)
     expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^dark$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'false')
   })
 
   test('switching to custom persists "custom" to localStorage', async () => {
@@ -212,15 +212,15 @@ describe('AppearanceSettings — initial mode', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
   })
 
-  test('switching to dark persists "dark" to localStorage', async () => {
+  test('switching to lounge persists "lounge" to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
-    await user.click(screen.getByRole('button', { name: /^dark$/i }))
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'dark')
+    await user.click(screen.getByRole('button', { name: /^lounge$/i }))
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'lounge')
   })
 
-  test('changing a color picker while in dark mode saves "custom" display mode', () => {
+  test('changing a color picker while in lounge mode saves "custom" display mode', () => {
     render(<AppearanceSettings />)
     fireEvent.change(screen.getAllByDisplayValue(/^#/)[0], { target: { value: '#abcdef' } })
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
