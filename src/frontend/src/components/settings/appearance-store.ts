@@ -25,9 +25,7 @@ export function loadCustomColors(): CustomColors {
     // Migrate old field names (button→primary, hover→primaryHover, bg→background, etc.)
     return {
       primary:         r.primary        ?? r.button          ?? d.primary,
-      primaryHover:    r.primaryHover   ?? r.hover           ?? d.primaryHover,
       secondary:       r.secondary      ?? r.secondaryButton ?? d.secondary,
-      mutedHover:      r.mutedHover     ?? d.mutedHover,
       background:      r.background     ?? r.bg              ?? d.background,
       foreground:      r.foreground     ?? r.font            ?? d.foreground,
       mutedForeground: r.mutedForeground ?? r.muted          ?? d.mutedForeground,
@@ -56,25 +54,23 @@ export const ALWAYS_SET_PROPS = [
   '--foreground', '--card-foreground', '--popover-foreground',
   '--primary', '--primary-foreground',
   '--secondary', '--secondary-foreground',
-  '--muted-foreground', '--muted-hover',
+  '--muted-foreground',
   '--border', '--input',
   '--title-color',
 ] as const
 
 export const CUSTOM_PROPS = [
-  '--primary', '--primary-foreground', '--primary-hover',
+  '--primary', '--primary-foreground',
   '--secondary', '--secondary-foreground',
   '--background', '--card', '--popover',
   '--foreground', '--card-foreground', '--popover-foreground',
-  '--muted-foreground', '--muted-hover',
+  '--muted-foreground',
   '--title-color', '--border', '--input',
 ]
 
 export const COLORS: { key: keyof CustomColors; label: string; apply: (v: string) => void }[] = [
   { key: 'primary',         label: 'Primary button',   apply: v => set('--primary', v) },
-  { key: 'primaryHover',    label: 'Primary hover',    apply: v => set('--primary-hover', v) },
   { key: 'secondary',       label: 'Secondary button', apply: v => { set('--secondary', v); set('--secondary-foreground', '#ffffff') } },
-  { key: 'mutedHover',      label: 'Muted hover',      apply: v => set('--muted-hover', v) },
   { key: 'background',      label: 'Background',       apply: v => { set('--background', v); set('--card', v); set('--popover', v) } },
   { key: 'foreground',      label: 'Font color',       apply: v => { set('--foreground', v); set('--card-foreground', v); set('--popover-foreground', v) } },
   { key: 'mutedForeground', label: 'Muted text',       apply: v => set('--muted-foreground', v) },
@@ -84,29 +80,26 @@ export const COLORS: { key: keyof CustomColors; label: string; apply: (v: string
 
 export function applyPresetColors(p: PresetColors) {
   set('--background', p.background)
-  set('--card', p.card)
-  set('--popover', p.popover)
+  set('--card', p.background)
+  set('--popover', p.background)
   set('--foreground', p.foreground)
-  set('--card-foreground', p.cardForeground)
+  set('--card-foreground', p.foreground)
   set('--popover-foreground', p.foreground)
   set('--primary', p.primary)
-  set('--primary-foreground', p.primaryFg)
+  set('--primary-foreground', '#ffffff')
   set('--secondary', p.secondary)
-  set('--secondary-foreground', p.secondaryFg)
+  set('--secondary-foreground', '#ffffff')
   set('--muted-foreground', p.mutedFg)
-  set('--muted-hover', p.mutedHover)
   set('--border', p.border)
-  set('--input', p.input)
+  set('--input', p.border)
   set('--title-color', p.titleColor)
 }
 
 export function applyCustomColors(c: CustomColors) {
   set('--primary', c.primary)
   set('--primary-foreground', '#ffffff')
-  set('--primary-hover', c.primaryHover)
   set('--secondary', c.secondary)
   set('--secondary-foreground', '#ffffff')
-  set('--muted-hover', c.mutedHover)
   set('--background', c.background)
   set('--card', c.background)
   set('--popover', c.background)

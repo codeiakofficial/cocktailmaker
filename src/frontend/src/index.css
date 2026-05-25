@@ -165,6 +165,7 @@ html.animations .bg-layer {
   --border-style: solid;
   --border-width: 1px;
   --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
+  --muted-hover: color-mix(in oklab, var(--foreground) 8%, var(--background));
   --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
   --bg-image-url: url('/defaults/tropical.jpg');
 }

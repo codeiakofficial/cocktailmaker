@@ -55,9 +55,7 @@ describe('AppearanceSettings — color pickers', () => {
   test('renders all color picker rows', () => {
     render(<AppearanceSettings />)
     expect(screen.getByText('Primary button')).toBeInTheDocument()
-    expect(screen.getByText('Primary hover')).toBeInTheDocument()
     expect(screen.getByText('Secondary button')).toBeInTheDocument()
-    expect(screen.getByText('Muted hover')).toBeInTheDocument()
     expect(screen.getByText('Background')).toBeInTheDocument()
     expect(screen.getByText('Font color')).toBeInTheDocument()
     expect(screen.getByText('Muted text')).toBeInTheDocument()
@@ -80,12 +78,12 @@ describe('AppearanceSettings — color pickers', () => {
   test('initialises colors from stored localStorage values', () => {
     localStorage.getItem = vi.fn((key: string) => {
       if (key === 'vite-ui-display-mode') return 'custom'
-      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#111111', hover: '#222222', bg: '#333333', font: '#444444', muted: '#555555', title: '#666666', border: '#777777', mutedHover: '#888888' })
+      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#111111', bg: '#333333', font: '#444444', muted: '#555555', title: '#666666', border: '#777777' })
       return null
     })
     render(<AppearanceSettings />)
     expect(screen.getByDisplayValue('#111111')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('#222222')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('#777777')).toBeInTheDocument()
   })
 })
 
@@ -97,8 +95,6 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     const s = document.documentElement.style
     // Custom inherits from the last active preset (lounge by default)
     expect(s.getPropertyValue('--primary')).toBe('#c0324a')
-    expect(s.getPropertyValue('--primary-hover')).toBe('#c0324a')
-    expect(s.getPropertyValue('--muted-hover')).toBe('#454560')
     expect(s.getPropertyValue('--background')).toBe('#1c1c2c')
   })
 
@@ -123,21 +119,6 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     expect(s.getPropertyValue('--title-color')).toBe('#f0e6d3')
   })
 
-  test('changing button hover color sets --primary-hover', async () => {
-    const user = userEvent.setup()
-    render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^custom$/i }))
-    fireEvent.change(screen.getAllByDisplayValue(/^#/)[1], { target: { value: '#ff1234' } })
-    expect(document.documentElement.style.getPropertyValue('--primary-hover')).toBe('#ff1234')
-  })
-
-  test('changing muted hover color sets --muted-hover', async () => {
-    const user = userEvent.setup()
-    render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: /^custom$/i }))
-    fireEvent.change(screen.getAllByDisplayValue(/^#/)[3], { target: { value: '#aabbcc' } })
-    expect(document.documentElement.style.getPropertyValue('--muted-hover')).toBe('#aabbcc')
-  })
 })
 
 describe('AppearanceSettings — font selection', () => {
@@ -242,13 +223,12 @@ describe('AppearanceSettings — restoreAppearance', () => {
   test('applies stored custom CSS vars when mode is "custom"', () => {
     localStorage.getItem = vi.fn((key: string) => {
       if (key === 'vite-ui-display-mode') return 'custom'
-      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#ff0000', hover: '#ee0000', bg: '#001122', font: '#ffffff', muted: '#aaaaaa', title: '#cccccc', border: '#444444', mutedHover: '#555555' })
+      if (key === 'vite-ui-custom-colors') return JSON.stringify({ button: '#ff0000', bg: '#001122', font: '#ffffff', muted: '#aaaaaa', title: '#cccccc', border: '#444444' })
       return null
     })
     restoreAppearance()
     expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#ff0000')
     expect(document.documentElement.style.getPropertyValue('--background')).toBe('#001122')
-    expect(document.documentElement.style.getPropertyValue('--primary-hover')).toBe('#ee0000')
   })
 
   test('applies lounge colors when no mode stored (default)', () => {
