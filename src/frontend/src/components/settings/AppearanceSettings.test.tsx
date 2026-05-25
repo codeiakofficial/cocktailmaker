@@ -152,14 +152,13 @@ describe('AppearanceSettings — font selection', () => {
     expect(document.documentElement.style.fontFamily).toContain('Pacifico')
   })
 
-  test('font is preserved when switching appearance modes', async () => {
+  test('switching to a preset applies the preset font', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
-    await user.click(screen.getByRole('button', { name: 'Pacifico' }))
     await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     expect(document.documentElement.style.fontFamily).toContain('Pacifico')
     await user.click(screen.getByRole('button', { name: /^lounge$/i }))
-    expect(document.documentElement.style.fontFamily).toContain('Pacifico')
+    expect(document.documentElement.style.fontFamily).toContain('Satisfy')
   })
 
   test('selecting a font does not activate Custom mode', async () => {

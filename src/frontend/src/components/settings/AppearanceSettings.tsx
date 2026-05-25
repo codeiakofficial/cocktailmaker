@@ -3,9 +3,10 @@ import { useTheme } from '../theme-provider'
 import { Button } from '../ui/button'
 import { ImageSelector } from '../ui/ImageSelector'
 
-type DisplayMode = 'tropical' | 'lounge' | 'haze' | 'custom'
-type PresetMode  = Exclude<DisplayMode, 'custom'>
-type HeaderStyle = 'solid' | 'blur'
+type DisplayMode    = 'tropical' | 'lounge' | 'haze' | 'custom'
+type PresetMode     = Exclude<DisplayMode, 'custom'>
+type HeaderStyle    = 'solid' | 'blur'
+type BorderLineStyle = 'solid' | 'dashed' | 'dotted'
 
 const FONTS = [
   { label: 'Oxanium',  family: "'Oxanium Variable', sans-serif" },
@@ -22,7 +23,7 @@ const FONTS = [
 // ─── Preset fine-tuning ───────────────────────────────────────────────────────
 // All preset styles live here. To add a new preset: extend DisplayMode,
 // add a PresetMode entry, and add an entry to PRESETS below.
-// animations / vignette: when defined they override the toggle on preset select.
+// Any field set to undefined is left at its current user value.
 interface PresetColors {
   background: string; card: string; popover: string
   foreground: string; cardForeground: string
@@ -35,6 +36,11 @@ interface Preset {
   colors: PresetColors
   bg: string
   theme: 'light' | 'dark'
+  font?: string
+  headerStyle?: HeaderStyle
+  borderStyle?: BorderLineStyle
+  borderOpacity?: number
+  borderWidth?: number
   animations?: boolean
   vignette?: boolean
 }
@@ -49,7 +55,10 @@ const PRESETS: Record<PresetMode, Preset> = {
       muted: '#f5e6c8', mutedFg: '#92400e',
       border: '#d4a853', input: '#d4a853', titleColor: '#c0392b',
     },
-    bg: '/defaults/tropical.jpg', theme: 'light', animations: true, vignette: true,
+    bg: '/defaults/tropical.jpg', theme: 'light',
+    font: "'Pacifico', cursive",
+    headerStyle: 'blur', borderStyle: 'solid', borderOpacity: 0.7, borderWidth: 0.75,
+    animations: true, vignette: true,
   },
   lounge: {
     colors: {
@@ -61,6 +70,9 @@ const PRESETS: Record<PresetMode, Preset> = {
       border: 'rgba(255,255,255,0.10)', input: 'rgba(255,255,255,0.15)', titleColor: '#f0e6d3',
     },
     bg: '/defaults/lounge.jpg', theme: 'dark',
+    font: "'Satisfy', cursive",
+    headerStyle: 'blur', borderStyle: 'solid', borderOpacity: 0.4, borderWidth: 0.5,
+    animations: false, vignette: false,
   },
   haze: {
     colors: {
@@ -72,6 +84,9 @@ const PRESETS: Record<PresetMode, Preset> = {
       border: 'rgba(180,150,255,0.15)', input: 'rgba(180,150,255,0.20)', titleColor: '#d8c8f8',
     },
     bg: '/defaults/haze.jpg', theme: 'dark',
+    font: "'Oxanium Variable', sans-serif",
+    headerStyle: 'blur', borderStyle: 'dotted', borderOpacity: 0.5, borderWidth: 0.5,
+    animations: true, vignette: true,
   },
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,8 +110,6 @@ const BORDER_WIDTH_KEY      = 'vite-ui-border-width'
 const BORDER_LINE_STYLE_KEY = 'vite-ui-border-line-style'
 const VIGNETTE_KEY          = 'vite-ui-vignette'
 const ANIMATIONS_KEY        = 'vite-ui-animations'
-
-type BorderLineStyle = 'solid' | 'dashed' | 'dotted'
 
 interface CustomColors {
   button: string; hover: string; secondaryButton: string; bg: string; font: string
@@ -301,6 +314,31 @@ export default function AppearanceSettings() {
       setBackgroundUrl(preset.bg)
       localStorage.setItem(BG_URL_KEY, preset.bg)
       applyBackgroundUrl(preset.bg)
+      if (preset.font !== undefined) {
+        setActiveFont(preset.font)
+        document.documentElement.style.fontFamily = preset.font
+        saveFont(preset.font)
+      }
+      if (preset.headerStyle !== undefined) {
+        setHeaderStyle(preset.headerStyle)
+        applyHeaderStyle(preset.headerStyle)
+        localStorage.setItem(HEADER_STYLE_KEY, preset.headerStyle)
+      }
+      if (preset.borderStyle !== undefined) {
+        setBorderLineStyle(preset.borderStyle)
+        localStorage.setItem(BORDER_LINE_STYLE_KEY, preset.borderStyle)
+        set('--border-style', preset.borderStyle)
+      }
+      if (preset.borderOpacity !== undefined) {
+        setBorderOpacity(preset.borderOpacity)
+        localStorage.setItem(BORDER_OPACITY_KEY, String(preset.borderOpacity))
+        set('--border-opacity', String(preset.borderOpacity))
+      }
+      if (preset.borderWidth !== undefined) {
+        setBorderWidth(preset.borderWidth)
+        localStorage.setItem(BORDER_WIDTH_KEY, String(preset.borderWidth))
+        set('--border-width', `${preset.borderWidth}px`)
+      }
       if (preset.animations !== undefined) {
         setAnimations(preset.animations)
         localStorage.setItem(ANIMATIONS_KEY, String(preset.animations))
