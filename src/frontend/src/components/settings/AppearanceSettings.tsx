@@ -42,7 +42,7 @@ interface Preset {
   borderOpacity?: number
   borderWidth?: number
   animations?: boolean
-  vignette?: boolean
+  frost?: boolean
 }
 
 const PRESETS: Record<PresetMode, Preset> = {
@@ -58,7 +58,7 @@ const PRESETS: Record<PresetMode, Preset> = {
     bg: '/defaults/tropical.jpg', theme: 'light',
     font: "'Pacifico', cursive",
     headerStyle: 'blur', borderStyle: 'solid', borderOpacity: 0.7, borderWidth: 0.75,
-    animations: true, vignette: true,
+    animations: true, frost: true,
   },
   lounge: {
     colors: {
@@ -72,7 +72,7 @@ const PRESETS: Record<PresetMode, Preset> = {
     bg: '/defaults/lounge.jpg', theme: 'dark',
     font: "'Satisfy', cursive",
     headerStyle: 'blur', borderStyle: 'solid', borderOpacity: 0.4, borderWidth: 0.5,
-    animations: false, vignette: false,
+    animations: false, frost: false,
   },
   haze: {
     colors: {
@@ -86,7 +86,7 @@ const PRESETS: Record<PresetMode, Preset> = {
     bg: '/defaults/haze.jpg', theme: 'dark',
     font: "'Oxanium Variable', sans-serif",
     headerStyle: 'blur', borderStyle: 'dotted', borderOpacity: 0.5, borderWidth: 0.5,
-    animations: true, vignette: true,
+    animations: true, frost: true,
   },
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ const BG_URL_KEY          = 'vite-ui-bg-url'
 const BORDER_OPACITY_KEY    = 'vite-ui-border-opacity'
 const BORDER_WIDTH_KEY      = 'vite-ui-border-width'
 const BORDER_LINE_STYLE_KEY = 'vite-ui-border-line-style'
-const VIGNETTE_KEY          = 'vite-ui-vignette'
+const FROST_KEY          = 'vite-ui-frost'
 const ANIMATIONS_KEY        = 'vite-ui-animations'
 
 interface CustomColors {
@@ -218,7 +218,7 @@ export function restoreAppearance() {
   if (borderWidth !== null) set('--border-width', `${borderWidth}px`)
   const borderLineStyle = localStorage.getItem(BORDER_LINE_STYLE_KEY)
   if (borderLineStyle) set('--border-style', borderLineStyle)
-  if (localStorage.getItem(VIGNETTE_KEY) === 'true') document.documentElement.classList.add('vignette')
+  if (localStorage.getItem(FROST_KEY) === 'true') document.documentElement.classList.add('frost')
   if (localStorage.getItem(ANIMATIONS_KEY) === 'true') document.documentElement.classList.add('animations')
 }
 
@@ -275,7 +275,7 @@ export default function AppearanceSettings() {
   const [borderLineStyle, setBorderLineStyle] = React.useState<BorderLineStyle>(() => (localStorage.getItem(BORDER_LINE_STYLE_KEY) as BorderLineStyle) ?? 'solid')
   const [borderOpacity,   setBorderOpacity]   = React.useState(() => parseFloat(localStorage.getItem(BORDER_OPACITY_KEY) ?? '1'))
   const [borderWidth,     setBorderWidth]     = React.useState(() => parseFloat(localStorage.getItem(BORDER_WIDTH_KEY) ?? '1'))
-  const [vignette,        setVignette]        = React.useState(() => localStorage.getItem(VIGNETTE_KEY) === 'true')
+  const [frost,           setFrost]           = React.useState(() => localStorage.getItem(FROST_KEY) === 'true')
   const [animations,      setAnimations]      = React.useState(() => localStorage.getItem(ANIMATIONS_KEY) === 'true')
 
   const isCustom = displayMode === 'custom'
@@ -344,10 +344,10 @@ export default function AppearanceSettings() {
         localStorage.setItem(ANIMATIONS_KEY, String(preset.animations))
         document.documentElement.classList.toggle('animations', preset.animations)
       }
-      if (preset.vignette !== undefined) {
-        setVignette(preset.vignette)
-        localStorage.setItem(VIGNETTE_KEY, String(preset.vignette))
-        document.documentElement.classList.toggle('vignette', preset.vignette)
+      if (preset.frost !== undefined) {
+        setFrost(preset.frost)
+        localStorage.setItem(FROST_KEY, String(preset.frost))
+        document.documentElement.classList.toggle('frost', preset.frost)
       }
     } else {
       enterCustom()
@@ -395,11 +395,11 @@ export default function AppearanceSettings() {
     set('--border-width', `${val}px`)
   }
 
-  const handleVignette = () => {
-    const next = !vignette
-    setVignette(next)
-    localStorage.setItem(VIGNETTE_KEY, String(next))
-    document.documentElement.classList.toggle('vignette', next)
+  const handleFrost = () => {
+    const next = !frost
+    setFrost(next)
+    localStorage.setItem(FROST_KEY, String(next))
+    document.documentElement.classList.toggle('frost', next)
   }
 
   const handleAnimations = () => {
@@ -439,7 +439,7 @@ export default function AppearanceSettings() {
 
       <section className="space-y-3">
         <p className="text-sm font-medium">View</p>
-        <ToggleRow label="Frost" checked={vignette} ariaLabel="Frost" onChange={handleVignette} />
+        <ToggleRow label="Frost" checked={frost} ariaLabel="Frost" onChange={handleFrost} />
         <ToggleRow label="Animations" checked={animations} ariaLabel="Animations" onChange={handleAnimations} />
       </section>
 

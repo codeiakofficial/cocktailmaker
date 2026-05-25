@@ -485,9 +485,9 @@ describe('AppearanceSettings — border controls', () => {
   })
 })
 
-describe('AppearanceSettings — vignette', () => {
+describe('AppearanceSettings — frost', () => {
   beforeEach(() => {
-    document.documentElement.classList.remove('vignette')
+    document.documentElement.classList.remove('frost')
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) }))
   })
 
@@ -501,35 +501,35 @@ describe('AppearanceSettings — vignette', () => {
     expect(screen.getByRole('switch', { name: /frost/i })).toHaveAttribute('aria-checked', 'false')
   })
 
-  test('clicking Frost switch adds vignette class to html', async () => {
+  test('clicking Frost switch adds frost class to html', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('switch', { name: /frost/i }))
-    expect(document.documentElement.classList.contains('vignette')).toBe(true)
+    expect(document.documentElement.classList.contains('frost')).toBe(true)
   })
 
-  test('clicking again removes vignette class', async () => {
+  test('clicking again removes frost class', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('switch', { name: /frost/i }))
     await user.click(screen.getByRole('switch', { name: /frost/i }))
-    expect(document.documentElement.classList.contains('vignette')).toBe(false)
+    expect(document.documentElement.classList.contains('frost')).toBe(false)
   })
 
-  test('vignette state persists to localStorage', async () => {
+  test('frost state persists to localStorage', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('switch', { name: /frost/i }))
-    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-vignette', 'true')
+    expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-frost', 'true')
   })
 
-  test('restoreAppearance applies vignette class when stored', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-vignette' ? 'true' : null)
+  test('restoreAppearance applies frost class when stored', () => {
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-frost' ? 'true' : null)
     restoreAppearance()
-    expect(document.documentElement.classList.contains('vignette')).toBe(true)
+    expect(document.documentElement.classList.contains('frost')).toBe(true)
   })
 
-  test('switch aria-checked is true when vignette is on', async () => {
+  test('switch aria-checked is true when frost is on', async () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('switch', { name: /frost/i }))
@@ -537,7 +537,7 @@ describe('AppearanceSettings — vignette', () => {
   })
 
   test('initialises as checked from localStorage', () => {
-    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-vignette' ? 'true' : null)
+    localStorage.getItem = vi.fn((key: string) => key === 'vite-ui-frost' ? 'true' : null)
     render(<AppearanceSettings />)
     expect(screen.getByRole('switch', { name: /frost/i })).toHaveAttribute('aria-checked', 'true')
   })

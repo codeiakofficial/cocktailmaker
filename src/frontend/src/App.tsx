@@ -25,11 +25,10 @@ function AppContent() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden relative">
-      {/* Background layer — vignette frost applied here via CSS when html.vignette */}
       <div className="bg-layer absolute inset-0 bg-cover bg-center -z-10" style={{ backgroundImage: 'var(--bg-image-url)' }} />
-      {/* Vignette overlay — sits between background and content; backdrop-filter blurs only the bg layer */}
-      <div className="vignette-overlay absolute inset-0 pointer-events-none" style={{ zIndex: -1 }} />
-      {/* Particle overlay — above vignette (z:0), below content (z:1); driven by html.animations class */}
+      {/* Frost overlay — sits between background and content; backdrop-filter blurs only the bg layer */}
+      <div className="frost-overlay absolute inset-0 pointer-events-none" style={{ zIndex: -1 }} />
+      {/* Particle overlay — above frost (z:0), below content (z:1); driven by html.animations class */}
       <ParticleOverlay />
 
       <header className="relative flex items-center justify-between p-3 backdrop-blur-md" style={{ backgroundColor: 'var(--header-bg)', zIndex: 1 }}>
