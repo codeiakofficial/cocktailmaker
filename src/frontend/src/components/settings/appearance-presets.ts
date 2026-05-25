@@ -30,14 +30,14 @@ export interface Preset {
 export const PRESETS: Record<PresetMode, Preset> = {
   tropical: {
     colors: {
-      background: '#64648a',  foreground: '#fff',
-      primary: '#27b6d3',     secondary: '#d4a853',
-      mutedFg: '#c5c5c5',
-      border: '#b1b6c4',      titleColor: '#fff',
+      background: '#64648a',  foreground: '#f5f5f5',
+      primary: '#27b6d3',     secondary: '#d966b0',
+      mutedFg: '#e0e0e1',
+      border: '#b1b6c4',      titleColor: '#f5f5f5',
     },
     bg: '/defaults/tropical.jpg', theme: 'light',
     font: "'Pacifico', cursive", headerStyle: 'blur',
-    borderStyle: 'solid', borderOpacity: 0.7, borderWidth: 0.75,
+    borderStyle: 'solid', borderOpacity: 0.5, borderWidth: 0.5,
     animations: true, frost: true,
   },
   lounge: {

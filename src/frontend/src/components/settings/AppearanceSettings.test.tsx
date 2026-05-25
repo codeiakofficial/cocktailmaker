@@ -105,7 +105,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     const s = document.documentElement.style
     expect(s.getPropertyValue('--background')).toBe('#64648a')
     expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
-    expect(s.getPropertyValue('--title-color')).toBe('#fff')
+    expect(s.getPropertyValue('--title-color')).toBe('#f5f5f5')
   })
 
   test('switching to Lounge applies lounge preset colors', async () => {
