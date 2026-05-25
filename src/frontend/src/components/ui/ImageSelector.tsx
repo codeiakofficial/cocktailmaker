@@ -13,9 +13,12 @@ interface ImageSelectorProps {
   onChange: (url: string) => void
 }
 
+const ROW_SIZE = 3
+
 export function ImageSelector({ value, onChange }: ImageSelectorProps) {
   const [images, setImages] = React.useState<ImageItem[]>([])
   const [urlInput, setUrlInput] = React.useState('')
+  const [expanded, setExpanded] = React.useState(false)
   const uploadRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
@@ -41,6 +44,7 @@ export function ImageSelector({ value, onChange }: ImageSelectorProps) {
     const newItem: ImageItem = { url, filename, isDefault: false }
     setImages(prev => [...prev, newItem])
     onChange(url)
+    setExpanded(true)
   }
 
   const handleUrlKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,30 +53,51 @@ export function ImageSelector({ value, onChange }: ImageSelectorProps) {
     }
   }
 
+  const visibleImages = expanded ? images : images.slice(0, ROW_SIZE)
+  const hiddenCount = images.length - ROW_SIZE
+
   return (
     <div className="space-y-3">
       {images.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
-          {images.map(img => (
-            <div
-              key={img.url}
-              data-selected={value === img.url ? 'true' : 'false'}
-              className={`relative cursor-pointer rounded-md overflow-hidden border-2 ${value === img.url ? 'border-primary' : 'border-transparent'}`}
-              onClick={() => onChange(img.url)}
+        <>
+          <div className="grid grid-cols-3 gap-2">
+            {visibleImages.map(img => (
+              <div
+                key={img.url}
+                data-selected={value === img.url ? 'true' : 'false'}
+                className={`relative cursor-pointer rounded-md overflow-hidden border-2 ${value === img.url ? 'border-primary' : 'border-transparent'}`}
+                onClick={() => onChange(img.url)}
+              >
+                <img src={img.url} alt={img.filename} className="w-full aspect-video object-cover" />
+                {!img.isDefault && (
+                  <button
+                    aria-label="Delete"
+                    className="absolute top-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white text-xs leading-none"
+                    onClick={e => { e.stopPropagation(); handleDelete(img) }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          {hiddenCount > 0 && !expanded && (
+            <button
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setExpanded(true)}
             >
-              <img src={img.url} alt={img.filename} className="w-full aspect-video object-cover" />
-              {!img.isDefault && (
-                <button
-                  aria-label="Delete"
-                  className="absolute top-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white text-xs leading-none"
-                  onClick={e => { e.stopPropagation(); handleDelete(img) }}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+              Show {hiddenCount} more
+            </button>
+          )}
+          {expanded && images.length > ROW_SIZE && (
+            <button
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setExpanded(false)}
+            >
+              Show less
+            </button>
+          )}
+        </>
       )}
       <div className="flex gap-2">
         <input
