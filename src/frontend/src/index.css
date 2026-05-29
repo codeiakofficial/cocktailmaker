@@ -19,9 +19,11 @@ html.clean-view .cv-hide {
   transition: opacity 0.35s;
 }
 
-html.clean-view header {
+html.clean-view header,
+html.clean-view aside {
   background-color: transparent !important;
   backdrop-filter: none !important;
+  border-color: transparent !important;
 }
 
 /* Frost overlay */
