@@ -21,17 +21,7 @@
           ls.setItem('vite-ui-header-style', 'blur');
           ls.setItem('vite-ui-frost', 'true');
           ls.setItem('vite-ui-animations', 'true');
-          // Apply tropical colors immediately to avoid flash before modules load
-          ['--background','--card','--popover'].forEach(function(p){s.setProperty(p,'#373748')});
-          ['--foreground','--card-foreground','--popover-foreground','--title-color'].forEach(function(p){s.setProperty(p,'#f5f5f5')});
-          s.setProperty('--primary','#27b6d3'); s.setProperty('--primary-foreground','#ffffff');
-          s.setProperty('--secondary','#d966b0'); s.setProperty('--secondary-foreground','#ffffff');
-          s.setProperty('--muted-foreground','#e0e0e1');
-          s.setProperty('--border','#b1b6c4'); s.setProperty('--input','#b1b6c4');
         }
-
-        // Theme class (dark/light) — prevents background-color flash
-        cl.add(ls.getItem('vite-ui-theme') || 'dark');
 
         // Feature classes
         if (ls.getItem('vite-ui-frost')       === 'true') cl.add('frost');
