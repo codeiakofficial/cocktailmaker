@@ -95,7 +95,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     const s = document.documentElement.style
     // Custom inherits from the last active preset (tropical by default)
     expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
-    expect(s.getPropertyValue('--background')).toBe('#373748')
+    expect(s.getPropertyValue('--background')).toBe('#355369')
   })
 
   test('switching to Tropical applies tropical palette CSS vars', async () => {
@@ -103,7 +103,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--background')).toBe('#373748')
+    expect(s.getPropertyValue('--background')).toBe('#355369')
     expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
     expect(s.getPropertyValue('--title-color')).toBe('#f5f5f5')
   })
@@ -235,7 +235,7 @@ describe('AppearanceSettings — restoreAppearance', () => {
     localStorage.getItem = vi.fn().mockReturnValue(null)
     restoreAppearance()
     expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#27b6d3')
-    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#373748')
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#355369')
   })
 
   test('applies stored font regardless of mode', () => {
