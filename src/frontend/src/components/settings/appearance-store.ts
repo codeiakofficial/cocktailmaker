@@ -14,7 +14,7 @@ export const ANIMATIONS_KEY        = 'vite-ui-animations'
 
 export function loadDisplayMode(): DisplayMode {
   const s = localStorage.getItem(DISPLAY_MODE_KEY)
-  return (s === 'tropical' || s === 'lounge' || s === 'haze' || s === 'custom') ? s : 'lounge'
+  return (s === 'tropical' || s === 'lounge' || s === 'haze' || s === 'custom') ? s : 'tropical'
 }
 
 export function loadCustomColors(): CustomColors {

@@ -9,6 +9,27 @@
       (function () {
         var ls = localStorage, s = document.documentElement.style, cl = document.documentElement.classList;
 
+        // First-visit seed: write tropical defaults so the existing reads below apply them
+        if (!ls.getItem('vite-ui-display-mode')) {
+          ls.setItem('vite-ui-display-mode', 'tropical');
+          ls.setItem('vite-ui-theme', 'light');
+          ls.setItem('vite-ui-font', "'Pacifico', cursive");
+          ls.setItem('vite-ui-bg-url', '/defaults/tropical.jpg');
+          ls.setItem('vite-ui-border-opacity', '0.5');
+          ls.setItem('vite-ui-border-width', '0.5');
+          ls.setItem('vite-ui-border-line-style', 'solid');
+          ls.setItem('vite-ui-header-style', 'blur');
+          ls.setItem('vite-ui-frost', 'true');
+          ls.setItem('vite-ui-animations', 'true');
+          // Apply tropical colors immediately to avoid flash before modules load
+          ['--background','--card','--popover'].forEach(function(p){s.setProperty(p,'#373748')});
+          ['--foreground','--card-foreground','--popover-foreground','--title-color'].forEach(function(p){s.setProperty(p,'#f5f5f5')});
+          s.setProperty('--primary','#27b6d3'); s.setProperty('--primary-foreground','#ffffff');
+          s.setProperty('--secondary','#d966b0'); s.setProperty('--secondary-foreground','#ffffff');
+          s.setProperty('--muted-foreground','#e0e0e1');
+          s.setProperty('--border','#b1b6c4'); s.setProperty('--input','#b1b6c4');
+        }
+
         // Theme class (dark/light) — prevents background-color flash
         cl.add(ls.getItem('vite-ui-theme') || 'dark');
 

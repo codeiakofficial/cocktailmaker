@@ -93,9 +93,9 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^custom$/i }))
     const s = document.documentElement.style
-    // Custom inherits from the last active preset (lounge by default)
-    expect(s.getPropertyValue('--primary')).toBe('#c0324a')
-    expect(s.getPropertyValue('--background')).toBe('#1c1c2c')
+    // Custom inherits from the last active preset (tropical by default)
+    expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
+    expect(s.getPropertyValue('--background')).toBe('#373748')
   })
 
   test('switching to Tropical applies tropical palette CSS vars', async () => {
@@ -148,7 +148,7 @@ describe('AppearanceSettings — font selection', () => {
     const user = userEvent.setup()
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: 'Pacifico' }))
-    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^tropical$/i })).toHaveAttribute('data-active', 'true')
   })
 
   test('selecting a font saves it to localStorage', async () => {
@@ -166,10 +166,10 @@ describe('AppearanceSettings — font selection', () => {
 })
 
 describe('AppearanceSettings — initial mode', () => {
-  test('lounge button is active by default', () => {
+  test('tropical button is active by default', () => {
     render(<AppearanceSettings />)
-    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'true')
-    expect(screen.getByRole('button', { name: /^tropical$/i })).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: /^tropical$/i })).toHaveAttribute('data-active', 'true')
+    expect(screen.getByRole('button', { name: /^lounge$/i })).toHaveAttribute('data-active', 'false')
     expect(screen.getByRole('button', { name: /^custom$/i })).toHaveAttribute('data-active', 'false')
   })
 
@@ -202,7 +202,7 @@ describe('AppearanceSettings — initial mode', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'lounge')
   })
 
-  test('changing a color picker while in lounge mode saves "custom" display mode', () => {
+  test('changing a color picker while in tropical mode saves "custom" display mode', () => {
     render(<AppearanceSettings />)
     fireEvent.change(screen.getAllByDisplayValue(/^#/)[0], { target: { value: '#abcdef' } })
     expect(localStorage.setItem).toHaveBeenCalledWith('vite-ui-display-mode', 'custom')
@@ -231,11 +231,11 @@ describe('AppearanceSettings — restoreAppearance', () => {
     expect(document.documentElement.style.getPropertyValue('--background')).toBe('#001122')
   })
 
-  test('applies lounge colors when no mode stored (default)', () => {
+  test('applies tropical colors when no mode stored (default)', () => {
     localStorage.getItem = vi.fn().mockReturnValue(null)
     restoreAppearance()
-    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#c0324a')
-    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#1c1c2c')
+    expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#27b6d3')
+    expect(document.documentElement.style.getPropertyValue('--background')).toBe('#373748')
   })
 
   test('applies stored font regardless of mode', () => {
