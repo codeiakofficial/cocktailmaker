@@ -24,10 +24,9 @@ html.clean-view header {
   backdrop-filter: none !important;
 }
 
-/* Frost overlay — base state keeps compositing layer alive to prevent activation flash */
+/* Frost overlay */
 .frost-overlay {
   opacity: 0;
-  backdrop-filter: blur(0px);
   transition: opacity 0.5s;
 }
 

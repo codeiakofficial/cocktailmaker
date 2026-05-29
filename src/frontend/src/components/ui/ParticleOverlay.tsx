@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 
-const COUNT = 35
+const COUNT     = 35
 const MAX_ALPHA = 0.18
-const SPEED = 0.22
+const SPEED     = 0.22
 
 interface Particle {
   x: number; y: number
@@ -33,11 +33,13 @@ export function ParticleOverlay() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let rafId = 0
+    let rafId  = 0
+    let running = false
+    let cachedColor = ''
     const particles: Particle[] = []
 
     const resize = () => {
-      canvas.width = window.innerWidth
+      canvas.width  = window.innerWidth
       canvas.height = window.innerHeight
       particles.length = 0
       for (let i = 0; i < COUNT; i++) particles.push(mkParticle(canvas.width, canvas.height))
@@ -45,45 +47,51 @@ export function ParticleOverlay() {
 
     const tick = () => {
       rafId = requestAnimationFrame(tick)
-
-      if (!document.documentElement.classList.contains('animations')) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        return
-      }
-
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
-
+      const color = cachedColor
       for (const p of particles) {
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < -p.radius) p.x = canvas.width + p.radius
-        if (p.x > canvas.width + p.radius) p.x = -p.radius
+        p.x += p.vx; p.y += p.vy
+        if (p.x < -p.radius) p.x = canvas.width  + p.radius
+        if (p.x >  canvas.width  + p.radius) p.x = -p.radius
         if (p.y < -p.radius) p.y = canvas.height + p.radius
-        if (p.y > canvas.height + p.radius) p.y = -p.radius
+        if (p.y >  canvas.height + p.radius) p.y = -p.radius
 
         p.alpha += p.alphaVel
         if (p.alpha > MAX_ALPHA) { p.alpha = MAX_ALPHA; p.alphaVel *= -1 }
-        if (p.alpha < 0)          { p.alpha = 0;         p.alphaVel *= -1 }
+        if (p.alpha < 0)         { p.alpha = 0;         p.alphaVel *= -1 }
 
         ctx.globalAlpha = p.alpha
-        ctx.shadowBlur = p.radius * 2.5
-        ctx.shadowColor = color
-        ctx.fillStyle = color
+        ctx.fillStyle   = color
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius * 0.25, 0, Math.PI * 2)
         ctx.fill()
       }
-
       ctx.globalAlpha = 1
-      ctx.shadowBlur = 0
     }
 
+    const start = () => { if (!running) { running = true;  rafId = requestAnimationFrame(tick) } }
+    const stop  = () => { running = false; cancelAnimationFrame(rafId); ctx.clearRect(0, 0, canvas.width, canvas.height) }
+
+    const refreshColor = () => {
+      cachedColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+    }
+
+    // MutationObserver drives start/stop and invalidates cached color on class/style changes.
+    // This replaces the per-frame classList check and getComputedStyle call.
+    const observer = new MutationObserver(() => {
+      refreshColor()
+      document.documentElement.classList.contains('animations') ? start() : stop()
+    })
+    observer.observe(document.documentElement, { attributeFilter: ['class', 'style'] })
+
     resize()
-    tick()
+    refreshColor()
+    if (document.documentElement.classList.contains('animations')) start()
     window.addEventListener('resize', resize)
+
     return () => {
       cancelAnimationFrame(rafId)
+      observer.disconnect()
       window.removeEventListener('resize', resize)
     }
   }, [])
