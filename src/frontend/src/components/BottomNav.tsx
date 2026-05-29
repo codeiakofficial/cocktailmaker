@@ -7,12 +7,6 @@ interface BottomNavProps {
   centerAction?: React.ReactNode
 }
 
-const tabs = [
-  { label: 'Home',     icon: Home,     page: 0, handler: 'onHome'     },
-  { label: 'Settings', icon: Settings, page: 1, handler: 'onSettings' },
-] as const
-
-type Handler = typeof tabs[number]['handler']
 
 export default function BottomNav(props: BottomNavProps) {
   const { page, centerAction } = props
