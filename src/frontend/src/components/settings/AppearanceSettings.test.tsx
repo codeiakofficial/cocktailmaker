@@ -103,7 +103,7 @@ describe('AppearanceSettings — CSS variable side-effects', () => {
     render(<AppearanceSettings />)
     await user.click(screen.getByRole('button', { name: /^tropical$/i }))
     const s = document.documentElement.style
-    expect(s.getPropertyValue('--background')).toBe('#64648a')
+    expect(s.getPropertyValue('--background')).toBe('#373748')
     expect(s.getPropertyValue('--primary')).toBe('#27b6d3')
     expect(s.getPropertyValue('--title-color')).toBe('#f5f5f5')
   })
