@@ -7,7 +7,7 @@ export function EditRecipeButton(props: { recipe: IRecipe, className?: string })
         <NewRecipeDialog
             recipe={props.recipe}
             trigger={
-                <Button variant="outline" className={`w-full ${props.className || ''}`}>
+                <Button variant="ghost" className={`w-full text-white/70 hover:text-white hover:bg-white/10 ${props.className || ''}`}>
                     ✎
                 </Button>
             }

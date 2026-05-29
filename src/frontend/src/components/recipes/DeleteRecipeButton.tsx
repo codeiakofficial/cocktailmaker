@@ -12,7 +12,7 @@ export function DeleteRecipeButton(props: { recipeId: number, className?: string
     };
 
     return (
-        <Button variant="outline" className={`w-full ${props.className || ''}`} onClick={handleDelete}>
+        <Button variant="ghost" className={`w-full text-white/70 hover:text-white hover:bg-white/10 ${props.className || ''}`} onClick={handleDelete}>
             ✕
         </Button>
     );

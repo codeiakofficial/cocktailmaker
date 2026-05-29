@@ -36,7 +36,7 @@ export function RecipeCarousel() {
               <div className="absolute inset-0 bg-black/45" />
 
               {/* Edit / Delete */}
-              <div className="absolute top-3 right-3 flex gap-2 z-10">
+              <div className="absolute top-3 right-3 flex gap-2 z-20">
                 <EditRecipeButton recipe={recipes[index]} className="w-9 h-9" />
                 <DeleteRecipeButton recipeId={recipe.id} className="w-9 h-9" />
               </div>
