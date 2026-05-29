@@ -69,6 +69,51 @@ function BtnGroup<T extends string>({ options, active, onChange, style }: {
   )
 }
 
+interface PresetCardProps {
+  mode: DisplayMode
+  active: boolean
+  onClick: () => void
+  bgImage?: string
+  bgColor?: string
+  primaryColor: string
+  secondaryColor: string
+}
+
+function PresetCard({ mode, active, onClick, bgImage, bgColor, primaryColor, secondaryColor }: PresetCardProps) {
+  return (
+    <button
+      data-active={String(active)}
+      aria-label={mode}
+      aria-pressed={active}
+      onClick={onClick}
+      className={`group relative flex flex-col rounded-xl overflow-hidden transition-all focus:outline-none ${
+        active
+          ? 'ring-2 ring-primary shadow-lg scale-[1.02]'
+          : 'ring-1 ring-border hover:ring-primary/50 hover:scale-[1.01]'
+      }`}
+    >
+      {/* Thumbnail */}
+      <div
+        className="h-16 w-full bg-cover bg-center relative"
+        style={{ backgroundImage: bgImage ? `url(${bgImage})` : undefined, backgroundColor: bgColor }}
+      >
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-1.5 left-1.5 flex gap-1">
+          <span className="block w-3 h-3 rounded-full border border-white/50 shadow" style={{ backgroundColor: primaryColor }} />
+          <span className="block w-3 h-3 rounded-full border border-white/50 shadow" style={{ backgroundColor: secondaryColor }} />
+        </div>
+        {active && (
+          <span className="absolute top-1.5 right-1.5 block w-2.5 h-2.5 rounded-full bg-primary border border-white/60 shadow" />
+        )}
+      </div>
+      {/* Label */}
+      <div className="py-1 text-center text-xs capitalize font-medium bg-card/90 text-foreground">
+        {mode}
+      </div>
+    </button>
+  )
+}
+
 export default function AppearanceSettings() {
   const { setTheme } = useTheme()
   const [displayMode,     setDisplayMode]     = React.useState<DisplayMode>(loadDisplayMode)
@@ -136,7 +181,27 @@ export default function AppearanceSettings() {
     <div className="space-y-8">
       <section className="space-y-3">
         <p className="text-sm font-medium">Appearance</p>
-        <BtnGroup options={['tropical', 'lounge', 'haze', 'custom'] as DisplayMode[]} active={displayMode} onChange={handleModeChange} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {(['tropical', 'lounge', 'haze'] as PresetMode[]).map(mode => (
+            <PresetCard
+              key={mode}
+              mode={mode}
+              active={displayMode === mode}
+              onClick={() => handleModeChange(mode)}
+              bgImage={PRESETS[mode].bg}
+              primaryColor={PRESETS[mode].colors.primary}
+              secondaryColor={PRESETS[mode].colors.secondary}
+            />
+          ))}
+          <PresetCard
+            mode="custom"
+            active={displayMode === 'custom'}
+            onClick={() => handleModeChange('custom')}
+            bgColor={colors.background}
+            primaryColor={colors.primary}
+            secondaryColor={colors.secondary}
+          />
+        </div>
       </section>
 
       <section className="space-y-3">
