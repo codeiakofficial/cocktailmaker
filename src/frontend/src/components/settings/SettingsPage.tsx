@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { Button } from '../ui/button'
 import IngredientsSettings from './IngredientsSettings'
 import AgentsSettings from './AgentsSettings'
 import AppearanceSettings from './AppearanceSettings'
@@ -12,13 +11,18 @@ export default function SettingsPage() {
 
   return (
     <div className="w-full max-w-2xl mx-auto my-6 rounded-xl bg-background/70 backdrop-blur-md p-8 shadow-lg space-y-6">
-      <div className="flex gap-2">
+      <div className="flex border-b border-border">
         {TABS.map(t => (
-          <Button key={t} variant="outline"
-            data-active={tab === t ? 'true' : 'false'}
-            className={`flex-1 capitalize${tab === t ? ' border-primary text-primary' : ''}`}
+          <button
+            key={t}
+            data-active={String(tab === t)}
             onClick={() => setTab(t)}
-          >{t}</Button>
+            className={`px-4 pb-2 text-sm capitalize transition-colors border-b-2 -mb-px ${
+              tab === t
+                ? 'border-primary text-foreground font-medium'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >{t}</button>
         ))}
       </div>
       {tab === 'appearance'  && <AppearanceSettings />}
