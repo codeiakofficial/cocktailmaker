@@ -116,25 +116,14 @@ function AppContent() {
 
       {/* Content column */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        {/* Mobile header */}
+        {/* Mobile header — title + clean-view toggle only */}
         <header
-          className="md:hidden flex items-center justify-between p-3 backdrop-blur-md"
-          style={{ backgroundColor: 'var(--header-bg)', zIndex: 1 }}
+          className="md:hidden flex items-center justify-between p-3"
+          style={{ zIndex: 1 }}
         >
-          <div className="cv-hide flex items-center gap-4">
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>
-            <AgentStatusBar />
-          </div>
-          <div className="cv-hide flex items-center gap-2">
-            <NewRecipeDialog trigger={
-              <button aria-label="New recipe" className="rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors">
-                <Plus size={20} />
-              </button>
-            } />
-          </div>
+          <h1 className="cv-hide text-2xl font-bold" style={{ color: 'var(--title-color)' }}>Cocktailmaker 🍹</h1>
           <CleanViewToggle />
         </header>
-        <Separator className="cv-hide my-0 md:hidden" />
 
         <main className="cv-hide relative flex-1 overflow-y-auto pb-16 md:pb-0" style={{ zIndex: 1 }}>
           {page === 0
@@ -144,7 +133,14 @@ function AppContent() {
         </main>
 
         <div className="cv-hide" style={{ zIndex: 1 }}>
-          <BottomNav page={page} onHome={goHome} onSettings={goSettings} />
+          <BottomNav page={page} onHome={goHome} onSettings={goSettings} centerAction={
+            <NewRecipeDialog trigger={
+              <button aria-label="New recipe" className="flex flex-col items-center gap-0.5 py-2 text-xs text-primary transition-colors">
+                <Plus size={20} />
+                New Recipe
+              </button>
+            } />
+          } />
         </div>
       </div>
 
