@@ -127,7 +127,7 @@ function AppContent() {
 
         <main className="cv-hide relative flex-1 overflow-y-auto pb-16 md:pb-0" style={{ zIndex: 1 }}>
           {page === 0
-            ? <div className="flex min-h-full items-center justify-center px-20 pt-6"><RecipeCarousel /></div>
+            ? <div className="pt-4 md:flex md:min-h-full md:items-center md:justify-center md:px-16 md:pt-6"><RecipeCarousel /></div>
             : <SettingsPage />
           }
         </main>

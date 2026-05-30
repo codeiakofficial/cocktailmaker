@@ -20,8 +20,8 @@ export function RecipeCarousel() {
     <Carousel className="w-full" opts={{ align: 'start', loop: true, dragFree: true }}>
       <CarouselContent className="-ml-4">
         {recipes.map((recipe, index) => (
-          <CarouselItem key={recipe.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-            <div className="relative rounded-xl overflow-hidden aspect-[3/4]">
+          <CarouselItem key={recipe.id} className="pl-4 basis-[88%] sm:basis-1/2 lg:basis-1/3">
+            <div className="relative rounded-xl overflow-hidden aspect-[3/4] max-md:aspect-auto max-md:h-[calc(100dvh-10rem)]">
 
               {/* Blurred background image */}
               {recipe.imageUrl
