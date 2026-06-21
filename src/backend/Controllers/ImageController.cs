@@ -48,15 +48,20 @@ public class ImageController : ControllerBase
     [HttpDelete("{filename}")]
     public IActionResult Delete(string filename)
     {
+        var uploadsDir = Path.GetFullPath(_uploadsPath);
+        var resolved   = Path.GetFullPath(Path.Combine(_uploadsPath, filename));
+
+        if (!resolved.StartsWith(uploadsDir + Path.DirectorySeparatorChar))
+            return BadRequest();
+
         if (Directory.Exists(_defaultsPath) &&
-            System.IO.File.Exists(Path.Combine(_defaultsPath, filename)))
+            System.IO.File.Exists(Path.Combine(_defaultsPath, Path.GetFileName(resolved))))
             return Forbid();
 
-        var filePath = Path.Combine(_uploadsPath, filename);
-        if (!System.IO.File.Exists(filePath))
+        if (!System.IO.File.Exists(resolved))
             return NotFound();
 
-        System.IO.File.Delete(filePath);
+        System.IO.File.Delete(resolved);
         return Ok();
     }
 

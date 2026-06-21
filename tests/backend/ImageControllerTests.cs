@@ -146,6 +146,14 @@ public class ImageControllerTests : IDisposable
         Assert.IsType<NotFoundResult>(result);
     }
 
+    [Fact]
+    public void Delete_TraversalPath_ReturnsBadRequest()
+    {
+        var result = _controller.Delete("../sensitive.txt");
+
+        Assert.IsType<BadRequestResult>(result);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_uploadsDir))
