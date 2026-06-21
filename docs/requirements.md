@@ -37,24 +37,28 @@ Derived from current implementation. Pending items are intended but not yet buil
 - Health state is updated in near-real-time in the UI via SSE stream
 
 **Navigation & Settings**
-- On mobile, a fixed bottom tab bar provides access to Home and Settings
-- On desktop, Home and Settings are reachable from the top navigation bar
+- On mobile, a fixed bottom tab bar (BottomNav) provides Home, New Recipe, and Settings; a transparent header shows the title and Clean View toggle
+- On desktop, a collapsible left sidebar provides Home, New Recipe, and Settings; it collapses to icon-only (w-14) or expands to full label (w-52); collapse state persists to localStorage
 - The Settings page exposes three sub-tabs: Ingredients, Agents, and Appearance
-- The user can switch between Dark, Light, and Custom appearance modes
-- Dark mode applies the default dark palette; Light mode applies a fixed tropical warm palette
+- The user can switch between four appearance modes: Tropical, Lounge, Haze, and Custom
+- Tropical, Lounge, and Haze are built-in presets; each applies a fixed palette, background image, font, header style, and border settings in one click
 - Custom mode enables per-variable colour pickers: button colour, button hover, muted hover, background, font colour, muted text, title colour, border
 - Changing any colour picker automatically activates Custom mode
 - The user can select a typeface from 9 options; font selection is independent of the appearance mode
 - The user can switch the header between solid (95 % opaque) and blur (transparent with backdrop-blur)
-- The user can set a custom background image by entering a URL or uploading a file; the background is centered and covers the viewport
-- All appearance settings (mode, colours, font, header style, background image URL) are saved to localStorage and restored on the next page load
+- The user can set a custom background image by entering a URL or uploading a file via ImageSelector; the background is centered and covers the viewport
+- The user can toggle a frost overlay: a radial dark-edge gradient + backdrop blur rendered on `body::before` via the `html.frost` class
+- The user can toggle particle animations via `html.animations`; a canvas particle overlay driven by `--primary` colour
+- The user can toggle clean view (`html.clean-view`): hides all `cv-hide` elements (recipe cards, nav, header content), exposing the background and overlays
+- Border appearance is configurable: opacity, width (px), and line style (solid/dashed/dotted); preset buttons (None/Subtle/Normal/Bold) for common combinations
+- All appearance settings (mode, colours, font, header style, background image URL, frost, animations, clean-view, border-opacity, border-width, border-line-style, sidebar-collapsed) are saved to localStorage and restored on the next page load; tropical preset defaults are seeded on first visit
 - Colour pickers are disabled unless Custom mode is active
 
 **Recipe images**
 - A recipe can have an optional image URL
 - The user can set a recipe image by entering a URL or uploading a file in the New/Edit Recipe dialog
 - Uploaded images are stored on the backend (`POST /api/images`) and served from `/uploads/{filename}`
-- The recipe card in the carousel displays the image above the recipe name when an image is set
+- The recipe card displays the image as a full-bleed blurred background filling the entire card; a dark scrim ensures text readability
 
 ## Constraints
 

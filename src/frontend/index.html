@@ -5,6 +5,61 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>cocktail-app</title>
+    <script>
+      (function () {
+        var ls = localStorage, s = document.documentElement.style, cl = document.documentElement.classList;
+
+        // First-visit seed: write tropical defaults so the existing reads below apply them
+        if (!ls.getItem('vite-ui-display-mode')) {
+          ls.setItem('vite-ui-display-mode', 'tropical');
+          ls.setItem('vite-ui-theme', 'light');
+          ls.setItem('vite-ui-font', "'Pacifico', cursive");
+          ls.setItem('vite-ui-bg-url', '/defaults/tropical.jpg');
+          ls.setItem('vite-ui-border-opacity', '0.5');
+          ls.setItem('vite-ui-border-width', '0.5');
+          ls.setItem('vite-ui-border-line-style', 'solid');
+          ls.setItem('vite-ui-header-style', 'blur');
+          ls.setItem('vite-ui-frost', 'true');
+          ls.setItem('vite-ui-animations', 'true');
+        }
+
+        // Feature classes
+        if (ls.getItem('vite-ui-frost')       === 'true') cl.add('frost');
+        if (ls.getItem('vite-ui-animations')  === 'true') cl.add('animations');
+        if (ls.getItem('vite-ui-clean-view')  === 'true') cl.add('clean-view');
+
+        // Border
+        var bo = ls.getItem('vite-ui-border-opacity');   if (bo)  s.setProperty('--border-opacity', bo);
+        var bw = ls.getItem('vite-ui-border-width');     if (bw)  s.setProperty('--border-width', bw + 'px');
+        var bs = ls.getItem('vite-ui-border-line-style');if (bs)  s.setProperty('--border-style', bs);
+
+        // Background image
+        var bg = ls.getItem('vite-ui-bg-url'); if (bg) s.setProperty('--bg-image-url', 'url("' + bg + '")');
+
+        // Header blur
+        if (ls.getItem('vite-ui-header-style') === 'blur')
+          s.setProperty('--header-bg', 'color-mix(in oklab, var(--background) 10%, transparent)');
+
+        // Font
+        var font = ls.getItem('vite-ui-font'); if (font) s.fontFamily = font;
+
+        // Custom color mode — apply stored colors; presets render without FOUC prevention
+        if (ls.getItem('vite-ui-display-mode') === 'custom') {
+          try {
+            var c = JSON.parse(ls.getItem('vite-ui-custom-colors') || '{}');
+            var bg  = c.background      || c.bg;              if (bg)  { s.setProperty('--background', bg);  s.setProperty('--card', bg);  s.setProperty('--popover', bg); }
+            var fg  = c.foreground      || c.font;            if (fg)  { s.setProperty('--foreground', fg);  s.setProperty('--card-foreground', fg); s.setProperty('--popover-foreground', fg); }
+            var mu  = c.mutedForeground || c.muted;           if (mu)  s.setProperty('--muted-foreground', mu);
+            var pr  = c.primary         || c.button;          if (pr)  { s.setProperty('--primary', pr); s.setProperty('--primary-foreground', '#ffffff'); }
+            var ph  = c.primaryHover    || c.hover;           if (ph)  s.setProperty('--primary-hover', ph);
+            var sec = c.secondary       || c.secondaryButton; if (sec) { s.setProperty('--secondary', sec); s.setProperty('--secondary-foreground', '#ffffff'); }
+            var mh  = c.mutedHover;                           if (mh)  s.setProperty('--muted-hover', mh);
+            var ti  = c.titleColor      || c.title;           if (ti)  s.setProperty('--title-color', ti);
+            var bo  = c.border;                               if (bo)  { s.setProperty('--border', bo); s.setProperty('--input', bo); }
+          } catch (e) {}
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

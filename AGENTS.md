@@ -13,6 +13,7 @@
 - All new functionality must be test-driven: write a failing test first, verify the failure is for the right reason, then implement. Never commit an implementation without a prior failing test commit.
 - PR descriptions must be short and precise: three sections only — Task (IDs + names), Changes (one bullet per change), Review (template block + checkboxes). No prose, no explanations. Update title and description immediately when scope changes — never leave them out of sync with the actual content. Omit any change introduced and removed within the same PR — it is zero net delta and is noise in the description.
 - Never remove an existing user-facing feature, UI option, or behaviour unless explicitly instructed to do so. When a user reports "the old X shouldn't be available", confirm whether they mean a broken/unintended fallback state or the named feature before acting.
+- Ubiquitous language: every domain concept has exactly one canonical name used identically across all files — TypeScript source, CSS classes, localStorage keys, variable names, test descriptions, and documentation. When a concept is renamed, every reference must be updated in the same PR. A mismatch between layers (e.g. a feature called "frost" in the UI but "vignette" in a CSS class or localStorage key) is a defect, not a cosmetic issue.
 - The roadmap row for a task must be removed in the final commit of its PR — not deferred. A row with status "In Progress" must not remain once the task is complete; CI blocks merge if any such row is present.
 
 ---
@@ -75,6 +76,7 @@ Before merging, run a review in Claude Code: ask Claude to read `git diff main..
 | #6 | 2026-05-23 | T28: Manage Agents page, pump mapping, ESP32 NVS config; NVS stores IDs only — names repopulated via retained MQTT on reconnect (acceptable) |
 | #7 | 2026-05-24 | T29: mobile nav, settings tabs, appearance customisation, header blur; muted-hover picker + header toggle added to requirements; localStorage persistence documented in architecture |
 | #8 | 2026-05-24 | T30/T31: background image picker + bg-center fix + recipe images; image upload API, Docker volume, Recipe.ImageUrl, EnsureSchema pattern documented |
+| #9 | 2026-05-30 | T32–T36 + visual polish (sidebar, preset cards, mobile UX, recipe card redesign, Firefox perf); T37 drop animation removed in card redesign; docs updated for all new appearance features and navigation change |
 
 ---
 
@@ -167,18 +169,25 @@ Review this PR using the Review Agents in AGENTS.md. Read git diff main...HEAD a
 
 Summarise findings in one line and add a row to the Last Review table above.
 
+**All review agents apply these cross-cutting checks across their domain and, where relevant, across the entire solution:**
+
+- **Dead code** — flag any exported symbol, public function, CSS class, localStorage key, or constant that is defined but never consumed outside its own test file. Dead code must be removed, not left inert.
+- **Naming consistency (ubiquitous language)** — every concept must have exactly one name used identically across all layers it touches: TypeScript source, CSS selectors, localStorage keys, variable names, test descriptions, AGENTS.md, and documentation. Flag any mismatch regardless of how small — a feature renamed in one place but not another is a defect. Examples of past violations: feature called "frost" in the UI but "vignette" in CSS and localStorage; preset called "tropical" in UI but "light" in localStorage key and `restoreAppearance` branch.
+
 ### Architect Agent
 
-Review scope: Does the change match documented patterns in `docs/architecture.md`? Are any Known Mismatches introduced or resolved?
+Review scope: Does the change match documented patterns in `docs/architecture.md`? Are any Known Mismatches introduced or resolved? Verify that any renamed concepts are reflected consistently in the architecture documentation.
 
 ### Requirements Agent
 
-Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or new implied requirements?
+Review scope: Does the change satisfy `docs/requirements.md`? Are there gaps or new implied requirements? Verify that terminology in requirements matches the names used in code and UI.
 
 ### Code Reviewer Agent
 
-Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns. For every exported symbol and every module imported only in one place, verify it is actually called from app code — not just from its own tests. Dead exports (functions defined but never called, constants never read outside their file) must be flagged for removal.
+Review scope: C#/.NET, React/TypeScript, and C++ best practices. Prioritise code reduction. Flag non-idiomatic patterns. For every exported symbol and every module imported only in one place, verify it is actually called from app code — not just from its own tests. Dead exports (functions defined but never called, constants never read outside their file) must be flagged for removal. Apply the cross-cutting naming consistency check above across all frontend, backend, and ESP32 source files touched by the PR.
+
+**CSS custom property reachability:** When a CSS custom property is set in every JS code path (e.g. by both `applyPresetColors` and `applyCustomColors`), verify that the app-config `:root` block in `index.css` contains no default for that property — it would be dead code that never takes effect. For every custom property touched in the diff, trace all JS write paths and confirm whether any CSS default remains reachable.
 
 ### Infrastructure Agent
 
-Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance. PRs are squash-merged — the PR title becomes the single commit on `main` and is the only message GitVersion reads for version bumping; individual branch commit types are irrelevant. Verify the PR title type is correct (`feat:` → minor, `fix:` → patch, anything else → patch) and accurately reflects the full scope. Verify the PR description covers all changed tasks and contains no outdated or missing information.
+Review scope: CI config correctness, GitVersion rules, branch naming (`feature/*`/`hotfix/*`), conventional commit compliance. PRs are squash-merged — the PR title becomes the single commit on `main` and is the only message GitVersion reads for version bumping; individual branch commit types are irrelevant. Verify the PR title type is correct (`feat:` → minor, `fix:` → patch, anything else → patch) and accurately reflects the full scope. Verify the PR description covers all changed tasks and contains no outdated or missing information. Apply the cross-cutting naming consistency check above to CI job names, environment variable names, secret names, and workflow file names.

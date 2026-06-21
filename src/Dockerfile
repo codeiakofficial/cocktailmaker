@@ -26,5 +26,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app ./
 COPY --from=frontend-build /source/frontend/dist ./wwwroot
+COPY backend/wwwroot/defaults ./wwwroot/defaults
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "CocktailMaker.dll"]

@@ -21,13 +21,13 @@ export default defineConfig({
   server: {
     fs: {
       allow: [
-        // search up for workspace root
         searchForWorkspaceRoot(process.cwd()),
-        // your custom rules
-        '../../resources',
       ],
     },
     port: 5173,
+    proxy: {
+      '/defaults': 'http://localhost:8080',
+    },
   },
   test: {
     globals: true,

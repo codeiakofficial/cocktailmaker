@@ -12,6 +12,58 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Clean view — hides all .cv-hide elements and the entire main area */
+html.clean-view .cv-hide {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+
+html.clean-view header,
+html.clean-view aside {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  border-color: transparent !important;
+}
+
+/* Frost overlay */
+.frost-overlay {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+html.frost .frost-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.60' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  opacity: 0.25;
+  backdrop-filter: blur(10px) saturate(0.6) brightness(1.2);
+}
+
+/* Ambient animations — gentle drift on the background layer only */
+@keyframes bg-drift {
+  0%, 100% { transform: scale(1) translate(0, 0); filter: brightness(1) saturate(1); }
+  30%       { transform: scale(1.025) translate(-0.6%, 0.4%); filter: brightness(1.04) saturate(1.08); }
+  70%       { transform: scale(1.02)  translate(0.4%, -0.5%); filter: brightness(0.97) saturate(0.94); }
+}
+
+html.animations .bg-layer {
+  animation: bg-drift 14s ease-in-out 1.5s infinite;
+  transform-origin: center center;
+}
+
+/* Unlayered — overrides @layer utilities */
+* { border-style: var(--border-style, solid); }
+
+/* Target only Tailwind border-width utilities so we don't give every element a border */
+.border   { border-width: var(--border-width, 1px); }
+.border-t { border-top-width: var(--border-width, 1px); }
+.border-b { border-bottom-width: var(--border-width, 1px); }
+.border-l { border-left-width: var(--border-width, 1px); }
+.border-r { border-right-width: var(--border-width, 1px); }
+.border-x { border-inline-width: var(--border-width, 1px); }
+.border-y { border-block-width: var(--border-width, 1px); }
+
 @layer base {
   body {
     @apply bg-background text-foreground;
@@ -59,9 +111,9 @@
 
   --color-ring: var(--ring);
 
-  --color-input: var(--input);
+  --color-input: color-mix(in oklch, var(--input) calc(var(--border-opacity, 1) * 100%), transparent);
 
-  --color-border: var(--border);
+  --color-border: color-mix(in oklch, var(--border) calc(var(--border-opacity, 1) * 100%), transparent);
 
   --color-destructive: var(--destructive);
 
@@ -108,17 +160,19 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* app-config: properties managed at runtime by appearance-store.ts */
 :root {
-
-  --title-color: var(--foreground);
-
+  --border-opacity: 1;
+  --border-style: solid;
+  --border-width: 1px;
   --primary-hover: color-mix(in oklab, var(--primary) 80%, transparent);
-
-  --muted-hover: var(--muted);
-
+  --muted-hover: color-mix(in oklab, var(--foreground) 8%, var(--background));
   --header-bg: color-mix(in oklab, var(--background) 95%, transparent);
+  --bg-image-url: url('/defaults/tropical.jpg');
+}
 
-  --bg-image-url: url('../../../resources/bg.jpg');
+/* shadcn base theme */
+:root {
 
   --background: oklch(1 0 0);
 
