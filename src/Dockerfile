@@ -8,7 +8,8 @@
 FROM node:22-alpine AS frontend-build
 WORKDIR /source/frontend
 COPY frontend/package*.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    NODE_OPTIONS="--max-old-space-size=512" npm ci
 COPY frontend/. ./
 RUN npm run build
 
