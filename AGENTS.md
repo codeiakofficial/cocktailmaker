@@ -76,6 +76,7 @@ Before merging, run a review in Claude Code: ask Claude to read `git diff main..
 | #6 | 2026-05-23 | T28: Manage Agents page, pump mapping, ESP32 NVS config; NVS stores IDs only — names repopulated via retained MQTT on reconnect (acceptable) |
 | #7 | 2026-05-24 | T29: mobile nav, settings tabs, appearance customisation, header blur; muted-hover picker + header toggle added to requirements; localStorage persistence documented in architecture |
 | #8 | 2026-05-24 | T30/T31: background image picker + bg-center fix + recipe images; image upload API, Docker volume, Recipe.ImageUrl, EnsureSchema pattern documented |
+| #9 | 2026-05-30 | T32–T36 + visual polish (sidebar, preset cards, mobile UX, recipe card redesign, Firefox perf); T37 drop animation removed in card redesign; docs updated for all new appearance features and navigation change |
 
 ---
 
